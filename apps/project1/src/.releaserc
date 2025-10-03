@@ -1,0 +1,32 @@
+{
+ "branches": [
+    "main",
+    {
+      "name": "stage",
+      "prerelease": true
+    }
+  ],
+  "tagFormat": "project1-v${version}",
+  "extends": "semantic-release-monorepo",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "refactor", "release": "minor" },
+          { "type": "test", "release": "minor" },
+          { "type": "docs", "release": "minor" },
+          { "type": "style", "release": "patch" },
+          { "type": "perf", "release": "minor" },
+          { "type": "BREAKING CHANGE", "release": "major" }
+        ]
+      }
+    ],
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github",
+    "@semantic-release/git"
+  ]
+}
