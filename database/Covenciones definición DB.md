@@ -175,6 +175,25 @@ folio	2	bigint	true	false	[NULL]	[NULL]
 Column Name	#	Data Type	Not Null	Auto Increment	Key	Default	Extra	Expression	Comment
 clave	1	varchar(50)	true	false	[NULL]	[NULL]			
 descripcion	2	varchar(100)	true	false	[NULL]	[NULL]			
-valor	3	json	true	false	[NULL]	[NULL]			
+valor	3	json	true	false	[NULL]	[NULL]
 
+#### REL_USUARIOS_PERFILES
 
+Column Name	#	Data Type	Not Null	Auto Increment	Key	Default	Extra	Expression	Comment
+rel_usuario_perfil_id	1	bigint unsigned	true	true	PRI	[NULL]	auto_increment		
+perfil_id	2	bigint unsigned	true	false	MUL	[NULL]			
+usuario_id	3	bigint unsigned	true	false	MUL	[NULL]			
+status	4	varchar(255)	true	false	[NULL]	'ACTIVO'			ACTIVO,ELIMINADO
+registro_autor_id	5	bigint unsigned	true	false	[NULL]	[NULL]			
+registro_fecha	6	timestamp	true	false	[NULL]	[NULL]			
+actualizacion_autor_id	7	bigint unsigned	false	false	[NULL]	[NULL]			
+actualizacion_fecha	8	timestamp	false	false	[NULL]	[NULL]			
+
+#### REL_PERFILES_PERMISOS
+
+Column Name	#	Data Type	Not Null	Auto Increment	Key	Default	Extra	Expression	Comment
+rel_permiso_perfil_id	1	bigint unsigned	true	true	PRI	[NULL]	auto_increment		
+perfil_id	2	bigint unsigned	true	false	MUL	[NULL]			
+permiso_id	3	bigint unsigned	true	false	MUL	[NULL]			
+registro_autor_id	4	bigint unsigned	true	false	[NULL]	[NULL]			
+registro_fecha	5	timestamp	true	false	[NULL]	[NULL]
