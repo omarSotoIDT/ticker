@@ -28,9 +28,9 @@ return new class extends Migration
         Schema::create('rel_usuarios_perfiles', function (Blueprint $table){
             $table->unsignedBigInteger('rel_usuario_perfil_id')->autoIncrement()->primary();
             $table->unsignedBigInteger('perfil_id');
-            $table->foreign('perfil_id')->references('perfil_id')->on('perfiles')->onDelete('cascade');
+            $table->foreign('perfil_id')->references('perfil_id')->on('sys_perfiles')->onDelete('cascade');
             $table->unsignedBigInteger('usuario_id');
-            $table->foreign('usuario_id')->references('usuario_id')->on('usuarios')->onDelete('cascade');
+            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
             $table->string('status', 255)->default('ACTIVO');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
