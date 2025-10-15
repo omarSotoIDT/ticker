@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('etiquetas', function (Blueprint $table) {
-            $table->bigIncrements('etiqueta_id')->primary();
-            $table->text('itulo');
+            $table->id('etiqueta_id');
+            $table->text('titulo');
             $table->text('descripcion');
-            $table->enum('status', ['activo','eliminado'])->comment('Columna que solo permite activo o elimnado');
+            $table->enum('status', ['ACTIVO','ELIMINADO'])->comment('Columna que posee las opciones de ACTIVO y ELIMINADO');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha')->comment('Columna que hace referencia a la fecha en la cual se dio de alta el usuario');
         });
