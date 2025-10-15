@@ -17,11 +17,11 @@ return new class extends Migration
             $table->text('email');
             $table->text('password');
             $table->timestamp('ultimo_acceso_fecha')->nullable();
-            $table->enum('status', ['activo','eliminado']);
-            $table->tinyInteger('super_usuario')->default(0)->comment('Columna que sirve para indicar el usuario system');
+            $table->enum('status', ['activo','eliminado'])->comment('Columna que hace referencia al estado en el que se encuentra el usuario');
+            $table->tinyInteger('super_usuario')->comment('Columna que sirve para indicar el usuario system');
             $table->text('motivo_eliminacion')->nullable()->comment('Columna que hace eferencia al motivo por el cual se haya eliminado el usuario');
             $table->bigInteger('registro_autor_id');
-            $table->timestamp('registro_fecha')->nullable()->comment('Columna que hace referencia a la fecha en la cual se dio de alta el usuario');
+            $table->timestamp('registro_fecha')->comment('Columna que hace referencia a la fecha en la cual se dio de alta el usuario');
             $table->bigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
         });
