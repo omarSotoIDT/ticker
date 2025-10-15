@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('proyectos', function (Blueprint $table) {
             $table->unsignedBigInteger('proyecto_id')->autoIncrement()->primary();
-            $table->foreignId('cliente_id');
+            $table->unsignedBigInteger('cliente_id');
             $table->text('nombre');
             $table->text('descripcion');
             $table->enum('status', ['ACTIVO', 'INACTIVO', 'ELIMINADO'])->default('ACTIVO')->comment('ACTIVO, INACTIVO, ELIMINADO');

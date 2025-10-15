@@ -11,9 +11,9 @@ return new class extends Migration
         Schema::create('tickets', function (Blueprint $table){
             $table->unsignedBigInteger('ticket_id')->autoIncrement()->primary();
             $table->unsignedBigInteger('cliente_id');
-            $table->foreignId('proyecto_id');
-            $table->foreignId('etiqueta_id');
-            $table->foreignId('usuario_asignado_id');
+            $table->unsignedBigInteger('proyecto_id');
+            $table->unsignedBigInteger('etiqueta_id');
+            $table->unsignedBigInteger('usuario_asignado_id');
             $table->unsignedBigInteger('folio');
             $table->text('titulo');
             $table->text('descripcion');
