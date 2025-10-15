@@ -16,8 +16,8 @@ return new class extends Migration
             $table->text('descripcion');
             $table->timestamp('registro_fecha');
 
-            $table->foreign('proyecto_id')->references('proyecto_id')->on('proyectos')->onDelete('cascade');
-            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
+            $table->foreign('proyecto_id')->references('proyecto_id')->on('proyectos');
+            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios');
 
         });
     }

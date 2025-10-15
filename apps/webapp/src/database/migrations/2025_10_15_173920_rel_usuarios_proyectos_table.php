@@ -19,8 +19,8 @@ return new class extends Migration
             $table->timestamp('regristro_fecha');
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
-            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
-            $table->foreign('proyecto_id')->references('proyecto_id')->on('proyectos')->onDelete('cascade');
+            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios');
+            $table->foreign('proyecto_id')->references('proyecto_id')->on('proyectos');
 
             $table->unique(['usuario_id', 'proyecto_id']); // evita duplicados
         });

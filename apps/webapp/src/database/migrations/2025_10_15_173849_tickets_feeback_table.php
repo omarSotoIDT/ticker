@@ -16,8 +16,8 @@ return new class extends Migration
             $table->text('comentario');
             $table->timestamp('registro_fecha');
 
-            $table->foreign('ticket_id')->references('ticket_id')->on('tickets')->onDelete('cascade');
-            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
+            $table->foreign('ticket_id')->references('ticket_id')->on('tickets');
+            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios');
         });
     }
 
