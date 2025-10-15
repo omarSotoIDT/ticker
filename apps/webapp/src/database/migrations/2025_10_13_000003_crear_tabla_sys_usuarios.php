@@ -12,16 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sys_usuarios', function (Blueprint $table) {
-            $table->bigIncrements('usuario_id')->primary();
+            $table->id('usuario_id');
             $table->text('usuario');
             $table->text('email');
             $table->text('password');
             $table->timestamp('ultimo_acceso_fecha')->nullable();
-            $table->enum('status', ['activo','eliminado'])->comment('Columna que hace referencia al estado en el que se encuentra el usuario');
-            $table->tinyInteger('super_usuario')->default(0)->comment('Columna que sirve para indicar el usuario system');
-            $table->text('motivo_eliminacion')->nullable()->comment('Columna que hace eferencia al motivo por el cual se haya eliminado el usuario');
+            $table->enum('status', ['ACTIVO','ELIMINADO'])->comment('Columna que posee las opciones de ACTIVO y ELIMINADO');
+            $table->tinyInteger('super_usuario')->default(0);
+            $table->text('motivo_eliminacion')->nullable();
             $table->unsignedBigInteger('registro_autor_id');
-            $table->timestamp('registro_fecha')->comment('Columna que hace referencia a la fecha en la cual se dio de alta el usuario');
+            $table->timestamp('registro_fecha');
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
         });
