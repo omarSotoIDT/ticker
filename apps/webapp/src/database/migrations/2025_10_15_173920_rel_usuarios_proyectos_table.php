@@ -13,8 +13,10 @@ return new class extends Migration
             $table->unsignedBigInteger('usuario_id');
             $table->unsignedBigInteger('proyecto_id');
 
-            $table->enum('status',['activo','eliminado'])->default('activo');
-            
+            $table->enum('status', ['ACTIVO', 'ELIMINADO'])
+            ->default('ACTIVO')
+            ->comment('Unicos estatus:ACTIVO o ELIMINADO');
+                  
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('regristro_fecha');
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
