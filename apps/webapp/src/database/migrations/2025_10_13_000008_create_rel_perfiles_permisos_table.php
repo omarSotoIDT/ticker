@@ -18,13 +18,11 @@ return new class extends Migration
             //Claves foráneas
             $table->foreign('perfil_id')
                   ->references('perfil_id')
-                  ->on('sys_perfiles')
-                  ->onDelete('cascade');
+                  ->on('sys_perfiles');
 
             $table->foreign('permiso_id')
                   ->references('permiso_id')
-                  ->on('sys_permisos')
-                  ->onDelete('cascade');
+                  ->on('sys_permisos');
         });
     }
 

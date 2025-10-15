@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('sys_permisos', function (Blueprint $table) {
             $table->id('permiso_id'); // bigint unsigned, auto_increment, PK
-            $table->string('codigo', 150);
-            $table->string('titulo', 75);
-            $table->decimal('orden', 5, 2);
-            $table->string('descripcion', 350);
+            $table->text('codigo');
+            $table->text('titulo');
+            $table->unsignedBigInteger('orden');
+            $table->text('descripcion');
         });
     }
 
