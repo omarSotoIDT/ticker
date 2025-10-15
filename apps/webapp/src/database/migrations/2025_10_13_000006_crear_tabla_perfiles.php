@@ -13,15 +13,14 @@ return new class extends Migration
     {
         Schema::create('sys_perfiles', function (Blueprint $table) {
             $table->unsignedBigInteger('perfil_id')->autoIncrement()->primary();
-            $table->string('clave', 20);
-            $table->string('titulo', 45);
-            $table->string('description', 250)->nullable();
-            $table->string('status', 255)->nullable();
-            $table->tinyInteger('acceso_aplicacion')->nullable();
+            $table->text('clave');
+            $table->text('nombre');
+            $table->text('descripcion');
+            $table->enum('status', ['activo','eliminado'])->comment('activo, eliminado');
             $table->tinyInteger('super_usuario');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
-            $table->unsignedBigInteger('actualizacion_autor_id');
+            $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
         });
 
@@ -31,11 +30,8 @@ return new class extends Migration
             $table->foreign('perfil_id')->references('perfil_id')->on('sys_perfiles')->onDelete('cascade');
             $table->unsignedBigInteger('usuario_id');
             $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
-            $table->string('status', 255)->default('ACTIVO');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
-            $table->unsignedBigInteger('actualizacion_autor_id');
-            $table->timestamp('actualizacion_fecha')->nullable();
         });
     }
 
