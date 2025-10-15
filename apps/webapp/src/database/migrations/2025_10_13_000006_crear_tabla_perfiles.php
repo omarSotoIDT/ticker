@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('clave');
             $table->text('nombre');
             $table->text('descripcion');
-            $table->enum('status', ['activo','eliminado'])->comment('activo, eliminado');
+            $table->enum('status', ['ACTIVO','ELIMINADO'])->comment('ACTIVO, ELIMINADO');
             $table->tinyInteger('super_usuario');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
@@ -27,11 +27,12 @@ return new class extends Migration
         Schema::create('rel_usuarios_perfiles', function (Blueprint $table){
             $table->unsignedBigInteger('rel_usuario_perfil_id')->autoIncrement()->primary();
             $table->unsignedBigInteger('perfil_id');
-            $table->foreign('perfil_id')->references('perfil_id')->on('sys_perfiles')->onDelete('cascade');
             $table->unsignedBigInteger('usuario_id');
-            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios')->onDelete('cascade');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
+            
+            $table->foreign('perfil_id')->references('perfil_id')->on('sys_perfiles');
+            $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios');
         });
     }
 
