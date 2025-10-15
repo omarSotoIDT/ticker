@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('folios_globales', function (Blueprint $table) {
-            $table->bigIncrements('folio_global_id');
-            $table->string('key', 255)->nullable(false)->comment('Clave única de identificación');
-            $table->bigInteger('folio')->nullable(false)->comment('Número de folio global');
+            $table->bigIncrements('folio_global_id')->unique();
+            $table->text('clave', 255)->comment('Clave única de identificación');
+            $table->bigInteger('folio')->comment('Número de folio global');
         });
     }
 

@@ -12,23 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sys_usuarios', function (Blueprint $table) {
-            $table->bigIncrements('usuario_id');
-            $table->string('usuario', 20)->nullable(false);
-            $table->string('password', 128)->nullable(false);
-            $table->integer('pin')->nullable();
-            $table->string('nombre_corto', 100)->nullable(false);
-            $table->string('email', 200)->nullable();
-            $table->string('telefono', 25)->nullable();
+            $table->bigIncrements('usuario_id')->unique();
+            $table->text('usuario');
+            $table->text('email');
+            $table->text('password');
             $table->timestamp('ultimo_acceso_fecha')->nullable();
-            $table->boolean('acceso_aplicacion')->default(0);
-            $table->string('status', 255)->nullable(false);
-            $table->tinyInteger('super_usuario_mantenimiento')->comment('Columna que sirve para indicar el usuario de system que no se mostrará en el sistema');
-            $table->tinyInteger('super_usuario')->default(0);
-            $table->timestamp('registro_fecha')->nullable();
-            $table->unsignedBigInteger('registro_autor_id')->nullable();
+            $table->enum('status', ['activo','eliminado']);
+            $table->tinyInteger('super_usuario')->default(0)->comment('Columna que sirve para indicar el usuario system');
+            $table->text('motivo_eliminacion')->nullable()->comment('Columna que hace eferencia al motivo por el cual se haya eliminado el usuario');
+            $table->bigInteger('registro_autor_id');
+            $table->timestamp('registro_fecha')->nullable()->comment('Columna que hace referencia a la fecha en la cual se dio de alta el usuario');
+            $table->bigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
-            $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
-            $table->unsignedBigInteger('colaborador_id')->nullable()->unique();
         });
     }
 

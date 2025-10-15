@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('metadatos', function (Blueprint $table) {
-            $table->bigIncrements('metadato_id');
-            $table->string('clave', 50)->nullable(false)->comment('Clave única de identificación');
-            $table->string('descripcion', 100)->nullable(false)->comment('Descripción del metadato');
-            $table->json('valor')->nullable(false)->comment('Valor en formato JSON');
+        Schema::create('configuraciones_metadatos', function (Blueprint $table) {
+            $table->bigIncrements('configuracion_metadato_id')->unique();
+            $table->text('clave', 50)->comment('Clave única de identificación');
+            $table->text('descripcion', 100)->comment('Descripción del metadato');
+            $table->json('valor')->comment('Valor en formato JSON');
         });
     }
 
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('metadatos');
+        Schema::dropIfExists('configuraciones_metadatos');
     }
 };
