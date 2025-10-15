@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('configuraciones_metadatos', function (Blueprint $table) {
-            $table->bigIncrements('configuracion_metadato_id')->unique();
+            $table->bigIncrements('configuracion_metadato_id')->primary();
             $table->text('clave', 50)->comment('Clave única de identificación');
             $table->text('descripcion', 100)->comment('Descripción del metadato');
             $table->json('valor')->comment('Valor en formato JSON');
