@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id('permiso_id'); // bigint unsigned, auto_increment, PK
             $table->string('codigo', 150);
             $table->string('titulo', 75);
-            $table->string('descripcion', 350);
-            $table->string('seccion', 350);
             $table->decimal('orden', 5, 2);
-            //$table->timestamps();
+            $table->string('descripcion', 350);
         });
     }
 

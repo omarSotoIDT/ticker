@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('rel_perfiles_permisos', function (Blueprint $table) {
-            $table->id('rel_permiso_perfil_id');
+            $table->id('rel_perfil_permiso_id');
             $table->unsignedBigInteger('perfil_id');
             $table->unsignedBigInteger('permiso_id');
             $table->unsignedBigInteger('registro_autor_id');
