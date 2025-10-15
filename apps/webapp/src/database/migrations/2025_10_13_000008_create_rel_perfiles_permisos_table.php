@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('perfil_id');
             $table->unsignedBigInteger('permiso_id');
             $table->unsignedBigInteger('registro_autor_id');
-            $table->timestamp('registro_fecha')->useCurrent();
+            $table->timestamp('registro_fecha');
 
             //Claves foráneas
             $table->foreign('perfil_id')
