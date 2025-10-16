@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
 
-            $table->foreign('cliente_id')->references('clientes')->on('cliente_id');
+            $table->foreign('cliente_id')->references('cliente_id')->on('clientes');
         });
     }
 
