@@ -41,7 +41,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sys_perfiles');
         Schema::dropIfExists('rel_usuarios_perfiles');
+        Schema::dropIfExists('sys_perfiles');
     }
 };
