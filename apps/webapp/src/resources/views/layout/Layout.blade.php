@@ -9,8 +9,9 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
   {{-- Estilos--}}
-  <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}?v={{ config('app.version') }}" />
+  <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}" />
   <link rel="stylesheet" href="{{ asset('css/estilos.css') }}?v={{ config('app.version') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
 <body>
     <body class="layout">
