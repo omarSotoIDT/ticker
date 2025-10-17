@@ -2,13 +2,15 @@
 
 namespace App\Services;
 
+use App\BO\AuthBO;
 use Illuminate\Support\Facades\Auth;
 
 class AuthService
 {
-    public static function ingresar($credenciales) 
+    public static function ingresar($datos)
     {
-        if (Auth::attempt($credenciales)){
+        $credenciales = AuthBO::armarCredenciales($datos);
+        if (Auth::attempt($credenciales)) {
             return true;
         }
         return false;
