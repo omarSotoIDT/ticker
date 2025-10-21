@@ -21,7 +21,7 @@
                 <p>Sistema de Tickets</p>
             </div>
             <p class="titulo-enlaces">Menú Principal</p>
-            <a href="">Dashboard</a>
+            <a href="/dashboard">Dashboard</a>
             <a href="">Tickets</a>
             <a href="">Usuarios</a>
             <a href="">Perfiles</a>
@@ -32,7 +32,7 @@
             <div class="logout">
                 <p>Usuario</p>
                 <P>Correo</P>
-                <form action="" method="post">
+                <form action="/logout" method="post">
                     @csrf
                     <button type="submit">Cerrar Sesión</button>
                 </form>
