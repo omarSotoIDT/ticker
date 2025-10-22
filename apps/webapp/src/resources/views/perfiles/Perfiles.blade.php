@@ -123,113 +123,110 @@
     </modal-componente>
 
 </div>
-@endsection
+    <script>
+    const app = Vue.createApp({
+        data() {
+            const appElement = document.getElementById('app');
+            return {
+                mostrarModal: false,
+                tipoForm: 'crear',
+                formPerfil: {
+                    clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null
+                },
+                errors: {},
 
-@push('scripts')
-<script>
-const app = Vue.createApp({
-    data() {
-        const appElement = document.getElementById('app');
-        return {
-            mostrarModal: false,
-            tipoForm: 'crear',
-            formPerfil: {
-                clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null
-            },
-            errors: {},
+                mostrarModalEliminar: false,
+                perfilAEliminar: null,
 
-            mostrarModalEliminar: false,
-            perfilAEliminar: null,
-
-            perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
-            permisos: JSON.parse(appElement.dataset.permisos || '[]'),
-            
-            routeGuardar: "{{ route('perfiles.guardar') }}",
-            routeActualizarBase: "{{ url('/perfiles') }}",
-            routeEliminarBase: "{{ url('/perfiles') }}" 
-        };
-    },
-    computed: {
-        formAction() {
-            return this.tipoForm === 'crear'
-                ? this.routeGuardar
-                : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
-        }
-    },
-    methods: {
-        validateForm() {
-            this.errors = {};
-            if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
-            if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
-            if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
-            return Object.keys(this.errors).length === 0;
-        },
-        guardar() {
-            if (this.validateForm()) {
-                document.getElementById('form').submit();
-            }
-        },
-        modalCrear() {
-            this.errors = {}; 
-            this.tipoForm = 'crear';
-            this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
-            this.mostrarModal = true;
-        },
-        modalEditar(perfilId) {
-            this.errors = {}; 
-            const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
-            if (!perfil) return;
-            
-            this.tipoForm = 'editar';
-            this.formPerfil = {
-                clave: perfil.clave,
-                nombre: perfil.nombre,
-                descripcion: perfil.descripcion,
-                status: perfil.status,
-                permisos: perfil.permisos.map(p => p.permiso_id),
-                perfil_id: perfil.perfil_id
+                perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
+                permisos: JSON.parse(appElement.dataset.permisos || '[]'),
+                
+                routeGuardar: "{{ route('perfiles.guardar') }}",
+                routeActualizarBase: "{{ url('/perfiles') }}",
+                routeEliminarBase: "{{ url('/perfiles') }}" 
             };
-            this.mostrarModal = true;
         },
-        routeEliminar(perfilId) {
-            return `${this.routeEliminarBase}/${perfilId}`;
-        },
-
-        abrirModalEliminar(perfilId) {
-            this.perfilAEliminar = perfilId; 
-            this.mostrarModalEliminar = true; 
-        },
-
-        ejecutarEliminacion() {
-            if (this.perfilAEliminar) {
-                const formId = `form-eliminar-${this.perfilAEliminar}`;
-                const form = document.getElementById(formId);
-                if (form) {
-                    form.submit();
-                }
+        computed: {
+            formAction() {
+                return this.tipoForm === 'crear'
+                    ? this.routeGuardar
+                    : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
             }
-            this.mostrarModalEliminar = false; 
+        },
+        methods: {
+            validateForm() {
+                this.errors = {};
+                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
+                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
+                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
+                return Object.keys(this.errors).length === 0;
+            },
+            guardar() {
+                if (this.validateForm()) {
+                    document.getElementById('form').submit();
+                }
+            },
+            modalCrear() {
+                this.errors = {}; 
+                this.tipoForm = 'crear';
+                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                this.mostrarModal = true;
+            },
+            modalEditar(perfilId) {
+                this.errors = {}; 
+                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
+                if (!perfil) return;
+                
+                this.tipoForm = 'editar';
+                this.formPerfil = {
+                    clave: perfil.clave,
+                    nombre: perfil.nombre,
+                    descripcion: perfil.descripcion,
+                    status: perfil.status,
+                    permisos: perfil.permisos.map(p => p.permiso_id),
+                    perfil_id: perfil.perfil_id
+                };
+                this.mostrarModal = true;
+            },
+            routeEliminar(perfilId) {
+                return `${this.routeEliminarBase}/${perfilId}`;
+            },
+
+            abrirModalEliminar(perfilId) {
+                this.perfilAEliminar = perfilId; 
+                this.mostrarModalEliminar = true; 
+            },
+
+            ejecutarEliminacion() {
+                if (this.perfilAEliminar) {
+                    const formId = `form-eliminar-${this.perfilAEliminar}`;
+                    const form = document.getElementById(formId);
+                    if (form) {
+                        form.submit();
+                    }
+                }
+                this.mostrarModalEliminar = false; 
+            }
         }
-    }
-});
+    });
 
-app.component('modal-componente', {
-    template: '#modal-template',
-    props: {
-        mostrar: { type: Boolean, default: false },
-        titulo: { type: String, default: '' },
-        subtitulo: { type: String, default: '' },
-        textoConfirmacion: { type: String, default: 'Aceptar' },
-        mostrarBotones: {type: Boolean, default: true}
-    },
-    emits: ['update:mostrar', 'confirmar'],
-    methods: {
-        close() { this.$emit('update:mostrar', false); },
-        confirmar() { this.$emit('confirmar'); }
-    }
-});
+    app.component('modal-componente', {
+        template: '#modal-template',
+        props: {
+            mostrar: { type: Boolean, default: false },
+            titulo: { type: String, default: '' },
+            subtitulo: { type: String, default: '' },
+            textoConfirmacion: { type: String, default: 'Aceptar' },
+            mostrarBotones: {type: Boolean, default: true}
+        },
+        emits: ['update:mostrar', 'confirmar'],
+        methods: {
+            close() { this.$emit('update:mostrar', false); },
+            confirmar() { this.$emit('confirmar'); }
+        }
+    });
 
-app.mount('#app');
-</script>
-@endpush
+    app.mount('#app');
+    </script>
+@endsection
 
