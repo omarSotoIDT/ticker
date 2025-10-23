@@ -28,7 +28,6 @@ class ProyectoRepoAction
                 'cliente_id'           => $data['cliente_id'],
                 'nombre'               => $data['nombre'],
                 'descripcion'          => $data['descripcion'],
-                'status'               => $data['status'] ?? 'ACTIVO',
                 'actualizacion_autor_id' => Auth::id(),
                 'actualizacion_fecha'  => Carbon::now(),
             ]);
@@ -71,4 +70,52 @@ class ProyectoRepoAction
             'registro_fecha' => Carbon::now(),
         ]);
     }
+
+    public static function asignarUsuarios(int $proyectoId, array $usuarios)
+    {
+        foreach ($usuarios as $usuarioId) {
+            DB::table('rel_usuarios_proyectos')->updateOrInsert(
+                ['usuario_id' => $usuarioId, 'proyecto_id' => $proyectoId],
+                [
+                    'status' => 'ACTIVO',
+                    'registro_autor_id' => Auth::id(),
+                    'registro_fecha' => Carbon::now(),
+                ]
+            );
+        }
+    }
+
+    public static function actualizarUsuariosAsignados(
+        int $proyectoId,
+        array $usuariosAgregados,
+        array $usuariosEliminados
+    ) {
+        $ahora = now();
+        $usuarioActual = Auth::id();
+    
+        foreach ($usuariosAgregados as $uid) {
+            DB::table('rel_usuarios_proyectos')->updateOrInsert(
+                ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
+                [
+                    'status' => 'ACTIVO',
+                    'registro_autor_id' => $usuarioActual,
+                    'registro_fecha' => $ahora,
+                    'actualizacion_autor_id' => $usuarioActual,
+                    'actualizacion_fecha' => $ahora,
+                ]
+            );
+        }
+    
+        foreach ($usuariosEliminados as $uid) {
+            DB::table('rel_usuarios_proyectos')
+                ->where('usuario_id', $uid)
+                ->where('proyecto_id', $proyectoId)
+                ->update([
+                    'status' => 'ELIMINADO',
+                    'actualizacion_autor_id' => $usuarioActual,
+                    'actualizacion_fecha' => $ahora,
+                ]);
+        }
+    }
+    
 }

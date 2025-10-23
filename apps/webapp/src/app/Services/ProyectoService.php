@@ -4,9 +4,7 @@ namespace App\Services;
 
 use App\RepoAction\ProyectoRepoAction;
 use App\RepoData\ProyectoRepoData;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Throwable;
+
 
 class ProyectoService
 {
@@ -43,8 +41,8 @@ class ProyectoService
         $camposComparar = ['nombre', 'descripcion', 'cliente_id', 'status'];
 
         foreach ($camposComparar as $campo) {
-            $valorAnterior = $anterior[$campo] ?? null;
-            $valorNuevo = $data[$campo] ?? null;
+            $valorAnterior = $anterior[$campo];
+            $valorNuevo = $data[$campo];
 
             if ($valorAnterior !== $valorNuevo) {
                 $cambios[] = "Campo: {$campo} | Antes: '{$valorAnterior}' | Después: '{$valorNuevo}'";
@@ -104,5 +102,26 @@ class ProyectoService
     public static function obtenerLogs(int $id)
     {
         return ProyectoRepoData::obtenerLogs($id);
+    }
+
+    public static function actualizarAsignacionesUsuarios(int $proyectoId, array $usuariosNuevos)
+    {
+        $usuariosActuales = ProyectoRepoData::obtenerUsuariosAsignados($proyectoId);
+
+        $usuariosAgregados = array_diff($usuariosNuevos, $usuariosActuales);
+        $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
+
+        if (!empty($usuariosAgregados) || !empty($usuariosEliminados)) {
+            ProyectoRepoAction::actualizarUsuariosAsignados($proyectoId, $usuariosAgregados, $usuariosEliminados);
+
+            $nombresAgregados = ProyectoRepoData::reasignarUsuarios($usuariosAgregados);
+            $nombresEliminados = ProyectoRepoData::reasignarUsuarios($usuariosEliminados);
+
+            $descripcion = "Actualización de asignaciones: ";
+            if ($nombresAgregados) $descripcion .= "Asignados [{$nombresAgregados}] ";
+            if ($nombresEliminados) $descripcion .= "Eliminados [{$nombresEliminados}]";
+
+            ProyectoRepoAction::registrarLog($proyectoId, 'ACTUALIZAR', $descripcion);
+        }
     }
 }
