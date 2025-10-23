@@ -94,24 +94,23 @@ class ProyectoController extends Controller
         try {
             $data = $this->validarProyecto($request, true);
             $usuarios = $request->input('usuarios', []);
-    
+
             ProyectoCoordinator::actualizarProyecto($id, $data);
-    
+
             if (!empty($usuarios)) {
                 ProyectoService::actualizarAsignacionesUsuarios($id, $usuarios);
             }
-    
+
             return response()->json([
                 'mensaje' => 'Proyecto actualizado correctamente.'
             ], 200);
-    
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
         }
     }
-    
+
 
     public function eliminarRest(Request $request, $id)
     {
@@ -158,9 +157,20 @@ class ProyectoController extends Controller
     public function gestor()
     {
         try {
-            return view('proyectos.gestor_proyectos');
+            return view('proyectos.Proyectos');
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al cargar la vista de proyectos', __FUNCTION__);
         }
     }
+
+    public function usuariosRest($id)
+    {
+        try {
+            $usuarios = ProyectoService::listarUsuariosAsignados($id);
+            return response()->json(['data' => $usuarios], 200);
+        } catch (Throwable $e) {
+            return $this->handleException($e, 'Error al obtener usuarios asignados', __FUNCTION__);
+        }
+    }
+
 }

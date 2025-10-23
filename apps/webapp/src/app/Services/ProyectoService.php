@@ -124,4 +124,9 @@ class ProyectoService
             ProyectoRepoAction::registrarLog($proyectoId, 'ACTUALIZAR', $descripcion);
         }
     }
+
+    public static function listarUsuariosAsignados(int $proyectoId)
+    {
+        return ProyectoRepoData::listarUsuariosAsignados($proyectoId);
+    }
 }
