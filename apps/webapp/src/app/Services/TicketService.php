@@ -25,4 +25,22 @@ class TicketService
         $updateTicket = TicketBO::armarUpdate($datos);
         return TicketRepoAction::actualizar($id, $updateTicket);
     }
+
+    public static function editarEstado($id, $datos)
+    {
+        $updateTicket = TicketBO::armarUpdateEstado($datos);
+        return TicketRepoAction::actualizar($id, $updateTicket);
+    }
+
+    public static function editarPrioridad($id, $datos)
+    {
+        $updateTicket = TicketBO::armarUpdatePrioridad($datos);
+        return TicketRepoAction::actualizar($id, $updateTicket);
+    }
+
+    public static function editarAsignacion($id, $datos)
+    {
+        $updateTicket = TicketBO::armarUpdateAsignacion($datos);
+        return TicketRepoAction::actualizar($id, $updateTicket);
+    }
 }

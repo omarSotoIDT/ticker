@@ -13,7 +13,7 @@ class TicketBO
             'proyecto_id' => $datos['proyecto_id'],
             'etiqueta_id' => $datos['etiqueta_id'],
             'usuario_asignado_id' => $datos['usuario_asignado_id'],
-            'folio'=> $datos['folio'],
+            'folio' => $datos['folio'],
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
             'prioridad' => $datos['prioridad'],
@@ -36,6 +36,39 @@ class TicketBO
             'descripcion' => $datos['descripcion'],
             'prioridad' => $datos['prioridad'],
             'status' => $datos['status'],
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now()
+        ];
+
+        return $ticket;
+    }
+
+    public static function armarUpdateEstado($datos)
+    {
+        $ticket = [
+            'status' => $datos['status'],
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now()
+        ];
+
+        return $ticket;
+    }
+
+    public static function armarUpdatePrioridad($datos)
+    {
+        $ticket = [
+            'prioridad' => $datos['prioridad'],
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now()
+        ];
+
+        return $ticket;
+    }
+
+    public static function armarUpdateAsignacion($datos)
+    {
+        $ticket = [
+            'usuario_asignado_id' => $datos['usuario_asignado_id'],
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
         ];
