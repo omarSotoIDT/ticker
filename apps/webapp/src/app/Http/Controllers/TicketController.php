@@ -1,0 +1,82 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Services\TicketService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use Throwable;
+
+class TicketController extends Controller
+{
+    public static function gestor()
+    {
+        try {
+            $datos = TicketService::cargarGestor();
+            return view('tickets.ticketsGestor', $datos);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al mostrar el gestor " . $error);
+            return redirect()->back()->with('error', 'Ocurrio un error al mostrar el gestor');
+        }
+    }
+    public function listarRest(Request $request)
+    {
+        try {
+            $usuarios = TicketService::listar();
+            return Response::json($usuarios, 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al listar los tickets " . $error);
+            return Response::json(['error' => 'Ocurrio un error al listar los tickets'], 500);
+        }
+    }
+
+    public function agregarRest(Request $request)
+    {
+        try {
+            $datos = $request->validate([
+                'cliente_id' => 'integer|required',
+                'proyecto_id' => 'integer|required',
+                'etiqueta_id' => 'integer|required',
+                'usuario_asignado_id' => 'integer|required',
+                'titulo' => 'string|required|max:100',
+                'descripcion' => 'string|required|max:250',
+                'prioridad' => 'in:Baja,Alta,Media,Urgente|required',
+                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
+            ]);
+
+            $id = TicketService::agregar($datos);
+            Response::json($id, 201);
+        } catch (ValidationException $e) {
+            return Response::json(['errors'  => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al agregar el ticket " . $error);
+            return Response::json(['error' => 'Ocurrio un error al agregar el ticket'], 500);
+        }
+    }
+
+    public function editarRest(Request $request, $id)
+    {
+        try {
+            $datos = $request->validate([
+                'cliente_id' => 'integer|required',
+                'proyecto_id' => 'integer|required',
+                'etiqueta_id' => 'integer|required',
+                'usuario_asignado_id' => 'integer|required',
+                'titulo' => 'string|required|max:100',
+                'descripcion' => 'string|required|max:250',
+                'prioridad' => 'in:Baja,Alta,Media,Urgente|required',
+                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
+            ]);
+            if (TicketService::editar($id, $datos)) {
+                return Response::json(null, 204);
+            }
+        } catch (ValidationException $e) {
+            return Response::json(['errors' => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al editar el ticket " . $error);
+            return Response::json(['error' => 'Ocurrio un error al editar el ticket'], 500);
+        }
+    }
+}

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\TicketController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
@@ -17,5 +18,14 @@ Route::prefix('usuarios')->group(function(){
         Route::patch('/editarRest/{id}', [UsuarioController::class, 'editarRest'])->name('usuarios.editarRest');
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
         Route::patch('/activarRest/{id}', [UsuarioController::class, 'activarRest'])->name('usuarios.activarRest');
+    });
+});
+
+Route::prefix('tickets')->group(function () {
+    Route::middleware('auth')->group(function() {
+        Route::get('/', [TicketController::class, 'gestor'])->name('tickets.gestor');
+        Route::get('/listarRest', [TicketController::class, 'listarRest'])->name('tickets.listarRest');
+        Route::post('/agregarRest', [TicketController::class, 'agregarRest'])->name('tickets.agregarRest');
+        Route::patch('/editarRest/{id}', [TicketController::class, 'editarRest'])->name('tickets.editarRest');
     });
 });
