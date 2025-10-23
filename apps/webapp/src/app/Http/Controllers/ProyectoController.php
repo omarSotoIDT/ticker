@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ProyectoService;
 use App\RepoData\ProyectoRepoData;
+use App\Cordinators\ProyectoCoordinator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
@@ -11,9 +12,7 @@ use Throwable;
 
 class ProyectoController extends Controller
 {
-    /**
-     * Manejo centralizado de excepciones
-     */
+
     private function handleException(Throwable $e, string $mensajeUsuario, ?string $contexto = null)
     {
         $contextoTexto = $contexto ? " ({$contexto})" : '';
@@ -31,9 +30,7 @@ class ProyectoController extends Controller
         return back()->withErrors([$mensajeUsuario]);
     }
 
-    /**
-     * Validación de datos del proyecto
-     */
+
     private function validarProyecto(Request $request, bool $esEditar = false): array
     {
         $reglas = [
@@ -50,9 +47,7 @@ class ProyectoController extends Controller
         return $request->validate($reglas);
     }
 
-    /**
-     * Obtener lista de proyectos
-     */
+
     public function listarRest(Request $request)
     {
         try {
@@ -71,47 +66,52 @@ class ProyectoController extends Controller
         }
     }
 
-    /**
-     * Registrar nuevo proyecto
-     */
     public function registrarRest(Request $request)
     {
         try {
             $data = $this->validarProyecto($request, false);
-            ProyectoService::registrarProyecto($data);
+            $usuarios = $request->input('usuarios', []);
 
-            return response()->json(['mensaje' => 'Proyecto registrado correctamente.'], 201);
-        } 
-        catch (ValidationException $e) {
+            $proyectoId = ProyectoCoordinator::crearProyectoConCliente($data);
+
+            if (!empty($usuarios)) {
+                ProyectoService::actualizarAsignacionesUsuarios($proyectoId, $usuarios);
+            }
+
+            return response()->json([
+                'mensaje' => 'Proyecto registrado correctamente.'
+            ], 201);
+        } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
-        }
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleException($e, 'Error al registrar el proyecto', __FUNCTION__);
         }
     }
 
-    /**
-     * Actualizar proyecto existente
-     */
+
     public function actualizarRest(Request $request, $id)
     {
         try {
             $data = $this->validarProyecto($request, true);
+            $usuarios = $request->input('usuarios', []);
+
             ProyectoService::actualizarProyecto($id, $data);
 
-            return response()->json(['mensaje' => 'Proyecto actualizado correctamente.'], 200);
-        } 
-        catch (ValidationException $e) {
+            if (!empty($usuarios)) {
+                ProyectoService::actualizarAsignacionesUsuarios($id, $usuarios);
+            }
+
+            return response()->json([
+                'mensaje' => 'Proyecto actualizado correctamente.'
+            ], 200);
+        } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
-        }
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
         }
     }
 
-    /**
-     * Eliminar (marcar como eliminado) un proyecto
-     */
+
     public function eliminarRest(Request $request, $id)
     {
         try {
@@ -122,48 +122,38 @@ class ProyectoController extends Controller
             ProyectoService::eliminarProyecto($id, $request->motivo_eliminacion);
 
             return response()->json(['mensaje' => 'Proyecto eliminado correctamente.'], 200);
-        } 
-        catch (ValidationException $e) {
+        } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
-        }
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleException($e, 'Error al eliminar el proyecto', __FUNCTION__);
         }
     }
 
-    /**
-     * Activar o desactivar un proyecto
-     */
+
     public function activarRest($id)
     {
         try {
             ProyectoService::activarProyecto($id);
 
             return response()->json(['mensaje' => 'Estado del proyecto actualizado correctamente.'], 200);
-        } 
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleException($e, 'Error al actualizar el estado del proyecto', __FUNCTION__);
         }
     }
 
-    /**
-     * Obtener logs de un proyecto
-     */
+
     public function logsRest($id)
     {
         try {
             $logs = ProyectoService::obtenerLogs($id);
 
             return response()->json(['data' => $logs], 200);
-        } 
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener logs del proyecto', __FUNCTION__);
         }
     }
 
-    /**
-     * Vista del gestor de proyectos
-     */
+
     public function gestor()
     {
         try {

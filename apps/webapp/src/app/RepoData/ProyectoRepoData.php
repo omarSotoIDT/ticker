@@ -11,11 +11,11 @@ class ProyectoRepoData
     {
         $query = DB::table('proyectos')
             ->select(
-                'proyecto_id', 
-                'cliente_id', 
-                'nombre', 
-                'descripcion', 
-                'status', 
+                'proyecto_id',
+                'cliente_id',
+                'nombre',
+                'descripcion',
+                'status',
                 'registro_fecha'
             )
             ->where('status', '!=', 'ELIMINADO');
@@ -32,6 +32,25 @@ class ProyectoRepoData
             ->first();
     }
 
+    public static function obtenerUsuariosAsignados(int $proyectoId): array
+    {
+        return DB::table('rel_usuarios_proyectos')
+            ->where('proyecto_id', $proyectoId)
+            ->where('status', 'ACTIVO')
+            ->pluck('usuario_id')
+            ->toArray();
+    }
+    
+    public static function reasignarUsuarios(array $ids): string
+    {
+        if (empty($ids)) return '';
+        return DB::table('sys_usuarios')
+            ->whereIn('usuario_id', $ids)
+            ->pluck('nombre')
+            ->implode(', ');
+    }
+    
+
     public static function obtenerLogs(int $proyectoId)
     {
         return DB::table('log_proyectos as lp')
@@ -47,6 +66,5 @@ class ProyectoRepoData
             ->where('lp.proyecto_id', $proyectoId)
             ->orderByDesc('lp.registro_fecha')
             ->get();
-    }    
-    
+    }
 }
