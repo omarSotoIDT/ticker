@@ -40,7 +40,7 @@ class ProyectoRepoData
             ->pluck('usuario_id')
             ->toArray();
     }
-    
+
     public static function reasignarUsuarios(array $ids): string
     {
         if (empty($ids)) return '';
@@ -49,7 +49,7 @@ class ProyectoRepoData
             ->pluck('nombre')
             ->implode(', ');
     }
-    
+
 
     public static function obtenerLogs(int $proyectoId)
     {
@@ -67,4 +67,14 @@ class ProyectoRepoData
             ->orderByDesc('lp.registro_fecha')
             ->get();
     }
+
+    public static function listarUsuariosAsignados(int $proyectoId)
+    {
+        return DB::table('rel_usuarios_proyectos as rup')
+            ->join('sys_usuarios as u', 'rup.usuario_id', '=', 'u.usuario_id')
+            ->where('rup.proyecto_id', $proyectoId)
+            ->where('rup.status', 'ACTIVO')
+            ->select('u.usuario_id', 'u.nombre_completo as nombre') // ← aquí
+            ->get();
+    }    
 }
