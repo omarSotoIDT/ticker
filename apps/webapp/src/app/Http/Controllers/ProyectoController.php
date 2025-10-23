@@ -72,7 +72,7 @@ class ProyectoController extends Controller
             $data = $this->validarProyecto($request, false);
             $usuarios = $request->input('usuarios', []);
 
-            $proyectoId = ProyectoCoordinator::crearProyectoConCliente($data);
+            $proyectoId = ProyectoCoordinator::crearProyecto($data);
 
             if (!empty($usuarios)) {
                 ProyectoService::actualizarAsignacionesUsuarios($proyectoId, $usuarios);
@@ -94,23 +94,24 @@ class ProyectoController extends Controller
         try {
             $data = $this->validarProyecto($request, true);
             $usuarios = $request->input('usuarios', []);
-
-            ProyectoService::actualizarProyecto($id, $data);
-
+    
+            ProyectoCoordinator::actualizarProyecto($id, $data);
+    
             if (!empty($usuarios)) {
                 ProyectoService::actualizarAsignacionesUsuarios($id, $usuarios);
             }
-
+    
             return response()->json([
                 'mensaje' => 'Proyecto actualizado correctamente.'
             ], 200);
+    
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
         }
     }
-
+    
 
     public function eliminarRest(Request $request, $id)
     {
