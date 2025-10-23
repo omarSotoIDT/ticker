@@ -60,14 +60,14 @@ class TicketController extends Controller
     {
         try {
             $datos = $request->validate([
-                'cliente_id' => 'integer|required',
-                'proyecto_id' => 'integer|required',
-                'etiqueta_id' => 'integer|required',
-                'usuario_asignado_id' => 'integer|required',
-                'titulo' => 'string|required|max:100',
-                'descripcion' => 'string|required|max:250',
-                'prioridad' => 'in:Baja,Alta,Media,Urgente|required',
-                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
+                'cliente_id' => 'integer',
+                'proyecto_id' => 'integer',
+                'etiqueta_id' => 'integer',
+                'usuario_asignado_id' => 'integer',
+                'titulo' => 'string|max:100',
+                'descripcion' => 'string|required',
+                'prioridad' => 'in:Baja,Alta,Media,Urgente',
+                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado',
             ]);
             if (TicketService::editar($id, $datos)) {
                 return Response::json(null, 204);

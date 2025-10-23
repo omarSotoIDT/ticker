@@ -2,9 +2,30 @@
 
 namespace App\BO;
 
+use Illuminate\Support\Facades\Auth;
+
 class TicketBO
 {
     public static function armarInsert($datos)
+    {
+        $ticket = [
+            'cliente_id' => $datos['cliente_id'],
+            'proyecto_id' => $datos['proyecto_id'],
+            'etiqueta_id' => $datos['etiqueta_id'],
+            'usuario_asignado_id' => $datos['usuario_asignado_id'],
+            'folio'=> $datos['folio'],
+            'titulo' => $datos['titulo'],
+            'descripcion' => $datos['descripcion'],
+            'prioridad' => $datos['prioridad'],
+            'status' => $datos['status'],
+            'registro_autor_id' => Auth::id(),
+            'registro_fecha' => now()
+        ];
+
+        return $ticket;
+    }
+
+    public static function armarUpdate($datos)
     {
         $ticket = [
             'cliente_id' => $datos['cliente_id'],
@@ -15,22 +36,8 @@ class TicketBO
             'descripcion' => $datos['descripcion'],
             'prioridad' => $datos['prioridad'],
             'status' => $datos['status'],
-        ];
-
-        return $ticket;
-    }
-
-    public static function armarUpdate($datos)
-    {
-        $ticket = [
-            'cliente_id' => $datos['cliente'],
-            'proyecto_id' => $datos['proyecto'],
-            'etiqueta_id' => $datos['etiqueta'],
-            'usuario_asignado_id' => $datos['usuario_asignado'],
-            'titulo' => $datos['titulo'],
-            'descripcion' => $datos['descripcion'],
-            'prioridad' => $datos['prioridad'],
-            'status' => $datos['status'],
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now()
         ];
 
         return $ticket;
