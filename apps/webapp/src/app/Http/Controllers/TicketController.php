@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Coordinators\TicketCoordinator;
 use App\Services\TicketService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -46,8 +47,9 @@ class TicketController extends Controller
                 'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
             ]);
 
-            $id = TicketService::agregar($datos);
-            Response::json($id, 201);
+            if(TicketCoordinator::agregar($datos)){
+                Response::json(null, 201);
+            }
         } catch (ValidationException $e) {
             return Response::json(['errors'  => $e->errors()], 422);
         } catch (Throwable $error) {
