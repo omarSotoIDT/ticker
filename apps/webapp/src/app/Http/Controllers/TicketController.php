@@ -15,7 +15,7 @@ class TicketController extends Controller
     public static function gestor()
     {
         try {
-            $datos = TicketService::cargarGestor();
+            $datos = TicketCoordinator::cargarGestor();
             return view('tickets.ticketsGestor', $datos);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al mostrar el gestor " . $error);
