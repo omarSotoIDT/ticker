@@ -16,13 +16,13 @@ class TicketService
 
     public static function agregar($datos)
     {
-        $insertUsuario = TicketBO::armarInsert($datos);
-        return TicketRepoAction::crear($insertUsuario);
+        $insertTicket = TicketBO::armarInsert($datos);
+        return TicketRepoAction::crear($insertTicket);
     }
 
     public static function editar($id, $datos)
     {
-        $updateUsuario = TicketBO::armarUpdate($datos);
-        return TicketRepoAction::actualizar($id, $updateUsuario);
+        $updateTicket = TicketBO::armarUpdate($datos);
+        return TicketRepoAction::actualizar($id, $updateTicket);
     }
 }
