@@ -31,5 +31,7 @@ Route::prefix('tickets')->group(function () {
         Route::patch('/editarEstadoRest/{id}', [TicketController::class, 'editarEstadoRest'])->name('tickets.editarEstadoRest');
         Route::patch('/editarPrioridadRest/{id}', [TicketController::class, 'editarPrioridadRest'])->name('tickets.editarPrioridadRest');
         Route::patch('/editarAsignacionRest/{id}', [TicketController::class, 'editarAsignacionRest'])->name('tickets.editarAsignacionRest');
+        Route::get('/{ticket_id}/feedback', [TicketFeedbackController::class, 'listarRest'])->name('tickets.listarFeedbackRest');
+        Route::post('/{ticket_id}/feedback', [TicketFeedbackController::class,'agregarRest'])->name('tickets.agregarFeedbackRest');
     });
 });
