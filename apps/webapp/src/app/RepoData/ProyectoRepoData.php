@@ -37,7 +37,7 @@ class ProyectoRepoData
         return DB::table('rel_usuarios_proyectos')
             ->where('proyecto_id', $proyectoId)
             ->where('status', 'ACTIVO')
-            ->pluck('usuarioId')
+            ->pluck('usuario_id')
             ->toArray();
     }
 
@@ -45,7 +45,7 @@ class ProyectoRepoData
     {
         if (empty($ids)) return '';
         return DB::table('sys_usuarios')
-            ->whereIn('usuarioId', $ids)
+            ->whereIn('usuario_id', $ids)
             ->pluck('nombre')
             ->implode(', ');
     }
@@ -71,7 +71,7 @@ class ProyectoRepoData
     public static function obtenerLogs(int $proyectoId)
     {
         return DB::table('log_proyectos as lp')
-            ->join('sys_usuarios as u', 'lp.usuarioId', '=', 'u.usuarioId')
+            ->join('sys_usuarios as u', 'lp.usuario_id', '=', 'u.usuario_id')
             ->select(
                 'lp.log_proyecto_id as id',
                 'lp.descripcion as accion',
@@ -95,17 +95,17 @@ class ProyectoRepoData
     // }
 
     public static function listarUsuariosAsignados(int $proyectoId)
-{
-    return DB::table('rel_usuarios_proyectos as rup')
-        ->join('sys_usuarios as u', 'rup.usuarioId', '=', 'u.usuarioId')
-        ->where('rup.proyecto_id', $proyectoId)
-        ->where('rup.status', 'ACTIVO')
-        ->select(
-            'u.usuarioId',
-            'u.usuario', 
-            'u.email'
-        )
-        ->get();
-} 
+    {
+        return DB::table('rel_usuarios_proyectos as rup')
+            ->join('sys_usuarios as u', 'rup.usuario_id', '=', 'u.usuario_id')
+            ->where('rup.proyecto_id', $proyectoId)
+            ->where('rup.status', 'ACTIVO')
+            ->select(
+                'u.usuario_id as usuario_id',
+                'u.usuario as usuario',
+                'u.email as email'
+            )
+            ->get();
+    }
 
 }
