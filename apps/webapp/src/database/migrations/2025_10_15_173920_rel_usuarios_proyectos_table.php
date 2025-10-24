@@ -18,7 +18,7 @@ return new class extends Migration
             ->comment('Unicos estatus:ACTIVO o ELIMINADO');
                   
             $table->unsignedBigInteger('registro_autor_id');
-            $table->timestamp('regristro_fecha');
+            $table->timestamp('registro_fecha');
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
             $table->timestamp('actualizacion_fecha')->nullable();
             $table->foreign('usuario_id')->references('usuario_id')->on('sys_usuarios');

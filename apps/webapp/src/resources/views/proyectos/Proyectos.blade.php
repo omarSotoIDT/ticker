@@ -29,7 +29,9 @@
         <tbody>
             <tr v-for="proyecto in proyectos" :key="proyecto.proyecto_id">
                 <td>@{{ proyecto.nombre }}</td>
-                <td>@{{ proyecto.cliente }}</td>
+
+                <td>@{{ proyecto.cliente_id }}</td>
+
                 <td>@{{ proyecto.descripcion }}</td>
                 <td>
                     <span class="badge" :class="proyecto.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
@@ -92,19 +94,78 @@
             <div class="campo">
                 <label class="etiqueta">Usuarios</label>
                 <div class="lista-usuarios">
-                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuario_id">
+                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuarioId" class="usuario-item">
                         <input
                             type="checkbox"
-                            :id="'usuario-' + usuario.usuario_id"
-                            :value="usuario.usuario_id"
+                            :id="'usuario-' + usuario.usuarioId"
+                            :value="usuario.usuarioId"
                             v-model="formproyecto.usuarios">
-                        <label :for="'usuario-' + usuario.usuario_id">@{{ usuario.nombre }}</label>
+                        <label :for="'usuario-' + usuario.usuarioId">
+                            @{{ usuario.usuario }}
+                        </label>
                     </div>
                 </div>
                 <span class="error" v-if="erroresModal.usuarios">@{{ erroresModal.usuarios[0] }}</span>
             </div>
+
         </form>
     </modal-componente>
+
+    <modal-componente
+        v-model:mostrar="mostrarModalHistorial"
+        titulo="Historial del Proyecto"
+        subtitulo="Usuarios asignados y registros de actividad"
+        texto-confirmacion="Cerrar"
+        :mostrar-botones="false">
+
+        <div class="modal-historial">
+            <h4>Usuarios asignados</h4>
+            <ul v-if="usuariosProyecto.length > 0">
+                <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
+                    @{{ usuario.usuario }} (@{{ usuario.email }})
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay usuarios asignados.</p>
+
+            <h4>Logs del proyecto</h4>
+            <ul v-if="logsProyecto.length > 0">
+                <li v-for="log in logsProyecto" :key="log.id">
+                    @{{ log.fecha }} — @{{ log.accion }} por @{{ log.usuario }}
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay registros en el historial.</p>
+        </div>
+    </modal-componente>
+
+    <modal-componente
+        v-model:mostrar="mostrarModalStatus"
+        :titulo="tipoForm === 'eliminar' ? 'Eliminar proyecto' : 'Cambiar estado del proyecto'"
+        :subtitulo="tipoForm === 'eliminar'
+        ? '¿Estás seguro de eliminar este proyecto?'
+        : '¿Deseas activar/desactivar este proyecto?'"
+        texto-confirmacion="Confirmar"
+        @confirmar="cambiarEstado">
+
+        <form id="formEstado">
+            <p>
+                <strong>@{{ proyectoSeleccionado?.nombre }}</strong> — Estado actual:
+                <span class="badge" :class="proyectoSeleccionado?.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
+                    @{{ proyectoSeleccionado?.status }}
+                </span>
+            </p>
+
+            <div class="campo" v-if="tipoForm === 'eliminar'">
+                <label class="etiqueta" for="motivo">Motivo</label>
+
+                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..."></textarea>
+
+                <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
+            </div>
+        </form>
+    </modal-componente>
+
+
+
 </div>
 
 {{-- ===== TEMPLATE DEL MODAL ===== --}}
@@ -122,95 +183,221 @@
             </div>
         </div>
     </div>
+    
 </script>
 
-{{-- ===== INICIALIZACIÓN DE VUE ===== --}}
-<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 
 <script>
-const { createApp } = Vue;
+    const {
+        createApp
+    } = Vue;
 
-const app = createApp({
-    data() {
-        return {
-            proyectos: [],
-            clientes: [],
-            usuariosDisponibles: [],
-            busqueda: '',
-            mostrarModal: false,
-            tipoForm: 'crear',
-            formproyecto: {
-                proyecto_id: null,
-                nombre: '',
-                descripcion: '',
-                cliente_id: null,
-                usuarios: []
+    const app = createApp({
+        data() {
+
+            return {
+
+                mostrarModalStatus: false,
+                mostrarModalHistorial: false,
+                formEliminar: {
+                    motivo_eliminacion: ''
+                },
+                proyectoSeleccionado: null,
+                logsProyecto: [],
+                usuariosProyecto: [],
+
+
+                proyectos: [],
+                clientes: [],
+                usuariosDisponibles: [],
+                busqueda: '',
+                mostrarModal: false,
+                tipoForm: 'crear',
+                formproyecto: {
+                    proyecto_id: null,
+                    nombre: '',
+                    descripcion: '',
+                    cliente_id: null,
+                    usuarios: []
+                },
+                erroresModal: {}
+            }
+        },
+
+        mounted() {
+            this.listarProyectos();
+        },
+
+        methods: {
+            async listarProyectos() {
+                try {
+                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda)}`);
+                    const data = await res.json();
+                    this.proyectos = data.data || [];
+                } catch (err) {
+                    console.error('Error al listar proyectos:', err);
+                }
             },
-            erroresModal: {}
-        }
-    },
 
-    mounted() {
-        this.listarProyectos();
-    },
+            buscar() {
+                this.listarProyectos();
+            },
 
-    methods: {
-        listarProyectos() {
-            axios.get('/proyectos/listado', { params: { busqueda: this.busqueda } })
-                .then(res => this.proyectos = res.data.data)
-                .catch(err => console.error(err));
-        },
+            async modalCrear() {
+                this.tipoForm = 'crear';
+                this.erroresModal = {};
+                this.formproyecto = {
+                    proyecto_id: null,
+                    nombre: '',
+                    descripcion: '',
+                    cliente_id: null,
+                    usuarios: []
+                };
+                await Promise.all([this.cargarClientes(), this.cargarUsuarios()]);
+                this.mostrarModal = true;
+            },
 
-        buscar() { this.listarProyectos(); },
+            async cargarClientes() {
+                try {
+                    const res = await fetch('/clientes/listado');
+                    const data = await res.json();
+                    this.clientes = data.data || [];
+                } catch (err) {
+                    console.error('Error al cargar clientes:', err);
+                }
+            },
 
-        modalCrear() {
-            this.tipoForm = 'crear';
-            this.erroresModal = {};
-            this.formproyecto = { proyecto_id: null, nombre: '', descripcion: '', cliente_id: null, usuarios: [] };
-            this.cargarClientes();
-            this.cargarUsuarios();
-            this.mostrarModal = true;
-        },
+            async cargarUsuarios() {
+                try {
+                    const res = await fetch('/usuarios/listarRest');
+                    const data = await res.json();
+                    this.usuariosDisponibles = data || [];
+                } catch (err) {
+                    console.error('Error al cargar usuarios:', err);
+                }
+            },
 
-        cargarClientes() {
-            axios.get('/clientes/listado') // ✅ Ajustado
-                .then(res => this.clientes = res.data.data)
-                .catch(err => console.error(err));
-        },
+            async guardarproyecto() {
+                const url = this.tipoForm === 'crear' ?
+                    '/proyectos/registrar' :
+                    `/proyectos/${this.formproyecto.proyecto_id}`;
+                const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH';
 
-        cargarUsuarios() {
-            axios.get('/usuarios/listado') // ✅ Ajustado
-                .then(res => this.usuariosDisponibles = res.data.data)
-                .catch(err => console.error(err));
-        },
+                try {
+                    const res = await fetch(url, {
+                        method: metodo,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.formproyecto)
+                    });
 
-        guardarproyecto() {
-            const url = this.tipoForm === 'crear' ? '/proyectos' : `/proyectos/${this.formproyecto.proyecto_id}`;
-            const metodo = this.tipoForm === 'crear' ? 'post' : 'patch';
-            axios[metodo](url, this.formproyecto)
-                .then(() => {
+                    if (res.status === 422) {
+                        const data = await res.json();
+                        this.erroresModal = data.errores;
+                        return;
+                    }
+
+                    if (!res.ok) throw new Error('Error al guardar el proyecto');
+
                     this.mostrarModal = false;
                     this.listarProyectos();
                     this.erroresModal = {};
-                })
-                .catch(err => {
-                    if (err.response && err.response.status === 422) {
-                        this.erroresModal = err.response.data.errores;
-                    } else {
-                        console.error(err);
+                } catch (err) {
+                    console.error('Error al guardar proyecto:', err);
+                }
+            },
+
+            async mostrarHistorial(proyecto_id) {
+                this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
+                if (!this.proyectoSeleccionado) return;
+
+                try {
+                    const res = await fetch(`/proyectos/${proyecto_id}/logs`);
+                    const data = await res.json();
+
+                    this.logsProyecto = data.logs || [];
+                    this.usuariosProyecto = data.usuarios || [];
+                    this.mostrarModalHistorial = true;
+                } catch (err) {
+                    console.error('Error al obtener historial:', err);
+                }
+            },
+
+
+            // ======= CAMBIAR ESTADO =======
+            modalToggle(proyecto_id, tipo) {
+                this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
+                if (!this.proyectoSeleccionado) return;
+                this.tipoForm = tipo;
+                this.formEliminar.motivo_eliminacion = '';
+                this.mostrarModalStatus = true;
+            },
+
+            async cambiarEstado() {
+                if (!this.proyectoSeleccionado) return;
+
+                const url =
+                    this.tipoForm === 'activar' ?
+                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/activar` :
+                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminar`;
+                try {
+                    const res = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify(this.formEliminar)
+                    });
+
+                    if (res.status === 422) {
+                        const data = await res.json();
+                        this.erroresModal = data.errores;
+                        return;
                     }
-                });
+
+                    if (!res.ok) throw new Error('Error al cambiar estado');
+
+                    this.mostrarModalStatus = false;
+                    this.listarProyectos();
+                } catch (err) {
+                    console.error('Error al cambiar estado:', err);
+                }
+            },
+
+
         }
-    }
-});
+    });
 
-app.component('modal-componente', {
-    template: '#modal-template',
-    props: ['mostrar', 'titulo', 'subtitulo', 'textoConfirmacion', 'mostrarBotones'],
-    emits: ['update:mostrar', 'confirmar']
-});
 
-app.mount('#app');
+    app.component('modal-componente', {
+        template: '#modal-template',
+        props: {
+            mostrar: Boolean,
+            titulo: String,
+            subtitulo: String,
+            textoConfirmacion: String,
+            mostrarBotones: {
+                type: Boolean,
+                default: true
+            }
+        },
+        emits: ['update:mostrar', 'confirmar'],
+        methods: {
+            close() {
+                this.$emit('update:mostrar', false);
+                if (this.$root && this.$root.erroresModal) {
+                    this.$root.erroresModal = {};
+                }
+            }
+        }
+    });
+
+    app.mount('#app');
 </script>
+
+
 @endsection

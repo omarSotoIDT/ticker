@@ -37,7 +37,7 @@ class ProyectoRepoData
         return DB::table('rel_usuarios_proyectos')
             ->where('proyecto_id', $proyectoId)
             ->where('status', 'ACTIVO')
-            ->pluck('usuario_id')
+            ->pluck('usuarioId')
             ->toArray();
     }
 
@@ -45,36 +45,67 @@ class ProyectoRepoData
     {
         if (empty($ids)) return '';
         return DB::table('sys_usuarios')
-            ->whereIn('usuario_id', $ids)
+            ->whereIn('usuarioId', $ids)
             ->pluck('nombre')
             ->implode(', ');
     }
 
 
+    // public static function obtenerLogs(int $proyectoId)
+    // {
+    //     return DB::table('log_proyectos as lp')
+    //         ->join('proyectos as p', 'lp.proyecto_id', '=', 'p.proyecto_id')
+    //         ->join('sys_usuarios as u', 'lp.usuarioId', '=', 'u.usuarioId')
+    //         ->select(
+    //             'lp.log_proyecto_id',
+    //             'p.nombre as proyecto_nombre',
+    //             DB::raw("CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as usuario_nombre"),
+    //             'lp.descripcion',
+    //             'lp.registro_fecha'
+    //         )
+    //         ->where('lp.proyecto_id', $proyectoId)
+    //         ->orderByDesc('lp.registro_fecha')
+    //         ->get();
+    // }
+
     public static function obtenerLogs(int $proyectoId)
     {
         return DB::table('log_proyectos as lp')
-            ->join('proyectos as p', 'lp.proyecto_id', '=', 'p.proyecto_id')
-            ->join('sys_usuarios as u', 'lp.usuario_id', '=', 'u.usuario_id')
+            ->join('sys_usuarios as u', 'lp.usuarioId', '=', 'u.usuarioId')
             ->select(
-                'lp.log_proyecto_id',
-                'p.nombre as proyecto_nombre',
-                DB::raw("CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as usuario_nombre"),
-                'lp.descripcion',
-                'lp.registro_fecha'
+                'lp.log_proyecto_id as id',
+                'lp.descripcion as accion',
+                'lp.registro_fecha as fecha',
+                DB::raw("CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as usuario")
             )
             ->where('lp.proyecto_id', $proyectoId)
             ->orderByDesc('lp.registro_fecha')
             ->get();
     }
 
+
+    // public static function listarUsuariosAsignados(int $proyectoId)
+    // {
+    //     return DB::table('rel_usuarios_proyectos as rup')
+    //         ->join('sys_usuarios as u', 'rup.usuarioId', '=', 'u.usuarioId')
+    //         ->where('rup.proyecto_id', $proyectoId)
+    //         ->where('rup.status', 'ACTIVO')
+    //         ->select('u.usuarioId', 'u.nombre_completo as nombre') // ← aquí
+    //         ->get();
+    // }
+
     public static function listarUsuariosAsignados(int $proyectoId)
-    {
-        return DB::table('rel_usuarios_proyectos as rup')
-            ->join('sys_usuarios as u', 'rup.usuario_id', '=', 'u.usuario_id')
-            ->where('rup.proyecto_id', $proyectoId)
-            ->where('rup.status', 'ACTIVO')
-            ->select('u.usuario_id', 'u.nombre_completo as nombre') // ← aquí
-            ->get();
-    }    
+{
+    return DB::table('rel_usuarios_proyectos as rup')
+        ->join('sys_usuarios as u', 'rup.usuarioId', '=', 'u.usuarioId')
+        ->where('rup.proyecto_id', $proyectoId)
+        ->where('rup.status', 'ACTIVO')
+        ->select(
+            'u.usuarioId',
+            'u.usuario', 
+            'u.email'
+        )
+        ->get();
+} 
+
 }

@@ -37,7 +37,6 @@ class ProyectoController extends Controller
             'cliente_id'  => 'required|integer|exists:clientes,cliente_id',
             'nombre'      => 'required|string|max:150',
             'descripcion' => 'nullable|string|max:250',
-            'status'      => 'required|in:ACTIVO,INACTIVO,ELIMINADO',
         ];
 
         if ($esEditar) {
@@ -142,16 +141,32 @@ class ProyectoController extends Controller
     }
 
 
+    // public function logsRest($id)
+    // {
+    //     try {
+    //         $logs = ProyectoService::obtenerLogs($id);
+
+    //         return response()->json(['data' => $logs], 200);
+    //     } catch (Throwable $e) {
+    //         return $this->handleException($e, 'Error al obtener logs del proyecto', __FUNCTION__);
+    //     }
+    // }
+
     public function logsRest($id)
     {
         try {
-            $logs = ProyectoService::obtenerLogs($id);
+            $logs = ProyectoRepoData::obtenerLogs($id);
+            $usuarios = ProyectoRepoData::listarUsuariosAsignados($id);
 
-            return response()->json(['data' => $logs], 200);
+            return response()->json([
+                'logs' => $logs,
+                'usuarios' => $usuarios
+            ], 200);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener logs del proyecto', __FUNCTION__);
         }
     }
+
 
 
     public function gestor()
@@ -172,5 +187,4 @@ class ProyectoController extends Controller
             return $this->handleException($e, 'Error al obtener usuarios asignados', __FUNCTION__);
         }
     }
-
 }
