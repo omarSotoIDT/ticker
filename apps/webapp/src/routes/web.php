@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TicketFeedbackController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
@@ -27,5 +28,8 @@ Route::prefix('tickets')->group(function () {
         Route::get('/listarRest', [TicketController::class, 'listarRest'])->name('tickets.listarRest');
         Route::post('/agregarRest', [TicketController::class, 'agregarRest'])->name('tickets.agregarRest');
         Route::patch('/editarRest/{id}', [TicketController::class, 'editarRest'])->name('tickets.editarRest');
+        Route::patch('/editarEstadoRest/{id}', [TicketController::class, 'editarEstadoRest'])->name('tickets.editarEstadoRest');
+        Route::patch('/editarPrioridadRest/{id}', [TicketController::class, 'editarPrioridadRest'])->name('tickets.editarPrioridadRest');
+        Route::patch('/editarAsignacionRest/{id}', [TicketController::class, 'editarAsignacionRest'])->name('tickets.editarAsignacionRest');
     });
 });
