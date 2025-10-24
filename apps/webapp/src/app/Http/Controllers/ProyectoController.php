@@ -69,6 +69,12 @@ class ProyectoController extends Controller
     {
         try {
             $data = $this->validarProyecto($request, false);
+            // validar la estructura del array de usuarios
+            $request->validate([
+                'usuarios' => 'nullable|array',
+                'usuarios.*' => 'integer|exists:sys_usuarios,usuario_id',
+            ]);
+
             $usuarios = $request->input('usuarios', []);
 
             $proyectoId = ProyectoCoordinator::crearProyecto($data);
@@ -92,6 +98,12 @@ class ProyectoController extends Controller
     {
         try {
             $data = $this->validarProyecto($request, true);
+            // validar la estructura del array de usuarios
+            $request->validate([
+                'usuarios' => 'nullable|array',
+                'usuarios.*' => 'integer|exists:sys_usuarios,usuario_id',
+            ]);
+
             $usuarios = $request->input('usuarios', []);
 
             ProyectoCoordinator::actualizarProyecto($id, $data);

@@ -94,13 +94,13 @@
             <div class="campo">
                 <label class="etiqueta">Usuarios</label>
                 <div class="lista-usuarios">
-                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuarioId" class="usuario-item">
+                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuario_id" class="usuario-item">
                         <input
                             type="checkbox"
-                            :id="'usuario-' + usuario.usuarioId"
-                            :value="usuario.usuarioId"
+                            :id="'usuario-' + usuario.usuario_id"
+                            :value="usuario.usuario_id"
                             v-model="formproyecto.usuarios">
-                        <label :for="'usuario-' + usuario.usuarioId">
+                        <label :for="'usuario-' + usuario.usuario_id">
                             @{{ usuario.usuario }}
                         </label>
                     </div>
@@ -272,7 +272,8 @@
                 try {
                     const res = await fetch('/usuarios/listarRest');
                     const data = await res.json();
-                    this.usuariosDisponibles = data || [];
+                    // Aceptar formatos { data: [...] } o directamente [...]
+                    this.usuariosDisponibles = data.data || data || [];
                 } catch (err) {
                     console.error('Error al cargar usuarios:', err);
                 }
