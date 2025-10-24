@@ -2,7 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\UsuarioController;
+
+
+
+Route::get('/login', function () { return view('auth.login'); });
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);

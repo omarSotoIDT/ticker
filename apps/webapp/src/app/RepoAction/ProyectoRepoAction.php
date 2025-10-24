@@ -90,14 +90,14 @@ class ProyectoRepoAction
         array $usuariosAgregados,
         array $usuariosEliminados
     ) {
-        $ahora = now();
+        $ahora = Carbon::now();
         $usuarioActual = Auth::id();
     
         foreach ($usuariosAgregados as $uid) {
             DB::table('rel_usuarios_proyectos')->updateOrInsert(
                 ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
                 [
-                    'status' => 'ACTIVO',
+                    'status' => 'ACTIVO' ?? 'ACTIVO',
                     'registro_autor_id' => $usuarioActual,
                     'registro_fecha' => $ahora,
                     'actualizacion_autor_id' => $usuarioActual,
