@@ -2,6 +2,7 @@
 
 namespace App\BO;
 
+use App\Consts\StatusConsts;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
@@ -12,7 +13,7 @@ class UsuarioBO
             'usuario' => $datos['nombre'],
             'email' => $datos['email'],
             'password' => Hash::make($datos['password']),
-            'status' => 'ACTIVO',
+            'status' => StatusConsts::ACTIVO,
             'registro_autor_id' => Auth::id(),
             'registro_fecha' => now()
         ];
@@ -34,7 +35,7 @@ class UsuarioBO
     
     public static function armarDelete($datos) {
         $usuario = [
-            'status' => 'ELIMINADO',
+            'status' => StatusConsts::ELIMINADO,
             'motivo_eliminacion' => $datos['motivo'],
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
@@ -45,7 +46,7 @@ class UsuarioBO
 
     public static function armarActivar() {
         $usuario = [
-            'status' => 'ACTIVO',
+            'status' => StatusConsts::ACTIVO,
             'motivo_eliminacion' => null,
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
