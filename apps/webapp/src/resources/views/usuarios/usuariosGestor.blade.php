@@ -63,9 +63,9 @@
           <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
         </div>
         <div class="campo">
-          <label class="etiqueta" for="contrasena">Contraseña</label>
-          <input class="input" type="password" name="contrasena" id="contrasena" v-model="formUsuario.contrasena">
-          <span class="error" v-if="erroresModal.contrasena">@{{ erroresModal.contrasena[0] }}</span>
+          <label class="etiqueta" for="pasword">Contraseña</label>
+          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password">
+          <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
         </div>
         <div class="campo">
           <label class="etiqueta" for="perfil">Perfil</label>
@@ -104,7 +104,7 @@
           formUsuario: {
             nombre: '',
             email: '',
-            contrasena: '',
+            password: '',
             perfil: '',
           },
           formEliminar: {
@@ -121,7 +121,7 @@
           this.tipoForm = 'crear';
           this.formUsuario.nombre = '';
           this.formUsuario.email = '';
-          this.formUsuario.contrasena = '';
+          this.formUsuario.password = '';
           this.mostrarModal = true;
         },
   
@@ -131,7 +131,7 @@
           this.tipoForm = 'editar';
           this.formUsuario.nombre = this.usuario.usuario;
           this.formUsuario.email = this.usuario.email;
-          this.formUsuario.contrasena = ''; 
+          this.formUsuario.password = ''; 
           this.mostrarModal = true;
         },
   
@@ -168,7 +168,7 @@
             this.usuarios = data;
             this.busqueda = '';
           }catch(error){
-            console.error('Error al obtener usuarios:', error);
+
           }
         },
 
@@ -191,7 +191,7 @@
             const data = await response.json();
             this.usuarios = data;
           }catch(error) {
-            console.error('Error al buscar usuarios:', error);
+
           }
         },
 
@@ -220,7 +220,7 @@
             this.mostrarModal = false;
 
           }catch(error) {
-            console.error('Error al crear el usuario:', error);
+
           }
         },
 
@@ -248,7 +248,7 @@
             this.mostrarModal = false;
 
           }catch(error) {
-            console.error('Error al editar el usuario:', error);
+
           }
         },
 
@@ -276,7 +276,7 @@
             this.mostrarCambiarStatus = false;
 
           }catch(error) {
-            console.error('Error al eliminar el usuario:', error);
+
           }
         },
 
@@ -303,7 +303,7 @@
             this.mostrarCambiarStatus = false;
 
           }catch(error) {
-            console.error('Error al activar el usuario:', error);
+
           }
         },
 

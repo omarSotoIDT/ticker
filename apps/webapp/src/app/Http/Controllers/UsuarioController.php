@@ -36,7 +36,7 @@ class UsuarioController extends Controller
             $datos = $request->validate([
                 'nombre' => 'string|required|max:70',
                 'email' => 'email:filter|unique:sys_usuarios|required|max:80',
-                'contrasena' => 'string|required|max:50',
+                'password' => 'string|required|max:50',
                 'perfiles' => 'array',
             ]);
             $id = UsuarioCoordinator::agregar($datos);
@@ -56,7 +56,7 @@ class UsuarioController extends Controller
             $datos = $request->validate([
                 'nombre' => 'string|max:70',
                 'email' => 'email:filter|max:80|unique:sys_usuarios,email,' . $id . ',usuario_id',
-                'contrasena' => 'nullable|string|max:50',
+                'password' => 'nullable|string|max:50',
             ]);
 
             if (UsuarioService::editar($id, $datos) !== 0) {

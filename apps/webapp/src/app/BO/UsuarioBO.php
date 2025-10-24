@@ -11,9 +11,9 @@ class UsuarioBO
         $usuario = [
             'usuario' => $datos['nombre'],
             'email' => $datos['email'],
-            'password' => Hash::make($datos['contrasena']),
+            'password' => Hash::make($datos['password']),
             'status' => 'ACTIVO',
-            'registro_autor_id' => Auth::id() ?? 1,
+            'registro_autor_id' => Auth::id(),
             'registro_fecha' => now()
         ];
 
@@ -24,7 +24,7 @@ class UsuarioBO
         $usuario = [
             'usuario' => $datos['nombre'],
             'email' => $datos['email'],
-            'password' => Hash::make($datos['contrasena']),
+            'password' => Hash::make($datos['password']),
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
         ];
