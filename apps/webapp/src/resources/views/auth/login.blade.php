@@ -32,7 +32,7 @@
                     <span class="error">{{ $message }}</span>
                 @enderror
             </div>
-            <button class="primary-btn" type="submit">Iniciar Sesión</button>
+            <button class="btn primary-btn" type="submit">Iniciar Sesión</button>
             @if (session('error'))
             <div class="error">
                 <span>{{ session('error') }}</span>
