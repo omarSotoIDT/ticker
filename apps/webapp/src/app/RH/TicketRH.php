@@ -11,6 +11,7 @@ class TicketRH
         'etiqueta' => 'e.titulo',
         'usuarioAsignado' => 'su.usuario',
         'folio' => 't.folio',
+        'serieFolio' => 't.serie_folio',
         'titulo' => 't.titulo',
         'descripcion' => 't.descripcion',
         'prioridad' => 't.prioridad',

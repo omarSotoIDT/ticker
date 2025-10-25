@@ -15,6 +15,7 @@ class TicketBO
             'etiqueta_id' => $datos['etiqueta_id'],
             'usuario_asignado_id' => $datos['usuario_asignado_id'],
             'folio' => $datos['folio'],
+            'serie_folio' => TicketConsts::SERIE . $datos['folio'],
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
             'prioridad' => $datos['prioridad'],

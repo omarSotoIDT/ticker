@@ -18,4 +18,6 @@ class TicketConsts
     const INFO_REQUERIDA = 'Info Requerida';
     const CANCELADO = 'Cancelado';    
 
+    // Constante de serie
+    const SERIE = 't';
 }
