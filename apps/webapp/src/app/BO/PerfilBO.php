@@ -2,9 +2,9 @@
 
 namespace App\BO;
 
-class PerfilesBO
+class PerfilBO
 {
-    public static function adaptarCreacion(array $datos)
+    public static function armarInsert(array $datos)
     {
         return [
             'clave' => $datos['clave'],
@@ -13,11 +13,12 @@ class PerfilesBO
             'status' => $datos['status'],
             'super_usuario' => $datos['super_usuario'],
             'registro_autor_id' => $datos['registro_autor_id'],
-            'registro_fecha' => $datos['registro_fecha']
+            'registro_fecha' => $datos['registro_fecha'],
+            'permisos' => $datos['permisos'] ?? []
         ];
     }
 
-    public static function adaptarActualizacion(array $datos)
+    public static function armarUpdate(array $datos)
     {
         return [
             'clave' => $datos['clave'],
@@ -26,7 +27,8 @@ class PerfilesBO
             'status' => $datos['status'],
             'super_usuario' => $datos['super_usuario'],
             'actualizacion_autor_id' => $datos['actualizacion_autor_id'],
-            'actualizacion_fecha' => $datos['actualizacion_fecha']
+            'actualizacion_fecha' => $datos['actualizacion_fecha'],
+            'permisos' => $datos['permisos'] ?? []
         ];
     }
 }
