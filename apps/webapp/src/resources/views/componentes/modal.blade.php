@@ -1,5 +1,5 @@
 <script type="text/x-template" id="modal-template">
-    <transition name="modal-fade">
+    <transition name="animation-fade">
         <div v-if="mostrar" class="fondo-modal" @click.self="close">
             <div class="modal">
                 <button class="cerrar-modal" @click="close">&times;</button>
