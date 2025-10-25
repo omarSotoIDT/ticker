@@ -2,6 +2,7 @@
 
 namespace App\BO;
 
+use App\Consts\TicketConsts;
 use Illuminate\Support\Facades\Auth;
 
 class TicketBO
@@ -17,7 +18,7 @@ class TicketBO
             'titulo' => $datos['titulo'],
             'descripcion' => $datos['descripcion'],
             'prioridad' => $datos['prioridad'],
-            'status' => $datos['status'],
+            'status' => TicketConsts::ABIERTO,
             'registro_autor_id' => Auth::id(),
             'registro_fecha' => now()
         ];

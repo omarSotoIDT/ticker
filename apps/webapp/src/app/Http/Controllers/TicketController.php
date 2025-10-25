@@ -43,8 +43,7 @@ class TicketController extends Controller
                 'usuario_asignado_id' => 'integer|required',
                 'titulo' => 'string|required|max:100',
                 'descripcion' => 'string|required|max:250',
-                'prioridad' => 'in:Baja,Alta,Media,Urgente|required',
-                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
+                'prioridad' => 'string|required',
             ]);
 
             if (TicketCoordinator::agregar($datos)) {
@@ -67,9 +66,9 @@ class TicketController extends Controller
                 'etiqueta_id' => 'integer',
                 'usuario_asignado_id' => 'integer',
                 'titulo' => 'string|max:100',
-                'descripcion' => 'string|required',
-                'prioridad' => 'in:Baja,Alta,Media,Urgente',
-                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado',
+                'descripcion' => 'string',
+                'prioridad' => 'string',
+                'status' => 'string',
             ]);
             if (TicketService::editar($id, $datos)) {
                 return Response::json(null, 204);
@@ -86,7 +85,7 @@ class TicketController extends Controller
     {
         try {
             $datos = $request->validate([
-                'status' => 'in:Abierto,En progreso,Atendido,Cerrado,Informacion requerida,Cancelado|required',
+                'status' => 'string|required',
             ]);
             if (TicketService::editarEstado($id, $datos)) {
                 return Response::json(null, 204);
@@ -103,7 +102,7 @@ class TicketController extends Controller
     {
         try {
             $datos = $request->validate([
-                'prioridad' => 'in:Baja,Alta,Media,Urgente|required'
+                'prioridad' => 'string|required',
             ]);
             if (TicketService::editarPrioridad($id, $datos)) {
                 return Response::json(null, 204);
