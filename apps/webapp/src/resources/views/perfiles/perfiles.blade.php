@@ -15,7 +15,7 @@
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
             <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
         </form>
-        <button class="btn primary-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+        <button class="btn action-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
     </div>
 
     @if(session('success'))
