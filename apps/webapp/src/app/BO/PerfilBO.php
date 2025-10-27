@@ -2,6 +2,7 @@
 
 namespace App\BO;
 
+use App\Consts\StatusConsts;
 use Illuminate\Support\Facades\Auth;
 
 class PerfilBO
@@ -12,7 +13,7 @@ class PerfilBO
             'clave' => $datos['clave'],
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'],
-            'status' => $datos['status'],
+            'status' => StatusConsts::ACTIVO,
             'super_usuario' => $datos['super_usuario'],
             'registro_autor_id' => Auth::id(),
             'registro_fecha' => now(),
@@ -26,7 +27,7 @@ class PerfilBO
             'clave' => $datos['clave'],
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'],
-            'status' => $datos['status'],
+            'status' => $datos['status'] ?? StatusConsts::ACTIVO,
             'super_usuario' => $datos['super_usuario'],
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now(),
@@ -37,7 +38,7 @@ class PerfilBO
     public static function armarDelete()
     {
         return [
-            'status' => 'ELIMINADO',
+            'status' => StatusConsts::ELIMINADO,
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
         ];
