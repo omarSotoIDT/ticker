@@ -33,4 +33,13 @@ class PerfilBO
             'permisos' => $datos['permisos'] ?? []
         ];
     }
+
+    public static function armarDelete()
+    {
+        return [
+            'status' => 'ELIMINADO',
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now()
+        ];
+    }
 }
