@@ -21,4 +21,10 @@ class ClienteRepoData
     {
         return DB::table('clientes')->where('cliente_id', $id)->first();
     }
+
+        public static function obtenerNombrePorId(int $id): ?string
+        {
+            $cliente = DB::table('clientes')->select('nombre')->where('cliente_id', $id)->first();
+            return $cliente ? $cliente->nombre : null;
+        }
 }

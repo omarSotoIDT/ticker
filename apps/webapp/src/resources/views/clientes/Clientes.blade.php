@@ -376,7 +376,7 @@
         }
     })
 
-    app.component('notificacion', {
+    const notificacion = {
         template: '#notificacion-template',
         props: {
             mostrar: Boolean,
@@ -421,9 +421,9 @@
         beforeUnmount() {
             this.limpiarTemporizador();
         }
-    });
+    };
 
-    app.component('modal-componente', {
+    const modal = {
         template: '#modal-template',
         props: {
             mostrar: Boolean,
@@ -441,7 +441,10 @@
                 this.$emit('update:mostrar', false)
             }
         }
-    })
+    };
+
+    app.component('notificacion', notificacion);
+    app.component('modal-componente', modal);
 
     app.mount('#app')
 </script>
