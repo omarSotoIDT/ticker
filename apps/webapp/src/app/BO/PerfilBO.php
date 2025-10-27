@@ -2,6 +2,8 @@
 
 namespace App\BO;
 
+use Illuminate\Support\Facades\Auth;
+
 class PerfilBO
 {
     public static function armarInsert(array $datos)
@@ -12,8 +14,8 @@ class PerfilBO
             'descripcion' => $datos['descripcion'],
             'status' => $datos['status'],
             'super_usuario' => $datos['super_usuario'],
-            'registro_autor_id' => $datos['registro_autor_id'],
-            'registro_fecha' => $datos['registro_fecha'],
+            'registro_autor_id' => Auth::id(),
+            'registro_fecha' => now(),
             'permisos' => $datos['permisos'] ?? []
         ];
     }
@@ -26,8 +28,8 @@ class PerfilBO
             'descripcion' => $datos['descripcion'],
             'status' => $datos['status'],
             'super_usuario' => $datos['super_usuario'],
-            'actualizacion_autor_id' => $datos['actualizacion_autor_id'],
-            'actualizacion_fecha' => $datos['actualizacion_fecha'],
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now(),
             'permisos' => $datos['permisos'] ?? []
         ];
     }

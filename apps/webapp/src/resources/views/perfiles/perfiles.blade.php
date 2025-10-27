@@ -175,17 +175,27 @@
                 this.mostrarModal = true;
             },
             modalEditar(perfilId) {
-                this.errors = {}; 
+                this.errors = {};
                 const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
                 if (!perfil) return;
-                
+
                 this.tipoForm = 'editar';
+
+                let permisosIds = [];
+                if (Array.isArray(perfil.permisos) && perfil.permisos.length) {
+                    if (typeof perfil.permisos[0] === 'object') {
+                        permisosIds = perfil.permisos.map(p => p.permiso_id);
+                    } else {
+                        permisosIds = perfil.permisos;
+                    }
+                }
+
                 this.formPerfil = {
                     clave: perfil.clave,
                     nombre: perfil.nombre,
                     descripcion: perfil.descripcion,
                     status: perfil.status,
-                    permisos: perfil.permisos.map(p => p.permiso_id),
+                    permisos: permisosIds,
                     perfil_id: perfil.perfil_id
                 };
                 this.mostrarModal = true;
