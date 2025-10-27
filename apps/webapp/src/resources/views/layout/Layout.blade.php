@@ -21,7 +21,7 @@
         <a href=""><i class="fa fa-pie-chart" aria-hidden="true"></i> Dashboard</a>
         <a href=""><i class="fa-solid fa-ticket"></i> Tickets</a>
         <a href=""><i class="fa-solid fa-users" aria-hidden="true"></i> Usuarios</a>
-        <a href=""><i class="fa-solid fa-shield-halved"></i> Perfiles</a>
+        <a href="{{ route('perfiles.index') }}"><i class="fa-solid fa-shield-halved"></i> Perfiles</a>
         <a href=""><i class="fa-solid fa-file-lines"></i> Clientes</a>
         <a href=""><i class="fa-solid fa-clipboard-list"></i> Proyectos</a>
         <a href=""><i class="fa-solid fa-chart-simple"></i> Reportes</a>

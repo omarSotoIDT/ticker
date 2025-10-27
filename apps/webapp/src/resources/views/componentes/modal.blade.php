@@ -8,7 +8,7 @@
                 <slot></slot>
                 <div class="acciones-modal" v-if="mostrarBotones">
                     <button @click="close" class="btn secondary-btn">Cancelar</button>
-                    <button @click="$emit('confirmar')" class="btn primary-btn">@{{ textoConfirmacion }}</button>
+                    <button @click="$emit('confirmar')" class="btn action-btn">@{{ textoConfirmacion }}</button>
                 </div>
             </div>
         </div>
