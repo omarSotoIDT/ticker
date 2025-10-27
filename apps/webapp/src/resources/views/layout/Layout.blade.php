@@ -8,6 +8,7 @@
   {{-- VUE --}}
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
+  <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
   {{-- Estilos--}}
   <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}" />
   <link rel="stylesheet" href="{{ asset('css/estilos.css') }}?v={{ config('app.version') }}" />

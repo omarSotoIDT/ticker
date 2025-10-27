@@ -3,7 +3,6 @@
 @section('titulo', 'Gestor de usuarios')
 
 @section('contenido')
-@include('componentes.modal')
   <div id="app">
     <div class="">
       <div class="cont-buscador">
@@ -345,25 +344,7 @@
       }
     });
 
-    app.component('modal-componente', {
-      template: '#modal-template',
-      props: {
-        mostrar: { type: Boolean, default: false },
-        titulo: { type: String, default: '' },
-        subtitulo: { type: String, default: '' },
-        textoConfirmacion: { type: String, default: 'Aceptar' },
-        mostrarBotones: { type: Boolean, default: true }
-      },
-      emits: ['update:mostrar', 'confirmar'],
-      methods: {
-        close() {
-          this.$emit('update:mostrar', false)
-          if (this.$root && this.$root.erroresModal) {
-            this.$root.erroresModal = {};
-          }      
-        }
-      }
-    })
+    app.component('modal-componente', modal)
     app.component('alerta-componente', alerta)
     app.mount('#app')
   </script>
