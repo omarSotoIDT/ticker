@@ -91,6 +91,14 @@
         </div>
       </form>
     </modal-componente>
+
+    <alerta-componente
+    :mostrar="alerta.mostrar"
+    :tipo="alerta.tipo"
+    :titulo="alerta.titulo"
+    :mensaje="alerta.mensaje"
+    >
+    </alerta-componente>
     
   </div>
   <script>
@@ -113,7 +121,13 @@
           token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
           usuarios: null,
           usuario: null,
-          erroresModal: {}
+          erroresModal: {},
+          alerta: {
+            mostrar: false,
+            tipo: '',
+            titulo: '',
+            mensaje: ''
+          }
         }
       },
       methods: {
@@ -150,6 +164,16 @@
           this.mostrarCambiarStatus = true;
         },
 
+        mostrarAlerta(tipo, titulo, mensaje){
+          this.alerta.tipo = tipo;
+          this.alerta.titulo = titulo;
+          this.alerta.mensaje = mensaje;
+          this.alerta.mostrar = true;
+          setTimeout(() => {
+            this.alerta.mostrar = false;
+          }, 3000);
+        },
+
         async listarUsuarios() {
           try{
             const response = await fetch('/usuarios/listarRest' , {
@@ -168,7 +192,7 @@
             this.usuarios = data;
             this.busqueda = '';
           }catch(error){
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
           }
         },
 
@@ -191,7 +215,7 @@
             const data = await response.json();
             this.usuarios = data;
           }catch(error) {
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar');
           }
         },
 
@@ -218,9 +242,9 @@
             const data = await response.json();
             this.listarUsuarios();
             this.mostrarModal = false;
-
+            this.mostrarAlerta('exito', 'Exito', 'Usuario creado');
           }catch(error) {
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el usuario');
           }
         },
 
@@ -246,9 +270,10 @@
 
             this.listarUsuarios();
             this.mostrarModal = false;
+            this.mostrarAlerta('exito', 'Exito', 'Usuario actalizado');
 
           }catch(error) {
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el usuario');
           }
         },
 
@@ -274,9 +299,9 @@
 
             this.listarUsuarios();
             this.mostrarCambiarStatus = false;
-
+            this.mostrarAlerta('exito', 'Exito', 'Usuario eliminado');
           }catch(error) {
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al eliminar el usuario');
           }
         },
 
@@ -301,9 +326,9 @@
 
             this.listarUsuarios();
             this.mostrarCambiarStatus = false;
-
+            this.mostrarAlerta('exito', 'Exito', 'Usuario Activado');
           }catch(error) {
-
+            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al activar el usuario');
           }
         },
 
@@ -339,6 +364,7 @@
         }
       }
     })
+    app.component('alerta-componente', alerta)
     app.mount('#app')
   </script>
 @endsection
