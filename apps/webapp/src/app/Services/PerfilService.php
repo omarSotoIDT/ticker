@@ -20,23 +20,38 @@ class PerfilService
 
     public static function crearPerfil(array $datos)
     {
-        $datosArmados = PerfilBO::armarInsert($datos);
+        $datosPerfil = PerfilBO::armarInsert($datos);
 
-        return PerfilRepoAction::crearPerfil($datosArmados);
+        $permisos = $datosPerfil['permisos'] ?? [];
+        unset($datosPerfil['permisos']);
+
+        $perfil_id = PerfilRepoAction::crearPerfil($datosPerfil);
+
+        if (!empty($permisos)) {
+            $permisosListos = PerfilBO::prepararPermisos($perfil_id, $permisos);
+            PerfilRepoAction::actualizarPerfil($perfil_id, [], $permisosListos);
+        }
+
+        return $perfil_id;
     }
 
     public static function actualizarPerfil(int $perfil_id, array $datos)
     {
-        $datosArmados = PerfilBO::armarUpdate($datos);
+        $datosPerfil = PerfilBO::armarUpdate($datos);
 
-        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
+        $permisos = $datosPerfil['permisos'] ?? [];
+        unset($datosPerfil['permisos']);
+
+        $permisosListos = !empty($permisos) ? PerfilBO::prepararPermisos($perfil_id, $permisos) : [];
+
+        PerfilRepoAction::actualizarPerfil($perfil_id, $datosPerfil, $permisosListos);
     }
 
     public static function eliminarPerfil(int $perfil_id)
     {
         $datosArmados = PerfilBO::armarDelete();
 
-        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
+        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados, []);
     }
 
     public static function validarDatosPerfil(array $datos)
