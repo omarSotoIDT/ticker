@@ -20,35 +20,25 @@ class PerfilService
 
     public static function crearPerfil(array $datos)
     {
-        $datosAdaptados = PerfilBO::armarInsert($datos);
-
-        $perfil_id = PerfilRepoAction::crearPerfil($datosAdaptados);
-
-        return $perfil_id;
+        $datosArmados = PerfilBO::armarInsert($datos);
+        return PerfilRepoAction::crearPerfil($datosArmados);
     }
 
     public static function actualizarPerfil($perfil_id, array $datos)
     {
-        $datosAdaptados = PerfilBO::armarUpdate($datos);
-
-        PerfilRepoAction::actualizarPerfil($perfil_id, $datosAdaptados);
-
-        return true;
+        $datosArmados = PerfilBO::armarUpdate($datos);
+        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
     }
 
     public static function eliminarPerfil($perfil_id)
     {
-        $datos = [
-            'status' => 'ELIMINADO',
-            'actualizacion_autor_id' => session('user_id'),
-            'actualizacion_fecha' => now()
-        ];
-        PerfilRepoAction::actualizarPerfil($perfil_id, $datos);
-        return true;
+        $datosArmados = PerfilBO::armarDelete();
+        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
+
     }
 
     public static function validarDatosPerfil(array $datos)
     {
-
+        
     }
 }
