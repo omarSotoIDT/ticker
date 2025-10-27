@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('titulo', 'Tickets')</title>
+  {{-- Fuentes --}}
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
   {{-- VUE --}}
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="{{ asset('componentes/alerta.js') }}?v={{ config('app.version') }}"></script>
 
   {{-- Estilos--}}
   <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}" />

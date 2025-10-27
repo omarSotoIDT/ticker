@@ -1,7 +1,8 @@
 /* ======== ESTILOS GENERALES ======== */
 body{
     height: 100vh;
-    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-family: "Inter", Tahoma, sans-serif;
+    font-weight: 400;
     color: #333;
 }
 
@@ -245,22 +246,6 @@ main {
 }
 
 /* ======== Componente Alerta ======== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
-}
-
-body {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f4f7ff;
-  overflow: hidden;
-}
-
 .alerta {
   position: absolute;
   top: 25px;
@@ -289,7 +274,6 @@ body {
   justify-content: center;
   height: 35px;
   min-width: 35px;
-  background-color: #4070f4;
   color: #fff;
   font-size: 20px;
   border-radius: 50%;
@@ -322,5 +306,3 @@ body {
   font-weight: 600;
   color: #333;
 }
-
-
