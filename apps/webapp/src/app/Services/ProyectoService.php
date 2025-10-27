@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\RepoAction\ProyectoRepoAction;
 use App\RepoData\ProyectoRepoData;
+use App\BO\ProyectoBO;
 
 
 class ProyectoService
@@ -15,50 +16,45 @@ class ProyectoService
 
     public static function registrarProyecto(array $data)
     {
-        $proyectoId = ProyectoRepoAction::crearProyecto($data);
-
+        $proyectoId = ProyectoRepoAction::crearProyecto(ProyectoBO::datosParaInsert($data));
         $nombreProyecto = $data['nombre'];
-        ProyectoRepoAction::registrarLog(
-            $proyectoId,
-            'CREAR',
-            "Proyecto creado: {$nombreProyecto}"
-        );
-
+        $clienteNombre = \App\RepoData\ClienteRepoData::obtenerNombrePorId($data['cliente_id'] ?? null);
+        $descripcion = "Proyecto creado: '{$nombreProyecto}' para cliente: '{$clienteNombre}'";
+        ProyectoRepoAction::registrarLog($proyectoId, $descripcion);
         return $proyectoId;
     }
 
     public static function actualizarProyecto(int $id, array $data)
     {
         $proyectoActual = ProyectoRepoData::obtenerPorId($id);
-
         if (!$proyectoActual) {
             return false;
         }
-
         $anterior = (array) $proyectoActual;
         $cambios = [];
-
         $camposComparar = ['nombre', 'descripcion', 'cliente_id', 'status'];
-
         foreach ($camposComparar as $campo) {
-            $valorAnterior = $anterior[$campo];
-            $valorNuevo = $data[$campo];
-
-            if ($valorAnterior !== $valorNuevo) {
-                $cambios[] = "Campo: {$campo} | Antes: '{$valorAnterior}' | Después: '{$valorNuevo}'";
+            if (array_key_exists($campo, $data)) {
+                $valorAnterior = $anterior[$campo];
+                $valorNuevo = $data[$campo];
+                if ($valorAnterior !== $valorNuevo) {
+                    if ($campo === 'cliente_id') {
+                        $nombreAnterior = \App\RepoData\ClienteRepoData::obtenerNombrePorId($valorAnterior);
+                        $nombreNuevo = \App\RepoData\ClienteRepoData::obtenerNombrePorId($valorNuevo);
+                        $cambios[] = "Cliente cambiado de '{$nombreAnterior}' a '{$nombreNuevo}'";
+                    } else {
+                        $cambios[] = ucfirst($campo) . " cambiado de '{$valorAnterior}' a '{$valorNuevo}'";
+                    }
+                }
             }
         }
-
         if (!empty($cambios)) {
-            $resultado = ProyectoRepoAction::actualizarProyecto($id, $data);
-
-            $descripcion = "Proyecto actualizado:\n" . implode("\n", $cambios);
-
-            ProyectoRepoAction::registrarLog($id, 'ACTUALIZAR', $descripcion);
-
+            $resultado = ProyectoRepoAction::actualizarProyecto($id, ProyectoBO::datosParaUpdate($data));
+            $nombreProyecto = $data['nombre'] ?? $anterior['nombre'] ?? '';
+            $descripcion = "Proyecto '{$nombreProyecto}' actualizado: " . implode('; ', $cambios);
+            ProyectoRepoAction::registrarLog($id, $descripcion);
             return $resultado;
         }
-
         return false;
     }
 
@@ -68,15 +64,10 @@ class ProyectoService
         if (!$proyecto) {
             return false;
         }
-
+        $nombreProyecto = $proyecto->nombre ?? '';
         $resultado = ProyectoRepoAction::eliminarProyecto($id, $motivo);
-
-        ProyectoRepoAction::registrarLog(
-            $id,
-            'ELIMINAR',
-            "Proyecto eliminado. Motivo: {$motivo}"
-        );
-
+        $descripcion = "Proyecto '{$nombreProyecto}' eliminado. Motivo: {$motivo}";
+        ProyectoRepoAction::registrarLog($id, $descripcion);
         return $resultado;
     }
 
@@ -86,16 +77,11 @@ class ProyectoService
         if (!$proyecto) {
             return false;
         }
-
         $nuevoEstado = $proyecto->status === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
         $resultado = ProyectoRepoAction::activaProyecto($id, $proyecto->status);
-
-        ProyectoRepoAction::registrarLog(
-            $id,
-            'ESTADO',
-            "Estado cambiado de {$proyecto->status} a {$nuevoEstado}"
-        );
-
+        $nombreProyecto = $proyecto->nombre ?? '';
+        $descripcion = "Estado de proyecto '{$nombreProyecto}' cambiado de {$proyecto->status} a {$nuevoEstado}";
+        ProyectoRepoAction::registrarLog($id, $descripcion);
         return $resultado;
     }
 
@@ -121,7 +107,7 @@ class ProyectoService
             if ($nombresAgregados) $descripcion .= "Asignados [{$nombresAgregados}] ";
             if ($nombresEliminados) $descripcion .= "Eliminados [{$nombresEliminados}]";
 
-            ProyectoRepoAction::registrarLog($proyectoId, 'ACTUALIZAR', $descripcion);
+            ProyectoRepoAction::registrarLog($proyectoId, $descripcion);
         }
     }
 

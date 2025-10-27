@@ -9,16 +9,18 @@ class ProyectoRepoData
 {
     public static function obtenerProyectos(array $filters = [])
     {
-        $query = DB::table('proyectos')
+        $query = DB::table('proyectos as p')
             ->select(
-                'proyecto_id',
-                'cliente_id',
-                'nombre',
-                'descripcion',
-                'status',
-                'registro_fecha'
+                'p.proyecto_id',
+                'p.cliente_id',
+                'p.nombre',
+                'p.descripcion',
+                'p.status',
+                'p.registro_fecha',
+                'c.nombre as cliente_nombre'
             )
-            ->where('status', '!=', 'ELIMINADO');
+            ->leftJoin('clientes as c', 'p.cliente_id', '=', 'c.cliente_id')
+            ->where('p.status', '!=', 'ELIMINADO');
 
         $query = ProyectoRepoHelper::aplicarFiltros($query, $filters);
 
@@ -46,27 +48,9 @@ class ProyectoRepoData
         if (empty($ids)) return '';
         return DB::table('sys_usuarios')
             ->whereIn('usuario_id', $ids)
-            ->pluck('nombre')
+            ->pluck('usuario')
             ->implode(', ');
     }
-
-
-    // public static function obtenerLogs(int $proyectoId)
-    // {
-    //     return DB::table('log_proyectos as lp')
-    //         ->join('proyectos as p', 'lp.proyecto_id', '=', 'p.proyecto_id')
-    //         ->join('sys_usuarios as u', 'lp.usuarioId', '=', 'u.usuarioId')
-    //         ->select(
-    //             'lp.log_proyecto_id',
-    //             'p.nombre as proyecto_nombre',
-    //             DB::raw("CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as usuario_nombre"),
-    //             'lp.descripcion',
-    //             'lp.registro_fecha'
-    //         )
-    //         ->where('lp.proyecto_id', $proyectoId)
-    //         ->orderByDesc('lp.registro_fecha')
-    //         ->get();
-    // }
 
     public static function obtenerLogs(int $proyectoId)
     {
@@ -76,23 +60,12 @@ class ProyectoRepoData
                 'lp.log_proyecto_id as id',
                 'lp.descripcion as accion',
                 'lp.registro_fecha as fecha',
-                DB::raw("CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as usuario")
+                DB::raw("u.usuario as usuario")
             )
             ->where('lp.proyecto_id', $proyectoId)
             ->orderByDesc('lp.registro_fecha')
             ->get();
     }
-
-
-    // public static function listarUsuariosAsignados(int $proyectoId)
-    // {
-    //     return DB::table('rel_usuarios_proyectos as rup')
-    //         ->join('sys_usuarios as u', 'rup.usuarioId', '=', 'u.usuarioId')
-    //         ->where('rup.proyecto_id', $proyectoId)
-    //         ->where('rup.status', 'ACTIVO')
-    //         ->select('u.usuarioId', 'u.nombre_completo as nombre') // ← aquí
-    //         ->get();
-    // }
 
     public static function listarUsuariosAsignados(int $proyectoId)
     {
@@ -101,9 +74,9 @@ class ProyectoRepoData
             ->where('rup.proyecto_id', $proyectoId)
             ->where('rup.status', 'ACTIVO')
             ->select(
-                'u.usuario_id as usuario_id',
-                'u.usuario as usuario',
-                'u.email as email'
+                'u.usuario_id',
+                'u.usuario',
+                'u.email'
             )
             ->get();
     }

@@ -5,32 +5,28 @@ namespace App\RepoAction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\BO\ProyectoBO;
 
 class ProyectoRepoAction
 {
     public static function crearProyecto(array $data): int
     {
-        return DB::table('proyectos')->insertGetId([
-            'cliente_id'         => $data['cliente_id'],
-            'nombre'             => $data['nombre'],
-            'descripcion'        => $data['descripcion'],
-            'status'             => $data['status'] ?? 'ACTIVO',
-            'registro_autor_id'  => Auth::id(),
-            'registro_fecha'     => Carbon::now(),
-        ]);
+        $insertData = ProyectoBO::datosParaInsert($data);
+        $insertData['registro_autor_id'] = Auth::id();
+        $insertData['registro_fecha'] = Carbon::now();
+
+        return DB::table('proyectos')->insertGetId($insertData);
     }
 
     public static function actualizarProyecto(int $id, array $data): bool
     {
+        $updateData = ProyectoBO::datosParaUpdate($data);
+        $updateData['actualizacion_autor_id'] = Auth::id();
+        $updateData['actualizacion_fecha'] = Carbon::now();
+
         return DB::table('proyectos')
             ->where('proyecto_id', $id)
-            ->update([
-                'cliente_id'           => $data['cliente_id'],
-                'nombre'               => $data['nombre'],
-                'descripcion'          => $data['descripcion'],
-                'actualizacion_autor_id' => Auth::id(),
-                'actualizacion_fecha'  => Carbon::now(),
-            ]);
+            ->update($updateData);
     }
 
     public static function activaProyecto(int $id, string $estadoActual): bool
@@ -58,15 +54,15 @@ class ProyectoRepoAction
             ]);
     }
 
-    public static function registrarLog(int $proyectoId, string $accion, string $descripcion): void
+    public static function registrarLog(int $proyectoId, string $descripcion): void
     {
-        $folio = 'FOLIO-' . strtoupper(substr(sha1(time() . $proyectoId), 0, 6));
+        $folio = ProyectoBO::generarFolio($proyectoId);
 
         DB::table('log_proyectos')->insert([
             'proyecto_id'    => $proyectoId,
             'usuario_id'     => Auth::id(),
             'folio'          => $folio,
-            'descripcion'    => "$accion: $descripcion",
+            'descripcion'    => $descripcion,
             'registro_fecha' => Carbon::now(),
         ]);
     }
