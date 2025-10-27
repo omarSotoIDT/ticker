@@ -35,9 +35,9 @@
             <a href="">Reportes</a>
 
             <div class="logout">
-                <p>{{ Auth::user()->usuario }}</p>
-                <P>{{ Auth::user()->email }}</P>
-                <form action="" method="post">
+                <p>Usuario</p>
+                <P>Correo</P>
+                <form action="/logout" method="post">
                     @csrf
                     <button type="submit">Cerrar Sesión</button>
                 </form>
