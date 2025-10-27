@@ -26,8 +26,6 @@ class ProyectoController extends Controller
         if (request()->wantsJson()) {
             return response()->json(['error' => $mensajeUsuario], 500);
         }
-
-        return back()->withErrors([$mensajeUsuario]);
     }
 
 
@@ -36,7 +34,7 @@ class ProyectoController extends Controller
         $reglas = [
             'cliente_id'  => 'required|integer|exists:clientes,cliente_id',
             'nombre'      => 'required|string|max:150',
-            'descripcion' => 'nullable|string|max:250',
+            'descripcion' => 'required|string|max:250',
         ];
 
         if ($esEditar) {
@@ -58,7 +56,14 @@ class ProyectoController extends Controller
             }
 
             $proyectos = ProyectoRepoData::obtenerProyectos($filtros);
-
+            $proyectos = $proyectos->map(function($p) {
+                $p->cliente = [
+                    'cliente_id' => $p->cliente_id,
+                    'nombre' => $p->cliente_nombre
+                ];
+                unset($p->cliente_nombre);
+                return $p;
+            });
             return response()->json(['data' => $proyectos], 200);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener la lista de proyectos', __FUNCTION__);
@@ -89,7 +94,8 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
-            return $this->handleException($e, 'Error al registrar el proyecto', __FUNCTION__);
+            $exception = $this->handleException($e, 'Error al registrar el proyecto', __FUNCTION__);
+            return $exception;
         }
     }
 
@@ -118,7 +124,8 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
-            return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
+            $exception = $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
+            return $exception;
         }
     }
 
@@ -152,22 +159,10 @@ class ProyectoController extends Controller
         }
     }
 
-
-    // public function logsRest($id)
-    // {
-    //     try {
-    //         $logs = ProyectoService::obtenerLogs($id);
-
-    //         return response()->json(['data' => $logs], 200);
-    //     } catch (Throwable $e) {
-    //         return $this->handleException($e, 'Error al obtener logs del proyecto', __FUNCTION__);
-    //     }
-    // }
-
     public function logsRest($id)
     {
         try {
-            $logs = ProyectoRepoData::obtenerLogs($id);
+            $logs = ProyectoService::obtenerLogs($id);
             $usuarios = ProyectoRepoData::listarUsuariosAsignados($id);
 
             return response()->json([

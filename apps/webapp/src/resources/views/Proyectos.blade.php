@@ -30,7 +30,7 @@
             <tr v-for="proyecto in proyectos" :key="proyecto.proyecto_id">
                 <td>@{{ proyecto.nombre }}</td>
 
-                <td>@{{ proyecto.cliente?.nombre }}</td>
+                <td>@{{ proyecto.cliente_id }}</td>
 
                 <td>@{{ proyecto.descripcion }}</td>
                 <td>
@@ -65,7 +65,7 @@
         :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
         :texto-confirmacion="tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios'"
-        @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
+        @confirmar="guardarproyecto">
 
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -94,13 +94,13 @@
             <div class="campo">
                 <label class="etiqueta">Usuarios</label>
                 <div class="lista-usuarios">
-                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuario_id" class="usuario-item">
+                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuarioId" class="usuario-item">
                         <input
                             type="checkbox"
-                            :id="'usuario-' + usuario.usuario_id"
-                            :value="usuario.usuario_id"
+                            :id="'usuario-' + usuario.usuarioId"
+                            :value="usuario.usuarioId"
                             v-model="formproyecto.usuarios">
-                        <label :for="'usuario-' + usuario.usuario_id">
+                        <label :for="'usuario-' + usuario.usuarioId">
                             @{{ usuario.usuario }}
                         </label>
                     </div>
@@ -111,49 +111,31 @@
         </form>
     </modal-componente>
 
-    <script type="text/x-template" id="alert-template">
-        <div v-if="mostrar" :class="['alerta', tipo === 'success' ? 'alert-success' : tipo === 'error' ? 'alert-error' : 'alert-info']" style="position:fixed; top:1rem; right:1rem; z-index:9999;">
-            <div style="padding:0.75rem 1rem; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.12); background:#fff; display:flex; align-items:center; gap:0.5rem;">
-                <strong v-if="tipo === 'success'">OK</strong>
-                <strong v-else-if="tipo === 'error'">Error</strong>
-                <strong v-else>Info</strong>
-                <span>@{{ mensaje }}</span>
-                <button @click="close" style="margin-left:0.5rem; background:transparent; border:0; cursor:pointer;">✕</button>
-            </div>
-        </div>
-    </script>
-
-    <alerta-componente :mostrar="alerta.mostrar" :tipo="alerta.tipo" :mensaje="alerta.mensaje"></alerta-componente>
-
     <modal-componente
-    v-model:mostrar="mostrarModalHistorial"
-    titulo="Historial del Proyecto"
-    subtitulo="Usuarios asignados y registros de actividad"
-    texto-confirmacion="Cerrar"
-    :mostrar-botones="false">
+        v-model:mostrar="mostrarModalHistorial"
+        titulo="Historial del Proyecto"
+        subtitulo="Usuarios asignados y registros de actividad"
+        texto-confirmacion="Cerrar"
+        :mostrar-botones="false">
 
-    <div class="modal-historial space-y-4">
-        <h4>Usuarios asignados</h4>
-        <ul v-if="usuariosProyecto.length > 0" class="list-disc pl-5">
-            <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
-                @{{ usuario.usuario }} (@{{ usuario.email }})
-            </li>
-        </ul>
-        <p v-else class="text-gray-500">No hay usuarios asignados.</p>
+        <div class="modal-historial">
+            <h4>Usuarios asignados</h4>
+            <ul v-if="usuariosProyecto.length > 0">
+                <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
+                    @{{ usuario.usuario }} (@{{ usuario.email }})
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay usuarios asignados.</p>
 
-        <h4>Logs del proyecto</h4>
-        <ul v-if="logsProyecto.length > 0" class="space-y-1">
-            <li v-for="log in logsProyecto" :key="log.id">
-                <small class="text-gray-500 text-sm">@{{ log.fecha }} — @{{ log.usuario }}</small>
-                <br>
-                <small class="text-gray-500 text-sm">@{{ log.accion }}</small>
-                <hr>
-            </li>
-        </ul>
-        <p v-else class="text-gray-500">No hay registros de actividad.</p>
-    </div>
-</modal-componente>
-
+            <h4>Logs del proyecto</h4>
+            <ul v-if="logsProyecto.length > 0">
+                <li v-for="log in logsProyecto" :key="log.id">
+                    @{{ log.fecha }} — @{{ log.accion }} por @{{ log.usuario }}
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay registros en el historial.</p>
+        </div>
+    </modal-componente>
 
     <modal-componente
         v-model:mostrar="mostrarModalStatus"
@@ -183,6 +165,26 @@
     </modal-componente>
 
 </div>
+
+{{-- ===== TEMPLATE DEL MODAL ===== --}}
+<script type="text/x-template" id="modal-template">
+    <div v-if="mostrar" class="modal-overlay">
+        <div class="modal">
+            <h3>@{{ titulo }}</h3>
+            <p>@{{ subtitulo }}</p>
+            <div class="modal-body">
+                <slot></slot>
+            </div>
+            <div v-if="mostrarBotones !== false" class="modal-footer">
+                <button class="btn-secondary" @click="$emit('update:mostrar', false)">Cancelar</button>
+                <button class="btn-primary" @click="$emit('confirmar')">@{{ textoConfirmacion }}</button>
+            </div>
+        </div>
+    </div>
+    
+</script>
+
+
 
 <script>
     const {
@@ -217,12 +219,7 @@
                     cliente_id: null,
                     usuarios: []
                 },
-                erroresModal: {},
-                alerta: {
-                    mostrar: false,
-                    tipo: 'info',
-                    mensaje: ''
-                }
+                erroresModal: {}
             }
         },
 
@@ -239,13 +236,6 @@
                 } catch (err) {
                     console.error('Error al listar proyectos:', err);
                 }
-            },
-
-            mostrarAlerta(tipo, mensaje, duracion = 4000) {
-                this.alerta.tipo = tipo || 'info';
-                this.alerta.mensaje = mensaje || '';
-                this.alerta.mostrar = true;
-                if (duracion > 0) setTimeout(() => { this.alerta.mostrar = false; }, duracion);
             },
 
             buscar() {
@@ -280,60 +270,21 @@
                 try {
                     const res = await fetch('/usuarios/listarRest');
                     const data = await res.json();
-
-                    this.usuariosDisponibles = (data || []).map(u => ({
-                        usuario_id: u.usuario_id ?? u.usuarioId,
-                        usuario: u.usuario,
-                        email: u.email,
-                        ...u
-                    }));
+                    this.usuariosDisponibles = data || [];
                 } catch (err) {
                     console.error('Error al cargar usuarios:', err);
                 }
             },
 
-            async crearProyecto() {
-                try {
-                    const res = await fetch('/proyectos/registrar', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify(this.formproyecto)
-                    });
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
-                        }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
-                        return;
-                    }
-
-                    if (!res.ok) throw new Error('Error al crear el proyecto');
-
-                    this.mostrarModal = false;
-                    this.listarProyectos();
-                    this.erroresModal = {};
-                    this.mostrarAlerta('success', 'Proyecto creado correctamente');
-                } catch (err) {
-                    console.error('Error al crear proyecto:', err);
-                    this.mostrarAlerta('error', 'Error al crear proyecto');
-                }
-            },
-
-            async actualizarProyecto() {
-                console.log('Actualizando proyecto:', this.formproyecto.proyecto_id);
-                console.log('URL esperada:', `/proyectos/${this.formproyecto.proyecto_id}/actualizar`);
-                console.log('Objeto enviado:', this.formproyecto);
+            async guardarproyecto() {
+                const url = this.tipoForm === 'crear' ?
+                    '/proyectos/registrar' :
+                    `/proyectos/${this.formproyecto.proyecto_id}/actualizar`;
+                const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH';
 
                 try {
-                    const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}/actualizar`, {
-                        method: 'PATCH',
+                    const res = await fetch(url, {
+                        method: metodo,
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -344,24 +295,16 @@
                     if (res.status === 422) {
                         const data = await res.json();
                         this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
-                        }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
                         return;
                     }
 
-                    if (!res.ok) throw new Error('Error al actualizar el proyecto');
+                    if (!res.ok) throw new Error('Error al guardar el proyecto');
 
                     this.mostrarModal = false;
                     this.listarProyectos();
                     this.erroresModal = {};
-                    this.mostrarAlerta('success', 'Proyecto actualizado correctamente');
                 } catch (err) {
-                    console.error('Error al actualizar proyecto:', err);
-                    this.mostrarAlerta('error', 'Error al actualizar proyecto');
+                    console.error('Error al guardar proyecto:', err);
                 }
             },
 
@@ -382,6 +325,7 @@
             },
 
 
+            // ======= CAMBIAR ESTADO =======
             modalToggle(proyecto_id, tipo) {
                 this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
                 if (!this.proyectoSeleccionado) return;
@@ -410,12 +354,6 @@
                     if (res.status === 422) {
                         const data = await res.json();
                         this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
-                        }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
                         return;
                     }
 
@@ -423,11 +361,8 @@
 
                     this.mostrarModalStatus = false;
                     this.listarProyectos();
-                    const successMsg = this.tipoForm === 'eliminar' ? 'Proyecto eliminado correctamente' : 'Estado cambiado correctamente';
-                    this.mostrarAlerta('success', successMsg);
                 } catch (err) {
                     console.error('Error al cambiar estado:', err);
-                    this.mostrarAlerta('error', 'Error al cambiar estado');
                 }
             },
 
@@ -435,7 +370,7 @@
                 this.tipoForm = 'editar';
                 this.erroresModal = {};
                 this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
-
+                
                 if (!this.proyectoSeleccionado) return;
 
                 this.formproyecto = {
@@ -443,9 +378,10 @@
                     nombre: this.proyectoSeleccionado.nombre,
                     descripcion: this.proyectoSeleccionado.descripcion,
                     cliente_id: this.proyectoSeleccionado.cliente_id,
-                    usuarios: [] 
+                    usuarios: [] // Se cargará desde el servidor
                 };
 
+                // Cargar usuarios actuales y disponibles
                 await Promise.all([
                     this.cargarClientes(),
                     this.cargarUsuarios(),
@@ -459,8 +395,7 @@
                 try {
                     const res = await fetch(`/proyectos/${proyecto_id}/usuarios`);
                     const data = await res.json();
-                    const usuarios = data.data || [];
-                    this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
+                    this.formproyecto.usuarios = (data || []).map(u => u.usuario_id);
                 } catch (err) {
                     console.error('Error al cargar usuarios asignados:', err);
                 }
@@ -470,7 +405,8 @@
         }
     });
 
-    const modal = {
+
+    app.component('modal-componente', {
         template: '#modal-template',
         props: {
             mostrar: Boolean,
@@ -491,25 +427,8 @@
                 }
             }
         }
-    };
+    });
 
-    const alerta = {
-        template: '#alert-template',
-        props: {
-            mostrar: Boolean,
-            tipo: String,
-            mensaje: String
-        },
-        emits: ['update:mostrar'],
-        methods: {
-            close() {
-                this.$emit('update:mostrar', false);
-            }
-        }
-    };
-
-    app.component('modal-componente', modal);
-    app.component('alerta-componente', alerta);
     app.mount('#app');
 </script>
 
