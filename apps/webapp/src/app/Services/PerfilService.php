@@ -21,20 +21,22 @@ class PerfilService
     public static function crearPerfil(array $datos)
     {
         $datosArmados = PerfilBO::armarInsert($datos);
+
         return PerfilRepoAction::crearPerfil($datosArmados);
     }
 
-    public static function actualizarPerfil($perfil_id, array $datos)
+    public static function actualizarPerfil(int $perfil_id, array $datos)
     {
         $datosArmados = PerfilBO::armarUpdate($datos);
+
         return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
     }
 
-    public static function eliminarPerfil($perfil_id)
+    public static function eliminarPerfil(int $perfil_id)
     {
         $datosArmados = PerfilBO::armarDelete();
-        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
 
+        return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
     }
 
     public static function validarDatosPerfil(array $datos)

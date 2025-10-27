@@ -43,4 +43,21 @@ class PerfilBO
             'actualizacion_fecha' => now()
         ];
     }
+
+    public static function prepararPermisos(int $perfil_id, array $permisos): array
+    {
+        $permisosValidos = array_filter($permisos);
+
+        $resultado = [];
+        foreach ($permisosValidos as $permiso_id) {
+            $resultado[] = [
+                'perfil_id' => $perfil_id,
+                'permiso_id' => $permiso_id,
+                'registro_autor_id' => Auth::id(),
+                'registro_fecha' => now()
+            ];
+        }
+
+        return $resultado;
+    }
 }
