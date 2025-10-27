@@ -6,32 +6,26 @@ use Illuminate\Support\Facades\DB;
 
 class PerfilRepoAction
 {
-    public static function crearPerfil(array $datosArmados)
+    public static function crearPerfil(array $datosPerfil, array $permisos = [])
     {
-        $insertData = $datosArmados;
-        unset($insertData['permisos']);
+        $perfil_id = DB::table('sys_perfiles')->insertGetId($datosPerfil);
 
-        $id = DB::table('sys_perfiles')->insertGetId($insertData);
-
-        if (!empty($datosArmados['permisos'])) {
-            $permisosData = \App\BO\PerfilBO::prepararPermisos($id, $datosArmados['permisos']);
-            DB::table('rel_perfiles_permisos')->insert($permisosData);
+        if (!empty($permisos)) {
+            DB::table('rel_perfiles_permisos')->insert($permisos);
         }
 
-        return $id;
+        return $perfil_id;
     }
 
-    public static function actualizarPerfil(int $perfil_id, array $datosArmados)
+    public static function actualizarPerfil(int $perfil_id, array $datosPerfil = [], array $permisos = [])
     {
-        $updateData = $datosArmados;
-        unset($updateData['permisos']); 
+        if (!empty($datosPerfil)) {
+            DB::table('sys_perfiles')->where('perfil_id', $perfil_id)->update($datosPerfil);
+        }
 
-        DB::table('sys_perfiles')->where('perfil_id', $perfil_id)->update($updateData);
-
-        if (!empty($datosArmados['permisos'])) {
-            $permisosData = \App\BO\PerfilBO::prepararPermisos($perfil_id, $datosArmados['permisos']);
+        if (!empty($permisos)) {
             DB::table('rel_perfiles_permisos')->where('perfil_id', $perfil_id)->delete();
-            DB::table('rel_perfiles_permisos')->insert($permisosData);
+            DB::table('rel_perfiles_permisos')->insert($permisos);
         }
     }
 }
