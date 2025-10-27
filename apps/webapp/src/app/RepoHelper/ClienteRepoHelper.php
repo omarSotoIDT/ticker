@@ -8,7 +8,8 @@ class ClienteRepoHelper
     public static function aplicarFiltros(Builder $query, array $filters): Builder
     {
         if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
+            $estados = is_array($filters['status']) ? $filters['status'] : [$filters['status']];
+            $query->whereIn('status', $estados);
         }
 
         if (!empty($filters['nombre'])) {

@@ -4,6 +4,7 @@
 
 @section('contenido')
 @include('componentes.modal')
+@include('componentes.notificacion')
 
 <div id="app">
     {{-- ======= ENCABEZADO ======= --}}
@@ -81,6 +82,8 @@
             </div>
         </form>
     </modal-componente>
+
+
     {{-- ======= MODAL ELIMINAR / CAMBIAR ESTADO ======= --}}
     <modal-componente
         v-model:mostrar="mostrarToggle"
@@ -92,10 +95,20 @@
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
                 <textarea class="input" id="motivo" v-model="formToggle.motivo" required></textarea>
-                <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
+                <span class="error" v-if="erroresModal.motivo || erroresModal.motivo_eliminacion">@{{ erroresModal.motivo ? erroresModal.motivo[0] : erroresModal.motivo_eliminacion[0] }}</span>
             </div>
         </form>
     </modal-componente>
+
+    {{-- Contenedor de notificaciones --}}
+        
+    <notificacion
+        v-model:mostrar="alerta.mostrar"
+        :titulo="alerta.tipo"
+        :mensaje="alerta.mensaje"
+        :tipo="alerta.tipo">
+    </notificacion>
+
 </div>
 
 <script>
@@ -104,16 +117,13 @@
             return {
                 clientes: [],
                 cliente: null,
-
                 mostrarModal: false,
                 mostrarToggle: false,
                 tipoForm: 'crear',
                 accion: '',
                 loading: false,
-
                 erroresModal: {},
                 token: document.querySelector('meta[name="csrf-token"]').content,
-
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -121,15 +131,42 @@
                     email: ''
                 },
                 formToggle: {
-                    motivo: ''
+                    motivo: ''  
                 },
-                busqueda: ''
+                busqueda: '',
+                alerta: {
+                    mostrar: false,
+                    mensaje: '',
+                    tipo: 'error'
+                }
             }
         },
         mounted() {
             this.listarClientes()
         },
         methods: {
+            mostrarAlerta(mensaje, tipo = 'error') {
+                const tipoNormalizado = (function(t) {
+                    if (!t) return 'info'
+                    if (t === 'exito') return 'exito'
+                    if (t === 'error') return 'error'
+                    return 'info'
+                })(tipo)
+
+                this.alerta.mostrar = false
+
+                setTimeout(() => {
+                    this.alerta = {
+                        mostrar: true,
+                        mensaje,
+                        tipo: tipoNormalizado
+                    }
+                    this.$nextTick(() => {
+                        const progreso = document.querySelector('.notificacion .progreso');
+                        if (progreso) progreso.classList.add('activa');
+                    })
+                }, 100)
+            },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
                 const data = await res.json().catch(() => ({}))
@@ -139,9 +176,14 @@
                 }
             },
             handleSuccess(modal) {
+                const mensaje = arguments.length > 1 ? arguments[1] : null
                 this[modal] = false
                 this.erroresModal = {}
                 this.listarClientes()
+
+                if (mensaje) {
+                    this.mostrarAlerta(mensaje, 'exito')
+                }
             },
             async listarClientes() {
                 try {
@@ -153,8 +195,13 @@
                             'Accept': 'application/json'
                         }
                     })
-                    if (res.ok && data.data) this.clientes = data.data
+                    if (res.ok && data.data) {
+                        this.clientes = data.data
+                    } else {
+                        this.mostrarAlerta('Error al obtener la lista de clientes.')
+                    }
                 } catch (e) {
+                    this.mostrarAlerta('Error al listar clientes.');
                     console.error('Error al listar clientes:', e)
                 }
             },
@@ -170,8 +217,13 @@
                             'X-CSRF-TOKEN': this.token
                         }
                     })
-                    if (res.ok && data.data) this.clientes = data.data
+                    if (res.ok && data.data) {
+                        this.clientes = data.data
+                    } else {
+                        this.mostrarAlerta('No se encontraron clientes para la búsqueda especificada.')
+                    }
                 } catch (e) {
+                    this.mostrarAlerta('Error en búsqueda de clientes.');
                     console.error('Error en búsqueda:', e)
                 }
             },
@@ -222,16 +274,24 @@
 
                     if (res.status === 422 && data.errores) {
                         this.erroresModal = data.errores
+                        
+                        const primerError = Object.values(data.errores)[0]
+                        if (primerError && primerError.length > 0) {
+                            this.mostrarAlerta(primerError[0], 'info')
+                        }
                         return
                     }
 
                     if (!res.ok) {
+                        const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
+                        this.mostrarAlerta(mensaje, 'error')
                         console.error('Error al guardar:', data.error || data)
                         return
                     }
 
-                    this.handleSuccess('mostrarModal')
+                    this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
                 } catch (e) {
+                    this.mostrarAlerta('Error general al guardar el cliente.')
                     console.error('Error general al guardar:', e)
                 } finally {
                     this.loading = false
@@ -261,6 +321,7 @@
                         this.erroresModal = {
                             motivo_eliminacion: ['Debes ingresar un motivo']
                         }
+                        this.mostrarAlerta('Debes ingresar un motivo');
                         this.loading = false
                         return
                     }
@@ -289,22 +350,78 @@
                     })
                     if (res.status === 422 && data.errores) {
                         this.erroresModal = data.errores
-                        return}
+                        
+                        const primerError = Object.values(data.errores)[0]
+                        if (primerError && primerError.length > 0) {
+                            this.mostrarAlerta(primerError[0], 'error')
+                        }
+                        return
+                    }
                     if (!res.ok) {
+                        const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al confirmar la acción.')
+                        this.mostrarAlerta(mensaje, 'error')
                         console.error('Error al confirmar acción:', data.error || data)
-                        return}
+                        return
+                    }
 
-                    this.handleSuccess('mostrarToggle')
+                    this.handleSuccess('mostrarToggle', data && data.mensaje ? data.mensaje : null)
 
                 } catch (e) {
+                    this.mostrarAlerta('Error general al confirmar la acción.');
                     console.error('Error general al confirmar acción:', e)
                 } finally {
                     this.loading = false
                 }
             }
-
         }
     })
+
+    app.component('notificacion', {
+        template: '#notificacion-template',
+        props: {
+            mostrar: Boolean,
+            titulo: String,
+            mensaje: String,
+            tipo: {
+                type: String,
+                default: 'info',
+                validator: value => ['exito', 'error', 'info'].includes(value)
+            }
+        },
+        emits: ['update:mostrar'],
+        data() {
+            return {
+                temporizador: null
+            }
+        },
+        watch: {
+            mostrar(nuevo) {
+                if (nuevo) {
+                    this.limpiarTemporizador();
+                    this.temporizador = setTimeout(() => {
+                        this.$emit('update:mostrar', false);
+                        const progreso = this.$el.querySelector('.progreso');
+                        if (progreso) progreso.classList.remove('activa');
+                    }, 5000);
+                }
+            }
+        },
+        methods: {
+            cerrar() {
+                this.$emit('update:mostrar', false);
+                this.limpiarTemporizador();
+                const progreso = this.$el.querySelector('.progreso');
+                if (progreso) progreso.classList.remove('activa');
+            },
+            limpiarTemporizador() {
+                if (this.temporizador) clearTimeout(this.temporizador);
+                this.temporizador = null;
+            }
+        },
+        beforeUnmount() {
+            this.limpiarTemporizador();
+        }
+    });
 
     app.component('modal-componente', {
         template: '#modal-template',
@@ -325,7 +442,9 @@
             }
         }
     })
+
     app.mount('#app')
 </script>
+
 
 @endsection

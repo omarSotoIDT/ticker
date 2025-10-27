@@ -11,7 +11,7 @@ class ClienteService
 {
     public static function registrarCliente(array $data): int
     {
-        $data = ClienteBO::prepararDatos($data);
+        $data = ClienteBO::armarInsert($data);
         return ClienteRepoAction::crearCliente($data);
     }
 
@@ -22,7 +22,7 @@ class ClienteService
 
     public static function actualizarCliente(int $id, array $data): bool
     {
-        $data = ClienteBO::prepararDatos($data);
+        $data = ClienteBO::armarUpdate($data);
         return ClienteRepoAction::actualizarCliente($id, $data);
     }
 
