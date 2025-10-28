@@ -5,6 +5,7 @@ namespace App\RepoAction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use App\Consts\StatusConsts;
 
 class ClienteRepoAction
 {
@@ -24,27 +25,31 @@ class ClienteRepoAction
 
         return (bool) $updated;
     }
-
+    
     public static function activaCliente(int $id, string $estadoActual): bool
     {
-        $nuevoEstado = $estadoActual === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+        $nuevoEstado = $estadoActual === StatusConsts::ACTIVO
+            ? StatusConsts::INACTIVO
+            : StatusConsts::ACTIVO;
+    
         $data = [
             'status' => $nuevoEstado,
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => Carbon::now(),
         ];
-
+    
         $updated = DB::table('clientes')
             ->where('cliente_id', $id)
             ->update($data);
-
+    
         return (bool) $updated;
     }
+    
 
     public static function eliminarCliente(int $id, string $motivo): bool
     {
         $data = [
-            'status' => 'ELIMINADO',
+            'status' => StatusConsts::ELIMINADO,
             'motivo_eliminacion' => $motivo,
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => Carbon::now(),

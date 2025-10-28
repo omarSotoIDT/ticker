@@ -5,6 +5,8 @@ namespace App\BO;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
+use App\Consts\StatusConsts;
+
 class ClienteBO
 {
     public static function armarInsert(array $data): array
@@ -14,7 +16,7 @@ class ClienteBO
             'descripcion' => $data['descripcion'],
             'contacto' => $data['contacto'],
             'email' => $data['email'],
-            'status' => $data['status'] ?? 'ACTIVO',
+            'status' => StatusConsts::ACTIVO,
             'registro_autor_id' => Auth::id(),
             'registro_fecha'    => Carbon::now(),
         ];
