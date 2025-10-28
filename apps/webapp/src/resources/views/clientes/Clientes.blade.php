@@ -359,47 +359,7 @@
             }
         }
     })
-
-    const modal = {
-        template: '#modal-template',
-        props: {
-            mostrar: Boolean,
-            titulo: String,
-            subtitulo: String,
-            textoConfirmacion: String,
-            mostrarBotones: {
-                type: Boolean,
-                default: true
-            }
-        },
-        emits: ['update:mostrar', 'confirmar'],
-        methods: {
-            close() {
-                this.$emit('update:mostrar', false)
-            }
-        }
-    };
-
-    const alerta = {
-        template: '#alerta-template',
-        props: {
-            mostrar: Boolean,
-            tipo: String,
-            titulo: String,
-            mensaje: String
-        },
-        emits: ['update:mostrar'],
-        watch: {
-            mostrar(nuevo) {
-                if (nuevo) {
-                    setTimeout(() => {
-                        this.$emit('update:mostrar', false);
-                    }, 3000);
-                }
-            }
-        }
-    };
-
+    
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
 
