@@ -26,6 +26,7 @@ Route::prefix('tickets')->group(function () {
     Route::middleware('auth')->group(function() {
         Route::get('/', [TicketController::class, 'gestor'])->name('tickets.gestor');
         Route::get('/listarRest', [TicketController::class, 'listarRest'])->name('tickets.listarRest');
+        Route::get('/obtenerRest/{id}', [TicketController::class, 'obtenerRest'])->name('tickets.obtenerRest');
         Route::post('/agregarRest', [TicketController::class, 'agregarRest'])->name('tickets.agregarRest');
         Route::patch('/editarRest/{id}', [TicketController::class, 'editarRest'])->name('tickets.editarRest');
         Route::patch('/editarEstadoRest/{id}', [TicketController::class, 'editarEstadoRest'])->name('tickets.editarEstadoRest');

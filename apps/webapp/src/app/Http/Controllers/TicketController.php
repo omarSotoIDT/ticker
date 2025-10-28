@@ -33,6 +33,16 @@ class TicketController extends Controller
         }
     }
 
+    public function obtenerRest($id){
+        try {
+            $usuario = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
+            return Response::json($usuario, 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al obtener el ticket " . $error);
+            return Response::json(['error' => 'Ocurrio un error al obtener el ticket'], 500);
+        }
+    }
+
     public function agregarRest(Request $request)
     {
         try {

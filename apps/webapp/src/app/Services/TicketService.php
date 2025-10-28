@@ -14,6 +14,10 @@ class TicketService
         return $tickets;
     }
 
+    public static function obtener($id, $columnas = '') {
+        return TicketRepoData::obtener($id, $columnas);
+    }
+
     public static function agregar($datos)
     {
         $insertTicket = TicketBO::armarInsert($datos);
