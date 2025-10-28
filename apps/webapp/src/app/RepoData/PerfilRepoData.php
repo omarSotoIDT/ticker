@@ -16,8 +16,4 @@ class PerfilRepoData
         return $consulta->get();
     }
 
-    public static function obtenerPermisos()
-    {
-        return DB::table('sys_permisos')->get();
-    }
 }

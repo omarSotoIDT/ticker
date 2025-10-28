@@ -36,8 +36,15 @@ class PerfilController extends Controller
     public function guardar(Request $request)
     {
         try {
-            PerfilCoordinator::crearPerfil($request->all());
-            return redirect()->back()->with('success', 'Perfil creado exitosamente');
+            $data = $request->validate([
+                'clave' => 'required|string|max:100',
+                'nombre' => 'required|string|max:200',
+                'descripcion' => 'required|string',
+            ]);
+
+            $data['permisos'] = $request->input('permisos', []);
+            PerfilCoordinator::crearPerfil($data);
+            return redirect()->back()->with('exito', 'Perfil creado exitosamente');
         } catch (\Exception $e) {
             Log::error('Error en guardar: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al crear perfil: ' . $e->getMessage());
@@ -47,8 +54,16 @@ class PerfilController extends Controller
     public function actualizar(Request $request, $perfil_id)
     {
         try {
-            PerfilCoordinator::actualizarPerfil($perfil_id, $request->all());
-            return redirect()->back()->with('success', 'Perfil actualizado exitosamente');
+            $data = $request->validate([
+                'clave' => 'required|string|max:100',
+                'nombre' => 'required|string|max:200',
+                'descripcion' => 'required|string',
+                'status' => 'in:ACTIVO,ELIMINADO',
+            ]);
+            
+            $data['permisos'] = $request->input('permisos', []);
+            PerfilCoordinator::actualizarPerfil($perfil_id, $data);
+            return redirect()->back()->with('exito', 'Perfil actualizado exitosamente');
         } catch (\Exception $e) {
             Log::error('Error en actualizar: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al actualizar perfil: ' . $e->getMessage());
@@ -59,10 +74,11 @@ class PerfilController extends Controller
     {
         try {
             PerfilCoordinator::eliminarPerfil($perfil_id);
-            return redirect()->back()->with('success', 'Perfil eliminado exitosamente');
+            return redirect()->back()->with('exito', 'Perfil eliminado exitosamente');
         } catch (\Exception $e) {
             Log::error('Error en eliminar: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al eliminar perfil: ' . $e->getMessage());
         }
     }
 }
+

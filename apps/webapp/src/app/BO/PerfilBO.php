@@ -14,10 +14,10 @@ class PerfilBO
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'],
             'status' => StatusConsts::ACTIVO,
-            'super_usuario' => $datos['super_usuario'],
+            'super_usuario' => 0,
             'registro_autor_id' => Auth::id(),
             'registro_fecha' => now(),
-            'permisos' => $datos['permisos'] ?? []
+            'permisos' => $datos['permisos']
         ];
     }
 
@@ -27,11 +27,11 @@ class PerfilBO
             'clave' => $datos['clave'],
             'nombre' => $datos['nombre'],
             'descripcion' => $datos['descripcion'],
-            'status' => $datos['status'] ?? StatusConsts::ACTIVO,
-            'super_usuario' => $datos['super_usuario'],
+            'status' => $datos['status'],
+            'super_usuario' => 0,
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now(),
-            'permisos' => $datos['permisos'] ?? []
+            'permisos' => $datos['permisos']
         ];
     }
 
@@ -44,20 +44,4 @@ class PerfilBO
         ];
     }
 
-    public static function prepararPermisos(int $perfil_id, array $permisos): array
-    {
-        $permisosValidos = array_filter($permisos);
-
-        $resultado = [];
-        foreach ($permisosValidos as $permiso_id) {
-            $resultado[] = [
-                'perfil_id' => $perfil_id,
-                'permiso_id' => $permiso_id,
-                'registro_autor_id' => Auth::id(),
-                'registro_fecha' => now()
-            ];
-        }
-
-        return $resultado;
-    }
 }
