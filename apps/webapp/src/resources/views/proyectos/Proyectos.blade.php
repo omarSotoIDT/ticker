@@ -3,8 +3,6 @@
 @section('titulo', 'Gestor de Proyectos')
 
 @section('contenido')
-@include('componentes.modal')
-
 <div id="app">
     {{-- ======= ENCABEZADO ======= --}}
     <div class="modulo-encabezado">
@@ -469,44 +467,6 @@
 
         }
     });
-
-    const modal = {
-        template: '#modal-template',
-        props: {
-            mostrar: Boolean,
-            titulo: String,
-            subtitulo: String,
-            textoConfirmacion: String,
-            mostrarBotones: {
-                type: Boolean,
-                default: true
-            }
-        },
-        emits: ['update:mostrar', 'confirmar'],
-        methods: {
-            close() {
-                this.$emit('update:mostrar', false);
-                if (this.$root && this.$root.erroresModal) {
-                    this.$root.erroresModal = {};
-                }
-            }
-        }
-    };
-
-    const alerta = {
-        template: '#alert-template',
-        props: {
-            mostrar: Boolean,
-            tipo: String,
-            mensaje: String
-        },
-        emits: ['update:mostrar'],
-        methods: {
-            close() {
-                this.$emit('update:mostrar', false);
-            }
-        }
-    };
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
