@@ -11,10 +11,12 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="{{ asset('componentes/alerta.js') }}?v={{ config('app.version') }}"></script>
 
+  <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
   {{-- Estilos--}}
   <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}" />
   <link rel="stylesheet" href="{{ asset('css/estilos.css') }}?v={{ config('app.version') }}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
     <body class="layout">
@@ -26,16 +28,16 @@
             <p class="titulo-enlaces">Menú Principal</p>
             <a href="/dashboard">Dashboard</a>
             <a href="">Tickets</a>
-            <a href="">Usuarios</a>
+            <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}">Usuarios</a>
             <a href="">Perfiles</a>
             <a href="">Clientes</a>
             <a href="">Proyectos</a>
             <a href="">Reportes</a>
 
             <div class="logout">
-                <p>Usuario</p>
-                <P>Correo</P>
-                <form action="/logout" method="post">
+                <p>{{ Auth::user()->usuario }}</p>
+                <P>{{ Auth::user()->email }}</P>
+                <form action="" method="post">
                     @csrf
                     <button type="submit">Cerrar Sesión</button>
                 </form>
