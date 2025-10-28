@@ -20,6 +20,8 @@ Route::prefix('usuarios')->group(function(){
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
         Route::patch('/activarRest/{id}', [UsuarioController::class, 'activarRest'])->name('usuarios.activarRest');
     });
+});
+
 Route::prefix('clientes')->controller(ClienteController::class)->group(function () {
     Route::get('/', 'gestor')->name('clientes.gestor');
     Route::get('/listado', 'listarRest')->name('clientes.listado');
