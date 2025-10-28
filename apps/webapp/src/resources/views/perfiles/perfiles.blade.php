@@ -3,12 +3,13 @@
 @section('titulo', 'Perfiles')
 
 @section('contenido')
-@include('componentes.modal')
 
 <div id="app" 
     class="clientes"
     data-perfiles='@json($perfilesConPermisos)'
-    data-permisos='@json($permisos)'>
+    data-permisos='@json($permisos)'
+    data-exito='@json(session("exito"))'
+    data-error='@json(session("error"))'>
     
     <div class="modulo-encabezado">
         <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador">
@@ -17,13 +18,6 @@
         </form>
         <button class="btn action-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
     </div>
-
-    @if(session('success'))
-        <div class="alert alert-success" style="margin-bottom: 1.5rem;">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger" style="margin-bottom: 1.5rem;">{{ session('error') }}</div>
-    @endif
 
     <table class="tabla">
         <thead>
@@ -57,7 +51,6 @@
         </tbody>
     </table>
 
-    <!-- Modal para Crear y Editar -->
     <modal-componente 
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
@@ -68,12 +61,8 @@
         <form id="form" class="form centrado" @submit.prevent="guardar" :action="formAction" method="POST" novalidate>
             @csrf
             <input v-if="tipoForm === 'editar'" type="hidden" name="_method" value="PUT">
-
             <input v-if="tipoForm === 'crear'" type="hidden" name="status" value="ACTIVO">
-
             <input type="hidden" name="super_usuario" value="0">
-            
-            <input type="hidden" name="permisos[]" value="">
 
             <div class="campo">
                 <label class="etiqueta" for="clave">Clave</label>
@@ -124,11 +113,23 @@
         ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
     </modal-componente>
 
+    <alerta-componente
+        :mostrar="alerta.mostrar"
+        :tipo="alerta.tipo"
+        :titulo="alerta.titulo"
+        :mensaje="alerta.mensaje"
+    >
+    </alerta-componente>
+
 </div>
-    <script>
+
+<script>
     const app = Vue.createApp({
         data() {
             const appElement = document.getElementById('app');
+            const exito = JSON.parse(appElement.dataset.exito || 'null');
+            const error = JSON.parse(appElement.dataset.error || 'null');
+
             return {
                 mostrarModal: false,
                 tipoForm: 'crear',
@@ -145,7 +146,14 @@
                 
                 routeGuardar: "{{ route('perfiles.guardar') }}",
                 routeActualizarBase: "{{ url('/perfiles') }}",
-                routeEliminarBase: "{{ url('/perfiles') }}" 
+                routeEliminarBase: "{{ url('/perfiles') }}",
+
+                alerta: {
+                    mostrar: exito || error ? true : false,
+                    tipo: exito ? 'exito' : (error ? 'error' : ''),
+                    titulo: exito ? 'Éxito' : (error ? 'Error' : ''),
+                    mensaje: exito ? exito : (error ? error : '')
+                }
             };
         },
         computed: {
@@ -161,6 +169,17 @@
                 if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
                 if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
                 if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
+                
+                if (Object.keys(this.errors).length > 0) {
+                    this.alerta = {
+                        mostrar: true,
+                        tipo: 'error',
+                        titulo: 'Campos incompletos',
+                        mensaje: 'Por favor, revisa los campos marcados en rojo.'
+                    };
+                    setTimeout(() => { this.alerta.mostrar = false }, 3000);
+                }
+
                 return Object.keys(this.errors).length === 0;
             },
             guardar() {
@@ -175,27 +194,17 @@
                 this.mostrarModal = true;
             },
             modalEditar(perfilId) {
-                this.errors = {};
+                this.errors = {}; 
                 const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
                 if (!perfil) return;
-
+                
                 this.tipoForm = 'editar';
-
-                let permisosIds = [];
-                if (Array.isArray(perfil.permisos) && perfil.permisos.length) {
-                    if (typeof perfil.permisos[0] === 'object') {
-                        permisosIds = perfil.permisos.map(p => p.permiso_id);
-                    } else {
-                        permisosIds = perfil.permisos;
-                    }
-                }
-
                 this.formPerfil = {
                     clave: perfil.clave,
                     nombre: perfil.nombre,
                     descripcion: perfil.descripcion,
                     status: perfil.status,
-                    permisos: permisosIds,
+                    permisos: perfil.permisos,
                     perfil_id: perfil.perfil_id
                 };
                 this.mostrarModal = true;
@@ -219,25 +228,18 @@
                 }
                 this.mostrarModalEliminar = false; 
             }
-        }
-    });
-
-    app.component('modal-componente', {
-        template: '#modal-template',
-        props: {
-            mostrar: { type: Boolean, default: false },
-            titulo: { type: String, default: '' },
-            subtitulo: { type: String, default: '' },
-            textoConfirmacion: { type: String, default: 'Aceptar' },
-            mostrarBotones: {type: Boolean, default: true}
         },
-        emits: ['update:mostrar', 'confirmar'],
-        methods: {
-            close() { this.$emit('update:mostrar', false); },
-            confirmar() { this.$emit('confirmar'); }
+        mounted() {
+            if (this.alerta.mostrar) {
+                setTimeout(() => {
+                    this.alerta.mostrar = false;
+                }, 3000);
+            }
         }
     });
 
+    app.component('modal-componente', modal);
+    app.component('alerta-componente', alerta);
     app.mount('#app');
-    </script>
+</script>
 @endsection
