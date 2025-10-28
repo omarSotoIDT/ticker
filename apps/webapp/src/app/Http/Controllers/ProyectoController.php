@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ProyectoService;
 use App\RepoData\ProyectoRepoData;
-use App\Cordinators\ProyectoCoordinator;
+use App\Coordinators\ProyectoCoordinator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
