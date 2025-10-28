@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Cordinators;
+namespace App\Coordinators;
 
 use App\Services\ProyectoService;
 use App\Services\ClienteService;
