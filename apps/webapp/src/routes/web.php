@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\UsuarioController;
 
 Route::get('/login', function () { return view('auth.login'); });
 
@@ -20,6 +21,7 @@ Route::prefix('usuarios')->group(function(){
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
         Route::patch('/activarRest/{id}', [UsuarioController::class, 'activarRest'])->name('usuarios.activarRest');
     });
+});
 
 Route::prefix('proyectos')->controller(ProyectoController::class)->group(function () {
     Route::get('/', 'gestor')->name('proyectos.gestor');
