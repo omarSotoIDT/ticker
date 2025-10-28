@@ -293,6 +293,70 @@ border: #000 solid 1px;
 background: #fefefe;
 }
 
+/* ======== Componente Alerta ======== */
+
+.alerta {
+  position: absolute;
+  top: 25px;
+  right: 30px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px 35px 20px 25px;
+  box-shadow: 0 6px 20px -5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transform: translateX(calc(100% + 30px));
+  transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+}
+
+.alerta.activo {
+  transform: translateX(0%);
+}
+
+.alerta .alerta-contenido {
+  display: flex;
+  align-items: center;
+}
+
+.alerta-contenido .icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 35px;
+  min-width: 35px;
+  color: #fff;
+  font-size: 20px;
+  border-radius: 50%;
+}
+
+.alerta-exito{
+  background-color: #4BB543;
+}
+
+.alerta-error{
+  background-color: #F44336;
+}
+
+.alerta-info{
+  background-color: #2196F3;
+}
+
+.alerta-contenido .mensaje {
+  display: flex;
+  flex-direction: column;
+  margin: 0 20px;
+}
+
+.mensaje .texto {
+  font-size: 16px;
+  font-weight: 400;
+  color: #666666;
+}
+
+.mensaje .titulo-alerta {
+  font-weight: 600;
+  color: #333;
+}
+
 /*=== ESTILOS GLOBALES PARA LA ESTRUCTURA DE LAS TABLAS E INPUTS DE BÚSQUEDA ===*/
 .inputBusqueda {
   width: 100%;
