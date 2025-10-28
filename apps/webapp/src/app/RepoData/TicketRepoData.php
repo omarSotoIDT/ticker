@@ -32,8 +32,8 @@ class TicketRepoData
     {
         $query = DB::table('tickets as t');
         $query->leftJoin('clientes as c', 't.cliente_id', '=', 'c.cliente_id');
-        $query->leftJoin('proyecto as p', 't.proyecto_id', '=', 'p.proyecto_id');
-        $query->leftJoin('etiqueta as e', 't.etiqueta_id', '=', 'e.etiqueta_id');
+        $query->leftJoin('proyectos as p', 't.proyecto_id', '=', 'p.proyecto_id');
+        $query->leftJoin('etiquetas as e', 't.etiqueta_id', '=', 'e.etiqueta_id');
         $query->leftJoin('sys_usuarios as su', 't.usuario_asignado_id', '=', 'su.usuario_id');
 
         TicketRH::agregarColumnas($query, $columnas);

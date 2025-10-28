@@ -6,9 +6,13 @@ class TicketRH
 {
     private static $columnasDisponibles = [
         'ticketId' => 't.ticket_id',
+        'clienteId' => 'c.cliente_id',
         'cliente' => 'c.nombre',
+        'proyectoId' => 'p.proyecto_id',
         'proyecto' => 'p.nombre',
+        'etiquetaId' => 'e.etiqueta_id',
         'etiqueta' => 'e.titulo',
+        'usuarioAsignadoId' => 'su.usuario_id',
         'usuarioAsignado' => 'su.usuario',
         'folio' => 't.folio',
         'serieFolio' => 't.serie_folio',
