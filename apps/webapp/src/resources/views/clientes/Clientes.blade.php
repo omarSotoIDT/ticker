@@ -4,7 +4,7 @@
 
 @section('contenido')
 @include('componentes.modal')
-@include('componentes.notificacion')
+@include('componentes.alerta')
 
 <div id="app">
     {{-- ======= ENCABEZADO ======= --}}
@@ -99,15 +99,13 @@
             </div>
         </form>
     </modal-componente>
-
-    {{-- Contenedor de notificaciones --}}
         
-    <notificacion
-        v-model:mostrar="alerta.mostrar"
-        :titulo="alerta.tipo"
-        :mensaje="alerta.mensaje"
-        :tipo="alerta.tipo">
-    </notificacion>
+    <alerta-componente
+        :mostrar="alerta.mostrar"
+        :tipo="alerta.tipo"
+        :titulo="alerta.titulo"
+        :mensaje="alerta.mensaje">
+    </alerta-componente>
 
 </div>
 
@@ -136,8 +134,9 @@
                 busqueda: '',
                 alerta: {
                     mostrar: false,
-                    mensaje: '',
-                    tipo: 'error'
+                    tipo: '',
+                    titulo: '',
+                    mensaje: ''
                 }
             }
         },
@@ -145,27 +144,14 @@
             this.listarClientes()
         },
         methods: {
-            mostrarAlerta(mensaje, tipo = 'error') {
-                const tipoNormalizado = (function(t) {
-                    if (!t) return 'info'
-                    if (t === 'exito') return 'exito'
-                    if (t === 'error') return 'error'
-                    return 'info'
-                })(tipo)
-
-                this.alerta.mostrar = false
-
+            mostrarAlerta(tipo, titulo, mensaje){
+                this.alerta.tipo = tipo;
+                this.alerta.titulo = titulo;
+                this.alerta.mensaje = mensaje;
+                this.alerta.mostrar = true;
                 setTimeout(() => {
-                    this.alerta = {
-                        mostrar: true,
-                        mensaje,
-                        tipo: tipoNormalizado
-                    }
-                    this.$nextTick(() => {
-                        const progreso = document.querySelector('.notificacion .progreso');
-                        if (progreso) progreso.classList.add('activa');
-                    })
-                }, 100)
+                    this.alerta.mostrar = false;
+                }, 3000);
             },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
@@ -198,10 +184,10 @@
                     if (res.ok && data.data) {
                         this.clientes = data.data
                     } else {
-                        this.mostrarAlerta('Error al obtener la lista de clientes.')
+                        this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.')
                     }
                 } catch (e) {
-                    this.mostrarAlerta('Error al listar clientes.');
+                    this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
                     console.error('Error al listar clientes:', e)
                 }
             },
@@ -220,10 +206,10 @@
                     if (res.ok && data.data) {
                         this.clientes = data.data
                     } else {
-                        this.mostrarAlerta('No se encontraron clientes para la búsqueda especificada.')
+                        this.mostrarAlerta('info', 'Información', 'No se encontraron clientes para la búsqueda especificada.')
                     }
                 } catch (e) {
-                    this.mostrarAlerta('Error en búsqueda de clientes.');
+                    this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
                     console.error('Error en búsqueda:', e)
                 }
             },
@@ -277,7 +263,7 @@
                         
                         const primerError = Object.values(data.errores)[0]
                         if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta(primerError[0], 'info')
+                            this.mostrarAlerta('info', 'Información', primerError[0])
                         }
                         return
                     }
@@ -291,7 +277,7 @@
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
                 } catch (e) {
-                    this.mostrarAlerta('Error general al guardar el cliente.')
+                    this.mostrarAlerta('error', 'Error', 'Error general al guardar el cliente.')
                     console.error('Error general al guardar:', e)
                 } finally {
                     this.loading = false
@@ -321,7 +307,7 @@
                         this.erroresModal = {
                             motivo_eliminacion: ['Debes ingresar un motivo']
                         }
-                        this.mostrarAlerta('Debes ingresar un motivo');
+                        this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
                         this.loading = false
                         return
                     }
@@ -367,7 +353,7 @@
                     this.handleSuccess('mostrarToggle', data && data.mensaje ? data.mensaje : null)
 
                 } catch (e) {
-                    this.mostrarAlerta('Error general al confirmar la acción.');
+                    this.mostrarAlerta('error', 'Error', 'Error general al confirmar la acción.');
                     console.error('Error general al confirmar acción:', e)
                 } finally {
                     this.loading = false
@@ -375,53 +361,6 @@
             }
         }
     })
-
-    const notificacion = {
-        template: '#notificacion-template',
-        props: {
-            mostrar: Boolean,
-            titulo: String,
-            mensaje: String,
-            tipo: {
-                type: String,
-                default: 'info',
-                validator: value => ['exito', 'error', 'info'].includes(value)
-            }
-        },
-        emits: ['update:mostrar'],
-        data() {
-            return {
-                temporizador: null
-            }
-        },
-        watch: {
-            mostrar(nuevo) {
-                if (nuevo) {
-                    this.limpiarTemporizador();
-                    this.temporizador = setTimeout(() => {
-                        this.$emit('update:mostrar', false);
-                        const progreso = this.$el.querySelector('.progreso');
-                        if (progreso) progreso.classList.remove('activa');
-                    }, 5000);
-                }
-            }
-        },
-        methods: {
-            cerrar() {
-                this.$emit('update:mostrar', false);
-                this.limpiarTemporizador();
-                const progreso = this.$el.querySelector('.progreso');
-                if (progreso) progreso.classList.remove('activa');
-            },
-            limpiarTemporizador() {
-                if (this.temporizador) clearTimeout(this.temporizador);
-                this.temporizador = null;
-            }
-        },
-        beforeUnmount() {
-            this.limpiarTemporizador();
-        }
-    };
 
     const modal = {
         template: '#modal-template',
@@ -443,8 +382,28 @@
         }
     };
 
-    app.component('notificacion', notificacion);
+    const alerta = {
+        template: '#alerta-template',
+        props: {
+            mostrar: Boolean,
+            tipo: String,
+            titulo: String,
+            mensaje: String
+        },
+        emits: ['update:mostrar'],
+        watch: {
+            mostrar(nuevo) {
+                if (nuevo) {
+                    setTimeout(() => {
+                        this.$emit('update:mostrar', false);
+                    }, 3000);
+                }
+            }
+        }
+    };
+
     app.component('modal-componente', modal);
+    app.component('alerta-componente', alerta);
 
     app.mount('#app')
 </script>
