@@ -3,8 +3,6 @@
 @section('titulo', 'Gestor de Clientes')
 
 @section('contenido')
-@include('componentes.modal')
-@include('componentes.alerta')
 
 <div id="app">
     {{-- ======= ENCABEZADO ======= --}}
