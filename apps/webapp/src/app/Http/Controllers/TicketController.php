@@ -25,8 +25,8 @@ class TicketController extends Controller
     public function listarRest(Request $request)
     {
         try {
-            $usuarios = TicketService::listar();
-            return Response::json($usuarios, 200);
+            $tickets = TicketService::listar($request->only('titulo', 'cliente', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
+            return Response::json($tickets, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los tickets " . $error);
             return Response::json(['error' => 'Ocurrio un error al listar los tickets'], 500);
@@ -35,8 +35,8 @@ class TicketController extends Controller
 
     public function obtenerRest($id){
         try {
-            $usuario = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
-            return Response::json($usuario, 200);
+            $ticket = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
+            return Response::json($ticket, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al obtener el ticket " . $error);
             return Response::json(['error' => 'Ocurrio un error al obtener el ticket'], 500);
