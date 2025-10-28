@@ -48,6 +48,7 @@
       :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
       :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
       :texto-Confirmacion="tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios'" 
+      @limpiar="limpiarErrores"
       @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
 
       <form id="form" class="form centrado">
@@ -80,6 +81,7 @@
       :titulo="tipoForm === 'eliminar' ? 'Eliminar Usuario' : tipoForm === 'activar' ? 'Activar Usuario' : ''" 
       :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
       texto-Confirmacion="Confirmar" 
+      @limpiar="limpiarErrores"
       @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
       <form id="form">
         <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
@@ -171,6 +173,10 @@
           setTimeout(() => {
             this.alerta.mostrar = false;
           }, 3000);
+        },
+
+        limpiarErrores(){
+          this.erroresModal = {};
         },
 
         async listarUsuarios() {
