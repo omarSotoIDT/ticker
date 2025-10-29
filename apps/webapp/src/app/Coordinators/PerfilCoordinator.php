@@ -10,7 +10,23 @@ class PerfilCoordinator
 {
     public static function obtenerPerfiles(array $filtros = [])
     {
-        return PerfilService::obtenerPerfiles($filtros);
+        $perfiles = PerfilService::obtenerPerfiles($filtros);
+
+        $permisos = PermisoService::obtenerPermisos();
+
+        $perfilesConPermisos = $perfiles->values()->map(function ($perfil) use ($permisos) {
+            $permisosAsignados = DB::table('rel_perfiles_permisos')
+                ->where('perfil_id', $perfil->perfil_id)
+                ->pluck('permiso_id')
+                ->toArray();
+            $perfil->permisos = $permisosAsignados;
+            return $perfil;
+        });
+
+        return [
+            'perfiles' => $perfilesConPermisos,
+            'permisos' => $permisos
+        ];
     }
 
     public static function crearPerfil(array $datos)
