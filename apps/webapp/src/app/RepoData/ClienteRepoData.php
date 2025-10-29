@@ -11,7 +11,7 @@ class ClienteRepoData
     {
         $query = DB::table('clientes')
             ->select('cliente_id', 'nombre', 'descripcion', 'contacto', 'email', 'status', 'registro_fecha')
-            ->where('status', '!=', 'ELIMINADO'); 
+            ->where('status', '!=', 'ELIMINADO');
         $query = ClienteRepoHelper::aplicarFiltros($query, $filters);
 
         return $query->get();
@@ -22,9 +22,9 @@ class ClienteRepoData
         return DB::table('clientes')->where('cliente_id', $id)->first();
     }
 
-        public static function obtenerNombrePorId(int $id): ?string
-        {
-            $cliente = DB::table('clientes')->select('nombre')->where('cliente_id', $id)->first();
-            return $cliente ? $cliente->nombre : null;
-        }
+    public static function obtenerNombrePorId(int $id): ?string
+    {
+        $cliente = DB::table('clientes')->select('nombre')->where('cliente_id', $id)->first();
+        return $cliente ? $cliente->nombre : null;
+    }
 }

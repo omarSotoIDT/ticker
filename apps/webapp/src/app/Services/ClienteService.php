@@ -41,4 +41,9 @@ class ClienteService
 
         return ClienteRepoAction::eliminarCliente($id, $motivo);
     }
+
+    public static function optenerNombre(int $id): ?string
+    {
+        return ClienteRepoData::obtenerNombrePorId($id);
+    }
 }
