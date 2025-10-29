@@ -33,7 +33,8 @@ class TicketController extends Controller
         }
     }
 
-    public function obtenerRest($id){
+    public function obtenerRest($id)
+    {
         try {
             $ticket = TicketCoordinator::obtener($id);
             return Response::json($ticket, 200);
@@ -80,7 +81,7 @@ class TicketController extends Controller
                 'prioridad' => 'string',
                 'status' => 'string',
             ]);
-            if (TicketService::editar($id, $datos)) {
+            if (TicketCoordinator::actualizarTicket($id, $datos)) {
                 return Response::json(null, 204);
             }
         } catch (ValidationException $e) {
@@ -94,51 +95,42 @@ class TicketController extends Controller
     public static function editarStatusRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'status' => 'string|required',
-            ]);
-            if (TicketService::editarEstado($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['status' => 'string|required']);
+            TicketCoordinator::editarEstado($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar el estado " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar el estado'], 500);
+            Log::error("Error al editar el estado: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar el estado'], 500);
         }
     }
 
-    public static function editarPrioridadRest(Request $request, $id)
+    public function editarPrioridadRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'prioridad' => 'string|required',
-            ]);
-            if (TicketService::editarPrioridad($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['prioridad' => 'string|required']);
+            TicketCoordinator::editarPrioridad($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar la prioridad " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar la prioridad'], 500);
+            Log::error("Error al editar la prioridad: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar la prioridad'], 500);
         }
     }
 
-    public static function editarAsignacionRest(Request $request, $id)
+    public function editarAsignacionRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'usuario_asignado_id' => 'integer|required'
-            ]);
-            if (TicketService::editarAsignacion($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['usuario_asignado_id' => 'integer|required']);
+            TicketCoordinator::editarAsignacion($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar la asignación " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar la asignación'], 500);
+            Log::error("Error al editar la asignación: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar la asignación'], 500);
         }
     }
 }

@@ -15,4 +15,7 @@ class TicketRepoAction
     {
         return DB::table('tickets')->where('ticket_id', $id)->update($ticket);
     }
+    public static function crearLog(array $data){
+        return DB::table('log_tickets')->insert($data);
+    }
 }

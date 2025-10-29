@@ -11,6 +11,7 @@ use App\Services\UsuarioService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
+
 class TicketCoordinator
 {
     public static function cargarGestor()
@@ -18,24 +19,129 @@ class TicketCoordinator
         $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
         $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
-        return ['tickets' => $tickets, 'etiquetas'=> $etiquetas, 'usuarios' => $usuarios];
+        return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios];
     }
-    
-    public static function agregar($datos)
+
+    public static function agregar(array $datos)
     {
-        return DB::transaction(function () use($datos) {
+        return DB::transaction(function () use ($datos) {
             $folio = FolioService::obtener('ticket');
             $datos['folio'] = $folio;
 
-            if (!TicketService::agregar($datos)) {
-                throw new Exception('No se pudo crear el ticket');
+            $log_folio = FolioService::obtener('log_tickets');
+
+
+            $ticketId = TicketService::agregar($datos);
+
+            if (!$ticketId) {
+                throw new \Exception("No se pudo crear el ticket");
+            }
+
+            $logDescripcion = "Ticket '{$datos['titulo']}' creado.";
+            TicketService::agregarLog($ticketId, $log_folio, $logDescripcion);
+
+            return $ticketId;
+        });
+    }
+
+    public static function actualizarTicket(int $ticketId, array $datos)
+    {
+        return DB::transaction(function () use ($ticketId, $datos) {
+            $ticketActual = TicketService::obtener($ticketId);
+            if (!$ticketActual) {
+                throw new \Exception("Ticket no existe");
+            }
+
+            $cambios = [];
+            $camposComparar = ['titulo', 'descripcion', 'prioridad', 'status', 'usuario_asignado_id'];
+
+            foreach ($camposComparar as $campo) {
+                if (isset($datos[$campo]) && $datos[$campo] != $ticketActual->$campo) {
+                    $cambios[] = ucfirst($campo) . " cambiado de '{$ticketActual->$campo}' a '{$datos[$campo]}'";
+                }
+            }
+
+            if (!empty($cambios)) {
+                TicketService::editar($ticketId, $datos);
+
+                $logFolio = FolioService::obtener('log_tickets');
+                $descripcionLog = "Ticket actualizado: " . implode('; ', $cambios);
+                TicketService::agregarLog($ticketId, $logFolio, $descripcionLog);
             }
 
             return true;
         });
     }
 
-    public static function obtener($id) {
+    public static function editarEstado(int $ticketId, array $datos)
+    {
+        return DB::transaction(function () use ($ticketId, $datos) {
+            $ticketActual = TicketService::obtener($ticketId);
+            if (!$ticketActual) {
+                throw new \Exception("Ticket no existe");
+            }
+
+            if ($ticketActual->status === $datos['status']) {
+                return false; // No hay cambio
+            }
+
+            TicketService::editarEstado($ticketId, $datos);
+
+            $folio = FolioService::obtener('log_tickets');
+            $descripcion = "Estado cambiado de '{$ticketActual->status}' a '{$datos['status']}'";
+            TicketService::agregarLog($ticketId, $folio, $descripcion);
+
+            return true;
+        });
+    }
+
+    public static function editarPrioridad(int $ticketId, array $datos)
+    {
+        return DB::transaction(function () use ($ticketId, $datos) {
+            $ticketActual = TicketService::obtener($ticketId);
+            if (!$ticketActual) {
+                throw new \Exception("Ticket no existe");
+            }
+
+            if ($ticketActual->prioridad === $datos['prioridad']) {
+                return false;
+            }
+
+            TicketService::editarPrioridad($ticketId, $datos);
+
+            $folio = FolioService::obtener('log_tickets');
+            $descripcion = "Prioridad cambiada de '{$ticketActual->prioridad}' a '{$datos['prioridad']}'";
+            TicketService::agregarLog($ticketId, $folio, $descripcion);
+
+            return true;
+        });
+    }
+
+    public static function editarAsignacion(int $ticketId, array $datos)
+    {
+        return DB::transaction(function () use ($ticketId, $datos) {
+            $ticketActual = TicketService::obtener($ticketId);
+            if (!$ticketActual) {
+                throw new \Exception("Ticket no existe");
+            }
+
+            if ($ticketActual->usuario_asignado_id === $datos['usuario_asignado_id']) {
+                return false;
+            }
+
+            TicketService::editarAsignacion($ticketId, $datos);
+
+            $folio = FolioService::obtener('log_tickets');
+            $descripcion = "Asignación cambiada de usuario ID '{$ticketActual->usuario_asignado_id}' a '{$datos['usuario_asignado_id']}'";
+            TicketService::agregarLog($ticketId, $folio, $descripcion);
+
+            return true;
+        });
+    }
+
+
+    public static function obtener($id)
+    {
         $ticket = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
         $ticketFeedback = TicketFeedbackService::listar(['ticket_id' => $id], 'ticketFeedbackId,ticketId,usuario,folio,comentario,registroFecha', ['folio' => 'asc']);
         return ['ticket' => $ticket, 'feedback' => $ticketFeedback];

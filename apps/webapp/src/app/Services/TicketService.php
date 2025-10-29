@@ -14,7 +14,8 @@ class TicketService
         return $tickets;
     }
 
-    public static function obtener($id, $columnas = '') {
+    public static function obtener($id, $columnas = '')
+    {
         return TicketRepoData::obtener($id, $columnas);
     }
 
@@ -46,5 +47,15 @@ class TicketService
     {
         $updateTicket = TicketBO::armarUpdateAsignacion($datos);
         return TicketRepoAction::actualizar($id, $updateTicket);
+    }
+
+    public static function agregarLog(int $ticketId, int $folio, string $descripcion)
+    {
+        $insertLog = TicketBO::armarInsertLog([
+            'ticket_id' => $ticketId,
+            'folio' => $folio,
+            'descripcion' => $descripcion,
+        ]);
+        return TicketRepoAction::crearLog($insertLog);
     }
 }

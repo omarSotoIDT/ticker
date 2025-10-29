@@ -77,4 +77,15 @@ class TicketBO
 
         return $ticket;
     }
+
+    public static function armarInsertLog(array $datos): array
+    {
+        return [
+            'ticket_id' => $datos['ticket_id'],
+            'usuario_id' => Auth::id(),
+            'folio' => $datos['folio'],
+            'descripcion' => $datos['descripcion'],
+            'registro_fecha' => now()
+        ];
+    }
 }
