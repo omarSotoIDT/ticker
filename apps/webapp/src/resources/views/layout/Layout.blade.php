@@ -28,7 +28,7 @@
             </div>
             <p class="titulo-enlaces">Menú Principal</p>
             <a href="/dashboard">Dashboard</a>
-            <a href="">Tickets</a>
+            <a href="{{ route('tickets.gestor') }}" class="{{ Route::currentRouteName() == 'tickets.gestor' ? 'active' : '' }}">Tickets</a>
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}">Usuarios</a>
             <a href="">Perfiles</a>
             <a href="">Clientes</a>
