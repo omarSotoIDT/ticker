@@ -5,6 +5,7 @@ namespace App\Services;
 use App\RepoAction\ProyectoRepoAction;
 use App\RepoData\ProyectoRepoData;
 use App\BO\ProyectoBO;
+use App\Coordinators\ProyectoCoordinator;
 
 
 class ProyectoService
@@ -21,7 +22,7 @@ class ProyectoService
 
         $nombreProyecto = $data['nombre'];
         $descripcion = "Proyecto creado: '{$nombreProyecto}' para cliente: '{$clienteNombre}'";
-        ProyectoRepoAction::registrarLog($proyectoId, $descripcion);
+        ProyectoCoordinator::registrarLog($proyectoId, $descripcion);
 
         return $proyectoId;
     }
@@ -57,7 +58,7 @@ class ProyectoService
 
             $nombreProyecto = $data['nombre'] ?? $anterior['nombre'] ?? '';
             $descripcion = "Proyecto '{$nombreProyecto}' actualizado: " . implode('; ', $cambios);
-            ProyectoRepoAction::registrarLog($id, $descripcion);
+            ProyectoCoordinator::registrarLog($id, $descripcion);
 
             return $resultado;
         }
@@ -74,7 +75,7 @@ class ProyectoService
         $nombreProyecto = $proyecto->nombre ?? '';
         $resultado = ProyectoRepoAction::eliminarProyecto($id, $motivo);
         $descripcion = "Proyecto '{$nombreProyecto}' eliminado. Motivo: {$motivo}";
-        ProyectoRepoAction::registrarLog($id, $descripcion);
+        ProyectoCoordinator::registrarLog($id, $descripcion);
         return $resultado;
     }
 
@@ -88,7 +89,7 @@ class ProyectoService
         $resultado = ProyectoRepoAction::activaProyecto($id, $proyecto->status);
         $nombreProyecto = $proyecto->nombre ?? '';
         $descripcion = "Estado de proyecto '{$nombreProyecto}' cambiado de {$proyecto->status} a {$nuevoEstado}";
-        ProyectoRepoAction::registrarLog($id, $descripcion);
+        ProyectoCoordinator::registrarLog($id, $descripcion);
         return $resultado;
     }
 
@@ -114,7 +115,7 @@ class ProyectoService
             if ($nombresAgregados) $descripcion .= "Asignados [{$nombresAgregados}] ";
             if ($nombresEliminados) $descripcion .= "Eliminados [{$nombresEliminados}]";
 
-            ProyectoRepoAction::registrarLog($proyectoId, $descripcion);
+            ProyectoCoordinator::registrarLog($proyectoId, $descripcion);
         }
     }
 
@@ -126,5 +127,11 @@ class ProyectoService
     public static function obtenerPorId(int $id): ?object
     {
         return ProyectoRepoData::obtenerPorId($id);
+    }
+
+    public static function agregarLog(array $datos)
+    {
+        $insertLog = ProyectoBO::armarInsertLog($datos);
+        return ProyectoRepoAction::crearLog($insertLog);
     }
 }

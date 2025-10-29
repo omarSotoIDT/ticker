@@ -45,15 +45,21 @@ class ProyectoBO
         foreach ($usuariosIds as $uid) {
             $usuarios[] = [
                 'usuario_id' => (int) $uid,
-                'status'     => StatusConsts::ACTIVO, 
+                'status'     => StatusConsts::ACTIVO,
             ];
         }
 
         return $usuarios;
     }
 
-    public static function generarFolio(int $proyectoId): string
+    public static function armarInsertLog(array $datos): array
     {
-        return 'LogProyecto-' . strtoupper(substr(sha1(time() . $proyectoId), 0, 6));
-    }
+        return [
+            'proyecto_id'    => $datos['proyecto_id'],
+            'usuario_id'     => $datos['usuario_id'],
+            'folio'          => $datos['folio'], 
+            'descripcion'    => $datos['descripcion'],
+            'registro_fecha' => now(),
+        ];
+    }   
 }

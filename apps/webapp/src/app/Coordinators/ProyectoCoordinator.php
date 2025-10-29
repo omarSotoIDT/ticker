@@ -4,6 +4,9 @@ namespace App\Coordinators;
 
 use App\Services\ProyectoService;
 use App\Services\ClienteService;
+use Illuminate\Support\Facades\DB;
+use App\Services\FolioService;
+use Illuminate\Support\Facades\Auth;
 
 class ProyectoCoordinator
 {
@@ -43,5 +46,21 @@ class ProyectoCoordinator
     public static function ClientesDisponibles(array $filtros = [])
     {
         return ClienteService::listarClientes($filtros);
+    }
+
+    public static function registrarLog(int $proyectoId, string $descripcion): void
+    {
+        DB::transaction(function () use ($proyectoId, $descripcion) {
+            $folio = FolioService::obtener('log_proyectos');
+
+            $datos = [
+                'proyecto_id' => $proyectoId,
+                'usuario_id'  => Auth::id(),
+                'folio'       => $folio,
+                'descripcion' => $descripcion,
+            ];
+
+            ProyectoService::agregarLog($datos);
+        });
     }
 }

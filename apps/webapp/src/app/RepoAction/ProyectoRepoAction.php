@@ -5,7 +5,6 @@ namespace App\RepoAction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use App\BO\ProyectoBO;
 use App\Consts\StatusConsts;
 
 class ProyectoRepoAction
@@ -51,19 +50,6 @@ class ProyectoRepoAction
                 'actualizacion_autor_id' => Auth::id(),
                 'actualizacion_fecha'  => Carbon::now(),
             ]);
-    }
-
-    public static function registrarLog(int $proyectoId, string $descripcion): void
-    {
-        $folio = ProyectoBO::generarFolio($proyectoId);
-
-        DB::table('log_proyectos')->insert([
-            'proyecto_id'    => $proyectoId,
-            'usuario_id'     => Auth::id(),
-            'folio'          => $folio,
-            'descripcion'    => $descripcion,
-            'registro_fecha' => Carbon::now(),
-        ]);
     }
 
     public static function asignarUsuarios(int $proyectoId, array $usuarios)
@@ -112,5 +98,11 @@ class ProyectoRepoAction
                 ]);
         }
     }
+
+    public static function crearLog(array $log)
+    {
+        return DB::table('log_proyectos')->insert($log);
+    }
+    
     
 }
