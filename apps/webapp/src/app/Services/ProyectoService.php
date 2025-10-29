@@ -14,47 +14,54 @@ class ProyectoService
         return ProyectoRepoData::obtenerProyectos($filtros);
     }
 
-    public static function registrarProyecto(array $data)
+    public static function registrarProyecto(array $data, string $clienteNombre)
     {
-        $proyectoId = ProyectoRepoAction::crearProyecto(ProyectoBO::datosParaInsert($data));
+        $insertData = ProyectoBO::datosParaInsert($data);
+        $proyectoId = ProyectoRepoAction::crearProyecto($insertData);
+
         $nombreProyecto = $data['nombre'];
-        $clienteNombre = \App\RepoData\ClienteRepoData::obtenerNombrePorId($data['cliente_id'] ?? null);
         $descripcion = "Proyecto creado: '{$nombreProyecto}' para cliente: '{$clienteNombre}'";
         ProyectoRepoAction::registrarLog($proyectoId, $descripcion);
+
         return $proyectoId;
     }
 
-    public static function actualizarProyecto(int $id, array $data)
+    public static function actualizarProyecto(int $id, array $data, ?string $nombreClienteAnterior = null, ?string $nombreClienteNuevo = null)
     {
         $proyectoActual = ProyectoRepoData::obtenerPorId($id);
         if (!$proyectoActual) {
-            return false;
+            throw new \Exception("El proyecto con ID {$id} no existe.");
         }
+
         $anterior = (array) $proyectoActual;
         $cambios = [];
         $camposComparar = ['nombre', 'descripcion', 'cliente_id', 'status'];
+
         foreach ($camposComparar as $campo) {
             if (array_key_exists($campo, $data)) {
                 $valorAnterior = $anterior[$campo];
                 $valorNuevo = $data[$campo];
                 if ($valorAnterior !== $valorNuevo) {
                     if ($campo === 'cliente_id') {
-                        $nombreAnterior = \App\RepoData\ClienteRepoData::obtenerNombrePorId($valorAnterior);
-                        $nombreNuevo = \App\RepoData\ClienteRepoData::obtenerNombrePorId($valorNuevo);
-                        $cambios[] = "Cliente cambiado de '{$nombreAnterior}' a '{$nombreNuevo}'";
+                        $cambios[] = "Cliente cambiado de '{$nombreClienteAnterior}' a '{$nombreClienteNuevo}'";
                     } else {
                         $cambios[] = ucfirst($campo) . " cambiado de '{$valorAnterior}' a '{$valorNuevo}'";
                     }
                 }
             }
         }
+
         if (!empty($cambios)) {
-            $resultado = ProyectoRepoAction::actualizarProyecto($id, ProyectoBO::datosParaUpdate($data));
+            $updateData = ProyectoBO::datosParaUpdate($data);
+            $resultado = ProyectoRepoAction::actualizarProyecto($id, $updateData);
+
             $nombreProyecto = $data['nombre'] ?? $anterior['nombre'] ?? '';
             $descripcion = "Proyecto '{$nombreProyecto}' actualizado: " . implode('; ', $cambios);
             ProyectoRepoAction::registrarLog($id, $descripcion);
+
             return $resultado;
         }
+
         return false;
     }
 
@@ -114,5 +121,10 @@ class ProyectoService
     public static function listarUsuariosAsignados(int $proyectoId)
     {
         return ProyectoRepoData::listarUsuariosAsignados($proyectoId);
+    }
+
+    public static function obtenerPorId(int $id): ?object
+    {
+        return ProyectoRepoData::obtenerPorId($id);
     }
 }

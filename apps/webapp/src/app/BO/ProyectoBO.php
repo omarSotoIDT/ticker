@@ -2,15 +2,16 @@
 
 namespace App\BO;
 
+use App\Consts\StatusConsts;
+
 class ProyectoBO
 {
     public static function prepararDatos(array $data): array
     {
         return [
-            'cliente_id'    => $data['cliente_id'],
-            'nombre'        => $data['nombre'],
-            'descripcion'   => $data['descripcion'] ,
-            'status'        => $data['status'] ?? 'ACTIVO',
+            'cliente_id'  => $data['cliente_id'],
+            'nombre'      => $data['nombre'],
+            'descripcion' => $data['descripcion'],
         ];
     }
 
@@ -18,10 +19,12 @@ class ProyectoBO
     {
         $prepared = self::prepararDatos($data);
 
-        $prepared['nombre'] = isset($prepared['nombre']) ? trim($prepared['nombre']) : '';
-        $prepared['descripcion'] = isset($prepared['descripcion']) ? trim($prepared['descripcion']) : null;
-
-        return $prepared;
+        return [
+            'cliente_id'  => (int) $prepared['cliente_id'],
+            'nombre'      => $prepared['nombre'],
+            'descripcion' => $prepared['descripcion'],
+            'status'      => StatusConsts::ACTIVO,
+        ];
     }
 
     public static function datosParaUpdate(array $data): array
@@ -29,9 +32,9 @@ class ProyectoBO
         $prepared = self::prepararDatos($data);
 
         return [
-            'cliente_id'  => $prepared['cliente_id'],
-            'nombre'      => isset($prepared['nombre']) ? trim($prepared['nombre']) : '',
-            'descripcion' => $prepared['descripcion'] ?? null,
+            'cliente_id'  => (int) $prepared['cliente_id'],
+            'nombre'      => $prepared['nombre'],
+            'descripcion' => $prepared['descripcion'],
         ];
     }
 
@@ -42,9 +45,10 @@ class ProyectoBO
         foreach ($usuariosIds as $uid) {
             $usuarios[] = [
                 'usuario_id' => (int) $uid,
-                'status' => 'ACTIVO',
+                'status'     => StatusConsts::ACTIVO, 
             ];
         }
+
         return $usuarios;
     }
 
@@ -52,5 +56,4 @@ class ProyectoBO
     {
         return 'LogProyecto-' . strtoupper(substr(sha1(time() . $proyectoId), 0, 6));
     }
-    
 }

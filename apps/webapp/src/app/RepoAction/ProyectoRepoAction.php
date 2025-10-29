@@ -6,21 +6,20 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\BO\ProyectoBO;
+use App\Consts\StatusConsts;
 
 class ProyectoRepoAction
 {
-    public static function crearProyecto(array $data): int
+    public static function crearProyecto(array $insertData): int
     {
-        $insertData = ProyectoBO::datosParaInsert($data);
         $insertData['registro_autor_id'] = Auth::id();
         $insertData['registro_fecha'] = Carbon::now();
 
         return DB::table('proyectos')->insertGetId($insertData);
     }
 
-    public static function actualizarProyecto(int $id, array $data): bool
+    public static function actualizarProyecto(int $id, array $updateData): bool
     {
-        $updateData = ProyectoBO::datosParaUpdate($data);
         $updateData['actualizacion_autor_id'] = Auth::id();
         $updateData['actualizacion_fecha'] = Carbon::now();
 
@@ -31,7 +30,7 @@ class ProyectoRepoAction
 
     public static function activaProyecto(int $id, string $estadoActual): bool
     {
-        $nuevoEstado = $estadoActual === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+        $nuevoEstado = $estadoActual === StatusConsts::ACTIVO ? StatusConsts::INACTIVO : StatusConsts::ACTIVO;
 
         return DB::table('proyectos')
             ->where('proyecto_id', $id)
@@ -47,7 +46,7 @@ class ProyectoRepoAction
         return DB::table('proyectos')
             ->where('proyecto_id', $id)
             ->update([
-                'status'               => 'ELIMINADO',
+                'status'               => StatusConsts::ELIMINADO,
                 'motivo_eliminacion'   => $motivo,
                 'actualizacion_autor_id' => Auth::id(),
                 'actualizacion_fecha'  => Carbon::now(),
@@ -73,7 +72,7 @@ class ProyectoRepoAction
             DB::table('rel_usuarios_proyectos')->updateOrInsert(
                 ['usuario_id' => $usuarioId, 'proyecto_id' => $proyectoId],
                 [
-                    'status' => 'ACTIVO',
+                    'status' => StatusConsts::ACTIVO,
                     'registro_autor_id' => Auth::id(),
                     'registro_fecha' => Carbon::now(),
                 ]
@@ -93,7 +92,7 @@ class ProyectoRepoAction
             DB::table('rel_usuarios_proyectos')->updateOrInsert(
                 ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
                 [
-                    'status' => 'ACTIVO' ?? 'ACTIVO',
+                    'status' => StatusConsts::ACTIVO,
                     'registro_autor_id' => $usuarioActual,
                     'registro_fecha' => $ahora,
                     'actualizacion_autor_id' => $usuarioActual,
@@ -107,7 +106,7 @@ class ProyectoRepoAction
                 ->where('usuario_id', $uid)
                 ->where('proyecto_id', $proyectoId)
                 ->update([
-                    'status' => 'ELIMINADO',
+                    'status' => StatusConsts::ELIMINADO,
                     'actualizacion_autor_id' => $usuarioActual,
                     'actualizacion_fecha' => $ahora,
                 ]);
