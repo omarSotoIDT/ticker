@@ -13,11 +13,6 @@ class PerfilCoordinator
         return PerfilService::obtenerPerfiles($filtros);
     }
 
-    public static function obtenerPermisos()
-    {
-        return PermisoService::obtenerPermisos();
-    }
-
     public static function crearPerfil(array $datos)
     {
         $permisos = $datos['permisos'];

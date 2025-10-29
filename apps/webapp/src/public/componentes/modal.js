@@ -22,13 +22,11 @@ var modal = {
     textoConfirmacion: { type: String, default: "Aceptar" },
     mostrarBotones: { type: Boolean, default: true },
   },
-  emits: ["update:mostrar", "confirmar"],
+  emits: ["update:mostrar", "limpiar", "confirmar"],
   methods: {
     close() {
       this.$emit("update:mostrar", false);
-      if (this.$root && this.$root.erroresModal) {
-        this.$root.erroresModal = {};
-      }
+      this.$emit("limpiar");
     },
   },
 };
