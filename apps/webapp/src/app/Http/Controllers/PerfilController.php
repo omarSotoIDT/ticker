@@ -37,9 +37,9 @@ class PerfilController extends Controller
     {
         try {
             $data = $request->validate([
-                'clave' => 'required|string|max:100',
-                'nombre' => 'required|string|max:200',
-                'descripcion' => 'required|string',
+                'clave' => 'required|string|max:50',
+                'nombre' => 'required|string|max:70',
+                'descripcion' => 'required|string|max:100',
             ]);
 
             $data['permisos'] = $request->input('permisos', []);
@@ -55,9 +55,9 @@ class PerfilController extends Controller
     {
         try {
             $data = $request->validate([
-                'clave' => 'required|string|max:100',
-                'nombre' => 'required|string|max:200',
-                'descripcion' => 'required|string',
+                'clave' => 'required|string|max:50',
+                'nombre' => 'required|string|max:70',
+                'descripcion' => 'required|string|max:100',
                 'status' => 'in:ACTIVO,ELIMINADO',
             ]);
             
