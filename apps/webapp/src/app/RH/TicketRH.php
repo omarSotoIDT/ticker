@@ -49,7 +49,7 @@ class TicketRH
     {
         if (!empty($filtros)) {
             if (isset($filtros['titulo'])) {
-                $query->where('t.titulo', $filtros['titulo']);
+                $query->where('t.titulo', 'like', '%' . $filtros['titulo'] . '%');
             };
             if (isset($filtros['prioridad'])) {
                 $query->where('t.prioridad', $filtros['prioridad']);

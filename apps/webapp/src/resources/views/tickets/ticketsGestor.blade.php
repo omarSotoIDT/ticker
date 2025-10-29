@@ -6,7 +6,15 @@
     <div id="app">
         <div class="">
             <div class="cont-buscador">
-                <input type="text" name="ticket" id="ticket" class="input" v-model="busqueda.titulo" @change="" placeholder="Buscar tickets..."></input>
+                <input type="text" name="ticket" id="ticket" class="input" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
+                <select id="busquedaCliente" class="input" v-model="busqueda.cliente_id" @change="buscar()">
+                    <option value="">Todos</option>
+                    <option v-for="cliente in clientes" :value="cliente.cliente_id">@{{ cliente }}</option>
+                </select>
+                <select id="busquedaPrioridad" class="input" v-model="busqueda.prioridad" @change="buscar()">
+                    <option value="">Todas</option>
+                    <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
+                </select>
             </div>
             <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Ticket</button>
         </div>
@@ -152,7 +160,7 @@
                     },
                     busqueda: {
                         titulo: '',
-                        cliente: '',
+                        cliente_id: '',
                         prioridad: ''
                     },
                     erroresRegistro: {},
@@ -194,6 +202,27 @@
                     setTimeout(() => {
                         this.alerta.mostrar = false;
                     }, 3000);
+                },
+                async buscar(){
+                    try {
+                        const params = new URLSearchParams();
+                        if(this.busqueda){
+                            params.append('titulo', this.busqueda.titulo)
+                            params.append('cliente_id', this.busqueda.cliente_id)
+                            params.append('prioridad', this.busqueda.prioridad)
+                        }
+                        const response = await fetch('tickets/listarRest?' + params.toString(), {
+                            method: 'GET', headers: this.headers
+                        })
+
+                        if (!response.ok) {
+                            throw new Error('Error al buscar los tickets: ' + response.status);
+                        }
+                        const data = await response.json();
+                        this.tickets = data;
+                    } catch (error) {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar los tickets')
+                    }
                 },
                 modalCrear(){
                     this.modalRegistro.tipo = 'crear';
