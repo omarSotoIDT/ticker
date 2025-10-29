@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Coordinators\PerfilCoordinator;
-use App\Services\PermisoService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -13,19 +12,9 @@ class PerfilController extends Controller
     public function index()
     {
         try {
-            $busqueda = request('busqueda', ''); 
+            $busqueda = request('busqueda', '');
 
-            $perfiles = PerfilCoordinator::obtenerPerfiles(['busqueda' => $busqueda]);
-            $permisos = PermisoService::obtenerPermisos();
-
-            $perfilesConPermisos = $perfiles->values()->map(function ($perfil) use ($permisos) {
-                $permisosAsignados = DB::table('rel_perfiles_permisos')
-                    ->where('perfil_id', $perfil->perfil_id)
-                    ->pluck('permiso_id')
-                    ->toArray();
-                $perfil->permisos = $permisosAsignados;
-                return $perfil;
-            });
+            ['perfiles' => $perfilesConPermisos, 'permisos' => $permisos] = PerfilCoordinator::obtenerPerfiles(['busqueda' => $busqueda]);
 
             return view('perfiles.perfiles', compact('perfilesConPermisos', 'permisos', 'busqueda'));
         } catch (\Exception $e) {
