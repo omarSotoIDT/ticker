@@ -40,7 +40,7 @@
                     
                     <form :id="'form-eliminar-' + perfil.perfil_id" :action="routeEliminar(perfil.perfil_id)" method="POST" style="display:inline;">
                         @csrf
-                        @method('DELETE')
+                        @method('PATCH')
                         <button type="button" @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
                     </form>
                 </td>
@@ -210,9 +210,9 @@
                 this.mostrarModal = true;
             },
             routeEliminar(perfilId) {
-                return `${this.routeEliminarBase}/${perfilId}`;
+                return `${this.routeEliminarBase}/eliminar/${perfilId}`;
             },
-
+            
             abrirModalEliminar(perfilId) {
                 this.perfilAEliminar = perfilId; 
                 this.mostrarModalEliminar = true; 
