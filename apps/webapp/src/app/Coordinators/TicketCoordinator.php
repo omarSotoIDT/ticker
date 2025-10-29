@@ -4,6 +4,7 @@ namespace App\Coordinators;
 
 use App\Services\EtiquetaService;
 use App\Services\FolioService;
+use App\Services\TicketFeedbackService;
 use App\Services\TicketService;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -29,5 +30,11 @@ class TicketCoordinator
 
             return true;
         });
+    }
+
+    public static function obtener($id) {
+        $ticket = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
+        $ticketFeedback = TicketFeedbackService::listar(['ticket_id' => $id], 'ticketFeedbackId,ticketId,usuario,folio,comentario,registroFecha', ['folio' => 'asc']);
+        return ['ticket' => $ticket, 'feedback' => $ticketFeedback];
     }
 }
