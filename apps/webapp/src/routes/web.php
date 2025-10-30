@@ -2,12 +2,21 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
 Route::post('/logout', [AuthController::class, 'cerrarSesion'])->name('logout');
+
 Route::get('/dashboard', function () { return view('dashboard'); })->middleware('auth')->name('dashboard');
+
+Route::prefix('perfiles')->middleware('auth')->group(function () {
+    Route::get('/', [PerfilController::class, 'index'])->name('perfiles.index');
+    Route::post('/', [PerfilController::class, 'guardar'])->name('perfiles.guardar');
+    Route::put('/{perfil_id}', [PerfilController::class, 'actualizar'])->name('perfiles.actualizar');
+    Route::patch('/eliminar/{perfil_id}', [PerfilController::class, 'eliminar'])->name('perfiles.eliminar');
+});
 
 Route::prefix('usuarios')->group(function(){
     Route::middleware('auth')->group(function() {
