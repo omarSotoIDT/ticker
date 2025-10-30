@@ -56,7 +56,7 @@ class ProyectoController extends Controller
             }
 
             $proyectos = ProyectoRepoData::obtenerProyectos($filtros);
-            $proyectos = $proyectos->map(function($p) {
+            $proyectos = $proyectos->map(function ($p) {
                 $p->cliente = [
                     'cliente_id' => $p->cliente_id,
                     'nombre' => $p->cliente_nombre
@@ -79,7 +79,7 @@ class ProyectoController extends Controller
             $proyectoId = ProyectoCoordinator::crearProyecto($data);
 
             if (!empty($usuarios)) {
-                ProyectoService::actualizarAsignacionesUsuarios($proyectoId, $usuarios);
+                ProyectoCoordinator::actualizarAsignacionesUsuarios($proyectoId, $usuarios);
             }
 
             return response()->json([
@@ -88,11 +88,9 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
-            $exception = $this->handleException($e, 'Error al registrar el proyecto', __FUNCTION__);
-            return $exception;
+            return $this->handleException($e, 'Error al registrar el proyecto', __FUNCTION__);
         }
     }
-
 
     public function actualizarRest(Request $request, $id)
     {
@@ -103,7 +101,7 @@ class ProyectoController extends Controller
             ProyectoCoordinator::actualizarProyecto($id, $data);
 
             if (!empty($usuarios)) {
-                ProyectoService::actualizarAsignacionesUsuarios($id, $usuarios);
+                ProyectoCoordinator::actualizarAsignacionesUsuarios($id, $usuarios);
             }
 
             return response()->json([
@@ -112,11 +110,9 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
-            $exception = $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
-            return $exception;
+            return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
         }
     }
-
 
     public function eliminarRest(Request $request, $id)
     {
@@ -125,7 +121,7 @@ class ProyectoController extends Controller
                 'motivo_eliminacion' => 'required|string|max:250'
             ]);
 
-            ProyectoService::eliminarProyecto($id, $request->motivo_eliminacion);
+            ProyectoCoordinator::eliminarProyecto($id, $request->motivo_eliminacion);
 
             return response()->json(['mensaje' => 'Proyecto eliminado correctamente.'], 200);
         } catch (ValidationException $e) {
@@ -135,11 +131,10 @@ class ProyectoController extends Controller
         }
     }
 
-
-    public function activarRest($id)
+    public function cambiarStatus($id)
     {
         try {
-            ProyectoService::activarProyecto($id);
+            ProyectoCoordinator::cambiarStatus($id);
 
             return response()->json(['mensaje' => 'Estado del proyecto actualizado correctamente.'], 200);
         } catch (Throwable $e) {
@@ -161,8 +156,6 @@ class ProyectoController extends Controller
             return $this->handleException($e, 'Error al obtener logs del proyecto', __FUNCTION__);
         }
     }
-
-
 
     public function gestor()
     {

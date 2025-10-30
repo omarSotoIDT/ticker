@@ -3,6 +3,7 @@
 namespace App\BO;
 
 use App\Consts\StatusConsts;
+use Illuminate\Support\Facades\Auth;
 
 class ProyectoBO
 {
@@ -15,7 +16,7 @@ class ProyectoBO
         ];
     }
 
-    public static function datosParaInsert(array $data): array
+    public static function armarInsert(array $data): array
     {
         $prepared = self::prepararDatos($data);
 
@@ -27,7 +28,7 @@ class ProyectoBO
         ];
     }
 
-    public static function datosParaUpdate(array $data): array
+    public static function armarUpdate(array $data): array
     {
         $prepared = self::prepararDatos($data);
 
@@ -55,8 +56,8 @@ class ProyectoBO
     public static function armarInsertLog(array $datos): array
     {
         return [
-            'proyecto_id'    => $datos['proyecto_id'],
-            'usuario_id'     => $datos['usuario_id'],
+            'proyecto_id'    => $datos['proyectoId'],
+            'usuario_id'     => Auth::id(),
             'folio'          => $datos['folio'], 
             'descripcion'    => $datos['descripcion'],
             'registro_fecha' => now(),

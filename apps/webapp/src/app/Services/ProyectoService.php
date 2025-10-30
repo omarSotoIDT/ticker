@@ -5,8 +5,7 @@ namespace App\Services;
 use App\RepoAction\ProyectoRepoAction;
 use App\RepoData\ProyectoRepoData;
 use App\BO\ProyectoBO;
-use App\Coordinators\ProyectoCoordinator;
-
+use App\Consts\StatusConsts;
 
 class ProyectoService
 {
@@ -15,20 +14,30 @@ class ProyectoService
         return ProyectoRepoData::obtenerProyectos($filtros);
     }
 
-    public static function registrarProyecto(array $data, string $clienteNombre)
+    public static function registrarProyecto(array $data, string $clienteNombre, int $folio)
     {
-        $insertData = ProyectoBO::datosParaInsert($data);
+        $insertData = ProyectoBO::armarInsert($data);
         $proyectoId = ProyectoRepoAction::crearProyecto($insertData);
 
         $nombreProyecto = $data['nombre'];
         $descripcion = "Proyecto creado: '{$nombreProyecto}' para cliente: '{$clienteNombre}'";
-        ProyectoCoordinator::registrarLog($proyectoId, $descripcion);
+        $logData = [
+            'proyectoId'  => $proyectoId,
+            'folio'       => $folio,
+            'descripcion' => $descripcion,
+        ];
 
+        self::agregarLog($logData);
         return $proyectoId;
     }
 
-    public static function actualizarProyecto(int $id, array $data, ?string $nombreClienteAnterior = null, ?string $nombreClienteNuevo = null)
-    {
+    public static function actualizarProyecto(
+        int $id,
+        array $data,
+        ?string $nombreClienteAnterior = null,
+        ?string $nombreClienteNuevo = null,
+        int $folio
+    ) {
         $proyectoActual = ProyectoRepoData::obtenerPorId($id);
         if (!$proyectoActual) {
             throw new \Exception("El proyecto con ID {$id} no existe.");
@@ -52,72 +61,101 @@ class ProyectoService
             }
         }
 
-        if (!empty($cambios)) {
-            $updateData = ProyectoBO::datosParaUpdate($data);
-            $resultado = ProyectoRepoAction::actualizarProyecto($id, $updateData);
-
-            $nombreProyecto = $data['nombre'] ?? $anterior['nombre'] ?? '';
-            $descripcion = "Proyecto '{$nombreProyecto}' actualizado: " . implode('; ', $cambios);
-            ProyectoCoordinator::registrarLog($id, $descripcion);
-
-            return $resultado;
+        if (empty($cambios)) {
+            return false;
         }
 
-        return false;
+        $updateData = ProyectoBO::armarUpdate($data);
+        $resultado = ProyectoRepoAction::actualizarProyecto($id, $updateData);
+
+        $descripcion = "Proyecto '{$anterior['nombre']}' actualizado:\n" . implode("\n", $cambios);
+
+        self::agregarLog([
+            'proyectoId'  => $id,
+            'folio'       => $folio,
+            'descripcion' => $descripcion,
+        ]);
+
+        return $resultado;
     }
 
-    public static function eliminarProyecto(int $id, string $motivo)
+    public static function eliminarProyecto(int $id, string $motivo, int $folio)
     {
         $proyecto = ProyectoRepoData::obtenerPorId($id);
         if (!$proyecto) {
-            return false;
+            throw new \Exception("El proyecto con ID {$id} no existe.");
         }
+
         $nombreProyecto = $proyecto->nombre ?? '';
         $resultado = ProyectoRepoAction::eliminarProyecto($id, $motivo);
+
         $descripcion = "Proyecto '{$nombreProyecto}' eliminado. Motivo: {$motivo}";
-        ProyectoCoordinator::registrarLog($id, $descripcion);
+
+        self::agregarLog([
+            'proyectoId'  => $id,
+            'folio'       => $folio,
+            'descripcion' => $descripcion,
+        ]);
+
         return $resultado;
     }
 
-    public static function activarProyecto(int $id)
+
+    public static function cambiarStatus(int $id, int $folio)
     {
         $proyecto = ProyectoRepoData::obtenerPorId($id);
         if (!$proyecto) {
-            return false;
+            throw new \Exception("El proyecto con ID {$id} no existe.");
         }
-        $nuevoEstado = $proyecto->status === 'ACTIVO' ? 'INACTIVO' : 'ACTIVO';
+
+        $nuevoEstado = $proyecto
+        ->status === StatusConsts::ACTIVO 
+        ? StatusConsts::INACTIVO 
+        : StatusConsts::ACTIVO;
         $resultado = ProyectoRepoAction::activaProyecto($id, $proyecto->status);
-        $nombreProyecto = $proyecto->nombre ?? '';
-        $descripcion = "Estado de proyecto '{$nombreProyecto}' cambiado de {$proyecto->status} a {$nuevoEstado}";
-        ProyectoCoordinator::registrarLog($id, $descripcion);
+
+        $descripcion = "Estado de proyecto '{$proyecto->nombre}' cambiado de {$proyecto->status} a {$nuevoEstado}";
+
+        self::agregarLog([
+            'proyectoId'  => $id,
+            'folio'       => $folio,
+            'descripcion' => $descripcion,
+        ]);
+
         return $resultado;
     }
+
 
     public static function obtenerLogs(int $id)
     {
         return ProyectoRepoData::obtenerLogs($id);
     }
 
-    public static function actualizarAsignacionesUsuarios(int $proyectoId, array $usuariosNuevos)
+    public static function actualizarAsignacionesUsuarios(int $proyectoId, array $usuariosNuevos, int $folio)
     {
         $usuariosActuales = ProyectoRepoData::obtenerUsuariosAsignados($proyectoId);
-
+    
         $usuariosAgregados = array_diff($usuariosNuevos, $usuariosActuales);
         $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
-
+    
         if (!empty($usuariosAgregados) || !empty($usuariosEliminados)) {
             ProyectoRepoAction::actualizarUsuariosAsignados($proyectoId, $usuariosAgregados, $usuariosEliminados);
-
+    
             $nombresAgregados = ProyectoRepoData::reasignarUsuarios($usuariosAgregados);
             $nombresEliminados = ProyectoRepoData::reasignarUsuarios($usuariosEliminados);
-
-            $descripcion = "Actualización de asignaciones: ";
+    
+            $descripcion = "Actualización de asignaciones de usuarios: ";
             if ($nombresAgregados) $descripcion .= "Asignados [{$nombresAgregados}] ";
             if ($nombresEliminados) $descripcion .= "Eliminados [{$nombresEliminados}]";
-
-            ProyectoCoordinator::registrarLog($proyectoId, $descripcion);
+    
+            self::agregarLog([
+                'proyectoId'  => $proyectoId,
+                'folio'       => $folio,
+                'descripcion' => $descripcion,
+            ]);
         }
     }
+    
 
     public static function listarUsuariosAsignados(int $proyectoId)
     {
