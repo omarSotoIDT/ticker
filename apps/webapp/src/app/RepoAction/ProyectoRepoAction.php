@@ -27,7 +27,7 @@ class ProyectoRepoAction
             ->update($updateData);
     }
 
-    public static function activaProyecto(int $id, string $estadoActual): bool
+    public static function cambiarStatus(int $id, string $estadoActual): bool
     {
         $nuevoEstado = $estadoActual === StatusConsts::ACTIVO ? StatusConsts::INACTIVO : StatusConsts::ACTIVO;
 

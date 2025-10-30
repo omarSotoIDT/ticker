@@ -112,7 +112,7 @@ class ProyectoService
         ->status === StatusConsts::ACTIVO 
         ? StatusConsts::INACTIVO 
         : StatusConsts::ACTIVO;
-        $resultado = ProyectoRepoAction::activaProyecto($id, $proyecto->status);
+        $resultado = ProyectoRepoAction::cambiarStatus($id, $proyecto->status);
 
         $descripcion = "Estado de proyecto '{$proyecto->nombre}' cambiado de {$proyecto->status} a {$nuevoEstado}";
 
