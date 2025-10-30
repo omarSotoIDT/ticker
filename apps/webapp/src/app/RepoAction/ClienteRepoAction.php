@@ -26,39 +26,18 @@ class ClienteRepoAction
         return (bool) $updated;
     }
     
-    public static function activaCliente(int $id, string $estadoActual): bool
-    {
-        $nuevoEstado = $estadoActual === StatusConsts::ACTIVO
-            ? StatusConsts::INACTIVO
-            : StatusConsts::ACTIVO;
-    
-        $data = [
-            'status' => $nuevoEstado,
-            'actualizacion_autor_id' => Auth::id(),
-            'actualizacion_fecha' => Carbon::now(),
-        ];
-    
-        $updated = DB::table('clientes')
-            ->where('cliente_id', $id)
-            ->update($data);
-    
-        return (bool) $updated;
-    }
-    
+    public static function cambiarStatus(int $id, array $estadoActual): bool
+{
+    return DB::table('clientes')
+        ->where('cliente_id', $id)
+        ->update($estadoActual);
+}
 
-    public static function eliminarCliente(int $id, string $motivo): bool
-    {
-        $data = [
-            'status' => StatusConsts::ELIMINADO,
-            'motivo_eliminacion' => $motivo,
-            'actualizacion_autor_id' => Auth::id(),
-            'actualizacion_fecha' => Carbon::now(),
-        ];
+public static function eliminarCliente(int $id, array $motivo): bool
+{
+    return DB::table('clientes')
+        ->where('cliente_id', $id)
+        ->update($motivo);
+}
 
-        $updated = DB::table('clientes')
-            ->where('cliente_id', $id)
-            ->update($data);
-
-        return (bool) $updated;
-    }
 }

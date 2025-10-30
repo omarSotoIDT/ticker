@@ -56,3 +56,6 @@
     </body>
 </body>
 </html>
+<script>
+    window.csrfToken = "{{ csrf_token() }}";
+</script>

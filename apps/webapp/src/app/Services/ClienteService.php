@@ -26,23 +26,25 @@ class ClienteService
         return ClienteRepoAction::actualizarCliente($id, $data);
     }
 
-    public static function activaCliente(int $id): bool
+    public static function cambioStatus(int $id): bool
     {
         $cliente = ClienteRepoData::obtenerPorId($id);
         if (!$cliente) return false;
+        $cliente = ClienteBO::armarUpdateStatus($cliente->status);
 
-        return ClienteRepoAction::activaCliente($id, $cliente->status);
+        return ClienteRepoAction::cambiarStatus($id, $cliente);
     }
    
     public static function eliminarCliente(int $id, string $motivo): bool
     {
         $cliente = ClienteRepoData::obtenerPorId($id);
         if (!$cliente) return false;
+        $motivo = ClienteBO::armarUpdateEliminacion($motivo);
 
         return ClienteRepoAction::eliminarCliente($id, $motivo);
     }
 
-    public static function optenerNombre(int $id): ?string
+    public static function obtenerNombre(int $id): ?string
     {
         return ClienteRepoData::obtenerNombrePorId($id);
     }

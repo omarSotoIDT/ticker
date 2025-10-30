@@ -97,7 +97,7 @@
             </div>
         </form>
     </modal-componente>
-        
+
     <alerta-componente
         :mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
@@ -119,7 +119,7 @@
                 accion: '',
                 loading: false,
                 erroresModal: {},
-                token: document.querySelector('meta[name="csrf-token"]').content,
+                token: '{{ csrf_token() }}',
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -127,7 +127,7 @@
                     email: ''
                 },
                 formToggle: {
-                    motivo: ''  
+                    motivo: ''
                 },
                 busqueda: '',
                 alerta: {
@@ -142,7 +142,7 @@
             this.listarClientes()
         },
         methods: {
-            mostrarAlerta(tipo, titulo, mensaje){
+            mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
                 this.alerta.titulo = titulo;
                 this.alerta.mensaje = mensaje;
@@ -186,7 +186,6 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
-                    console.error('Error al listar clientes:', e)
                 }
             },
             async buscar() {
@@ -208,7 +207,6 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
-                    console.error('Error en búsqueda:', e)
                 }
             },
 
@@ -258,7 +256,7 @@
 
                     if (res.status === 422 && data.errores) {
                         this.erroresModal = data.errores
-                        
+
                         const primerError = Object.values(data.errores)[0]
                         if (primerError && primerError.length > 0) {
                             this.mostrarAlerta('info', 'Información', primerError[0])
@@ -269,14 +267,12 @@
                     if (!res.ok) {
                         const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
                         this.mostrarAlerta(mensaje, 'error')
-                        console.error('Error al guardar:', data.error || data)
                         return
                     }
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error general al guardar el cliente.')
-                    console.error('Error general al guardar:', e)
                 } finally {
                     this.loading = false
                 }
@@ -292,33 +288,29 @@
                 this.mostrarToggle = true
             },
 
-            async confirmarToggle() {
-                this.loading = true
-                this.erroresModal = {}
-
-                let url = ''
-                let metodo = 'PATCH'
-                let body = null
-
-                if (this.accion === 'eliminar') {
-                    if (!this.formToggle.motivo || !this.formToggle.motivo.trim()) {
-                        this.erroresModal = {
-                            motivo_eliminacion: ['Debes ingresar un motivo']
-                        }
-                        this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                        this.loading = false
-                        return
-                    }
-
-                    url = `/clientes/${this.cliente.cliente_id}/eliminar`
-                    body = JSON.stringify({
-                        motivo_eliminacion: this.formToggle.motivo
-                    })
-
-                } else if (this.accion === 'activar') {
-                    url = `/clientes/${this.cliente.cliente_id}/activar`
-                    body = null
+            async eliminarCliente() {
+                if (!this.formToggle.motivo || !this.formToggle.motivo.trim()) {
+                    this.erroresModal = {
+                        motivo_eliminacion: ['Debes ingresar un motivo']
+                    };
+                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                    return;
                 }
+
+                const url = `/clientes/${this.cliente.cliente_id}/eliminacion`;
+                const body = JSON.stringify({
+                    motivo_eliminacion: this.formToggle.motivo
+                });
+
+                return this.realizarPeticion(url, 'DELETE', body);
+            },
+
+            async cambiarStatusCliente() {
+                const url = `/clientes/${this.cliente.cliente_id}/cambioStatus`;
+                return this.realizarPeticion(url, 'PATCH');
+            },
+
+            async realizarPeticion(url, metodo, body) {
                 try {
                     const {
                         res,
@@ -331,35 +323,51 @@
                             'X-CSRF-TOKEN': this.token
                         },
                         body
-                    })
+                    });
+
                     if (res.status === 422 && data.errores) {
-                        this.erroresModal = data.errores
-                        
-                        const primerError = Object.values(data.errores)[0]
+                        this.erroresModal = data.errores;
+                        const primerError = Object.values(data.errores)[0];
                         if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta(primerError[0], 'error')
+                            this.mostrarAlerta(primerError[0], 'error');
                         }
-                        return
-                    }
-                    if (!res.ok) {
-                        const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al confirmar la acción.')
-                        this.mostrarAlerta(mensaje, 'error')
-                        console.error('Error al confirmar acción:', data.error || data)
-                        return
+                        return false;
                     }
 
-                    this.handleSuccess('mostrarToggle', data && data.mensaje ? data.mensaje : null)
+                    if (!res.ok) {
+                        const mensaje = data.error || (res.status >= 500 ?
+                            'Error del servidor. Intenta más tarde.' :
+                            'Error desconocido al confirmar la acción.');
+                        this.mostrarAlerta(mensaje, 'error');
+                        return false;
+                    }
+
+                    this.handleSuccess('mostrarToggle', data && data.mensaje ? data.mensaje : null);
+                    return true;
 
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error general al confirmar la acción.');
-                    console.error('Error general al confirmar acción:', e)
-                } finally {
-                    this.loading = false
+                    return false;
                 }
+            },
+
+
+            async confirmarToggle() {
+                this.loading = true;
+                this.erroresModal = {};
+
+                if (this.accion === 'eliminar') {
+                    await this.eliminarCliente();
+                } else if (this.accion === 'activar') {
+                    await this.cambiarStatusCliente();
+                }
+
+                this.loading = false;
             }
         }
     })
-    
+
+
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
 

@@ -23,10 +23,12 @@ Route::prefix('usuarios')->group(function(){
 });
 
 Route::prefix('clientes')->controller(ClienteController::class)->group(function () {
-    Route::get('/', 'gestor')->name('clientes.gestor');
-    Route::get('/listado', 'listarRest')->name('clientes.listado');
-    Route::post('/', 'registrarRest')->name('clientes.registrar');
-    Route::patch('/{id}', 'actualizarRest')->name('clientes.actualizar');
-    Route::patch('/{id}/eliminar', 'eliminarRest')->name('clientes.eliminar');
-    Route::patch('/{id}/activar', 'activarRest')->name('clientes.activar');
+    Route::middleware('auth')->group(function () {
+        Route::get('/', 'gestor')->name('clientes.gestor');
+        Route::get('/listado', 'listaRest')->name('clientes.listado');
+        Route::post('/', 'registroRest')->name('clientes.registro');
+        Route::patch('/{id}', 'actualizacionRest')->name('clientes.actualizacion');
+        Route::delete('/{id}/eliminacion', 'eliminacionRest')->name('clientes.eliminacion');
+        Route::patch('/{id}/cambioStatus', 'cambioStatus')->name('clientes.cambio');
+    });
 });
