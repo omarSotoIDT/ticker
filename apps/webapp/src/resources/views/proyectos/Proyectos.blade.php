@@ -124,33 +124,33 @@
     <alerta-componente :mostrar="alerta.mostrar" :tipo="alerta.tipo" :mensaje="alerta.mensaje"></alerta-componente>
 
     <modal-componente
-    v-model:mostrar="mostrarModalHistorial"
-    titulo="Historial del Proyecto"
-    subtitulo="Usuarios asignados y registros de actividad"
-    texto-confirmacion="Cerrar"
-    :mostrar-botones="false">
+        v-model:mostrar="mostrarModalHistorial"
+        titulo="Historial del Proyecto"
+        subtitulo="Usuarios asignados y registros de actividad"
+        texto-confirmacion="Cerrar"
+        :mostrar-botones="false">
 
-    <div class="modal-historial space-y-4">
-        <h4>Usuarios asignados</h4>
-        <ul v-if="usuariosProyecto.length > 0" class="list-disc pl-5">
-            <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
-                @{{ usuario.usuario }} (@{{ usuario.email }})
-            </li>
-        </ul>
-        <p v-else class="text-gray-500">No hay usuarios asignados.</p>
+        <div class="modal-historial space-y-4">
+            <h4>Usuarios asignados</h4>
+            <ul v-if="usuariosProyecto.length > 0" class="list-disc pl-5">
+                <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
+                    @{{ usuario.usuario }} (@{{ usuario.email }})
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay usuarios asignados.</p>
 
-        <h4>Logs del proyecto</h4>
-        <ul v-if="logsProyecto.length > 0" class="space-y-1">
-            <li v-for="log in logsProyecto" :key="log.id">
-                <small class="text-gray-500 text-sm">@{{ log.fecha }} — @{{ log.usuario }}</small>
-                <br>
-                <small class="text-gray-500 text-sm">@{{ log.accion }}</small>
-                <hr>
-            </li>
-        </ul>
-        <p v-else class="text-gray-500">No hay registros de actividad.</p>
-    </div>
-</modal-componente>
+            <h4>Logs del proyecto</h4>
+            <ul v-if="logsProyecto.length > 0" class="space-y-1">
+                <li v-for="log in logsProyecto" :key="log.id">
+                    <small class="text-gray-500 text-sm">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                    <br>
+                    <small class="text-gray-500 text-sm">@{{ log.accion }}</small>
+                    <hr>
+                </li>
+            </ul>
+            <p v-else class="text-gray-500">No hay registros de actividad.</p>
+        </div>
+    </modal-componente>
 
 
     <modal-componente
@@ -200,8 +200,7 @@
                 proyectoSeleccionado: null,
                 logsProyecto: [],
                 usuariosProyecto: [],
-
-
+                token: '{{ csrf_token() }}',
                 proyectos: [],
                 clientes: [],
                 usuariosDisponibles: [],
@@ -243,7 +242,9 @@
                 this.alerta.tipo = tipo || 'info';
                 this.alerta.mensaje = mensaje || '';
                 this.alerta.mostrar = true;
-                if (duracion > 0) setTimeout(() => { this.alerta.mostrar = false; }, duracion);
+                if (duracion > 0) setTimeout(() => {
+                    this.alerta.mostrar = false;
+                }, duracion);
             },
 
             buscar() {
@@ -296,7 +297,7 @@
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': this.token
                         },
                         body: JSON.stringify(this.formproyecto)
                     });
@@ -330,7 +331,7 @@
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            'X-CSRF-TOKEN': this.token
                         },
                         body: JSON.stringify(this.formproyecto)
                     });
@@ -387,42 +388,84 @@
             async cambiarEstado() {
                 if (!this.proyectoSeleccionado) return;
 
-                const url =
-                    this.tipoForm === 'activar' ?
-                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/cambiarStatus` :
-                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminacion`;
-                try {
-                    const res = await fetch(url, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify(this.formEliminar)
-                    });
+                this.erroresModal = {};
 
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
-                        }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
+                try {
+                    if (this.tipoForm === 'eliminar') {
+                        await this.eliminarProyecto();
+                    } else if (this.tipoForm === 'activar') {
+                        await this.activarProyecto();
+                    } else {
+                        this.mostrarAlerta('error', 'Acción no reconocida');
                         return;
                     }
 
-                    if (!res.ok) throw new Error('Error al cambiar estado');
-
                     this.mostrarModalStatus = false;
-                    this.listarProyectos();
-                    const successMsg = this.tipoForm === 'eliminar' ? 'Proyecto eliminado correctamente' : 'Estado cambiado correctamente';
+                    await this.listarProyectos();
+
+                    const successMsg = this.tipoForm === 'eliminar' ?
+                        'Proyecto eliminado correctamente' :
+                        'Estado cambiado correctamente';
+
                     this.mostrarAlerta('success', successMsg);
                 } catch (err) {
-                    console.error('Error al cambiar estado:', err);
-                    this.mostrarAlerta('error', 'Error al cambiar estado');
+                    console.error('Error en cambiarEstado:', err);
+                    this.mostrarAlerta('error', 'Error al procesar la acción.');
                 }
+            },
+
+            async eliminarProyecto() {
+                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
+                    this.erroresModal = {
+                        motivo_eliminacion: ['Debes ingresar un motivo']
+                    };
+                    this.mostrarAlerta('error', 'Debes ingresar un motivo');
+                    throw new Error('Motivo requerido');
+                }
+
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminacion`;
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.token
+                    },
+                    body: JSON.stringify(this.formEliminar)
+                });
+
+                await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
+            },
+
+            async activarProyecto() {
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/cambiarStatus`;
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.token
+                    }
+                });
+
+                await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
+            },
+
+            async procesarRespuesta(res, mensajeError) {
+                const data = await res.json();
+
+                if (res.status === 422) {
+                    this.erroresModal = data.errores || {};
+                    const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
+                    this.mostrarAlerta('error', msg);
+                    throw new Error(msg);
+                }
+
+                if (!res.ok) {
+                    const msg = data.error || mensajeError;
+                    this.mostrarAlerta('error', msg);
+                    throw new Error(msg);
+                }
+
+                return data;
             },
 
             async modalEditar(proyecto_id) {
@@ -437,7 +480,7 @@
                     nombre: this.proyectoSeleccionado.nombre,
                     descripcion: this.proyectoSeleccionado.descripcion,
                     cliente_id: this.proyectoSeleccionado.cliente_id,
-                    usuarios: [] 
+                    usuarios: []
                 };
 
                 await Promise.all([
@@ -470,4 +513,4 @@
 </script>
 
 
-@endsection 
+@endsection
