@@ -292,11 +292,11 @@
 
             async crearProyecto() {
                 try {
-                    const res = await fetch('/proyectos/registrar', {
+                    const res = await fetch('/proyectos/registro', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.formproyecto)
                     });
@@ -325,16 +325,12 @@
             },
 
             async actualizarProyecto() {
-                console.log('Actualizando proyecto:', this.formproyecto.proyecto_id);
-                console.log('URL esperada:', `/proyectos/${this.formproyecto.proyecto_id}/actualizar`);
-                console.log('Objeto enviado:', this.formproyecto);
-
                 try {
-                    const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}/actualizar`, {
+                    const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}/actualizacion`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.formproyecto)
                     });
@@ -393,14 +389,14 @@
 
                 const url =
                     this.tipoForm === 'activar' ?
-                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/activar` :
-                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminar`;
+                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/cambiarStatus` :
+                    `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminacion`;
                 try {
                     const res = await fetch(url, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         body: JSON.stringify(this.formEliminar)
                     });
