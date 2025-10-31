@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\ProyectoController;
+use App\Http\Controllers\ClienteController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
@@ -26,5 +28,16 @@ Route::prefix('usuarios')->group(function(){
         Route::patch('/editarRest/{id}', [UsuarioController::class, 'editarRest'])->name('usuarios.editarRest');
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
         Route::patch('/activarRest/{id}', [UsuarioController::class, 'activarRest'])->name('usuarios.activarRest');
+    });
+});
+
+Route::prefix('clientes')->controller(ClienteController::class)->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('/', 'gestor')->name('clientes.gestor');
+        Route::get('/listado', 'listarRest')->name('clientes.listado');
+        Route::post('/', 'registrarRest')->name('clientes.registro');
+        Route::patch('/{id}', 'actualizarRest')->name('clientes.actualizacion');
+        Route::delete('/{id}', 'eliminarRest')->name('clientes.eliminacion');
+        Route::patch('/{id}/status', 'cambiarStatusRest')->name('clientes.cambio');
     });
 });
