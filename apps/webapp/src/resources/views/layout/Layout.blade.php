@@ -47,15 +47,10 @@
             </div>
         </aside>
 
-        <!-- Barra superior -->
-        <header>
-            <h1>@yield('titulo', 'Tickets')</h1>
-        </header>
+    <!-- Contenido principal -->
+    <main>
+        @yield('contenido')
+    </main>
 
-        <!-- Contenido principal -->
-        <main>
-            @yield('contenido')
-        </main>
-    </body>
 </body>
 </html>
