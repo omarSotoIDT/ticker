@@ -7,7 +7,6 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketFeedbackController;
-use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ClienteController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
