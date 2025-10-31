@@ -131,7 +131,7 @@ class ProyectoController extends Controller
         }
     }
 
-    public function cambiarStatus($id)
+    public function cambiarStatusRest($id)
     {
         try {
             ProyectoCoordinator::cambiarStatus($id);

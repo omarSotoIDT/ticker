@@ -30,7 +30,7 @@ Route::prefix('proyectos')->controller(ProyectoController::class)->group(functio
         Route::post('/', 'registrarRest')->name('proyectos.registrar');
         Route::patch('/{id}', 'actualizarRest')->name('proyectos.actualizar');
         Route::delete('/{id}', 'eliminarRest')->name('proyectos.eliminar');
-        Route::patch('/{id}/status', 'cambiarStatus')->name('proyectos.activar');
+        Route::patch('/{id}/status', 'cambiarStatusRest')->name('proyectos.activar');
         Route::get('/{id}/logs', 'logsRest')->name('proyectos.logs');
         Route::get('/{id}/usuarios', 'usuariosRest')->name('proyectos.usuarios');
     });
