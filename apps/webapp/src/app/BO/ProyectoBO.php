@@ -7,35 +7,24 @@ use Illuminate\Support\Facades\Auth;
 
 class ProyectoBO
 {
-    public static function prepararDatos(array $data): array
-    {
-        return [
-            'cliente_id'  => $data['cliente_id'],
-            'nombre'      => $data['nombre'],
-            'descripcion' => $data['descripcion'],
-        ];
-    }
-
     public static function armarInsert(array $data): array
     {
-        $prepared = self::prepararDatos($data);
 
         return [
-            'cliente_id'  => (int) $prepared['cliente_id'],
-            'nombre'      => $prepared['nombre'],
-            'descripcion' => $prepared['descripcion'],
+            'cliente_id'  => (int) $data['cliente_id'],
+            'nombre'      => $data['nombre'],
+            'descripcion' => $data['descripcion'],
             'status'      => StatusConsts::ACTIVO,
         ];
     }
 
     public static function armarUpdate(array $data): array
     {
-        $prepared = self::prepararDatos($data);
 
         return [
-            'cliente_id'  => (int) $prepared['cliente_id'],
-            'nombre'      => $prepared['nombre'],
-            'descripcion' => $prepared['descripcion'],
+            'cliente_id'  => (int) $data['cliente_id'],
+            'nombre'      => $data['nombre'],
+            'descripcion' => $data['descripcion'],
         ];
     }
 

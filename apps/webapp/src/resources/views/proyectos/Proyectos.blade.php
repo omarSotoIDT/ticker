@@ -293,7 +293,7 @@
 
             async crearProyecto() {
                 try {
-                    const res = await fetch('/proyectos/registro', {
+                    const res = await fetch('/proyectos', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -327,7 +327,7 @@
 
             async actualizarProyecto() {
                 try {
-                    const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}/actualizacion`, {
+                    const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}`, {
                         method: 'PATCH',
                         headers: {
                             'Content-Type': 'application/json',
@@ -423,7 +423,7 @@
                     throw new Error('Motivo requerido');
                 }
 
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/eliminacion`;
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
                 const res = await fetch(url, {
                     method: 'DELETE',
                     headers: {
@@ -437,7 +437,7 @@
             },
 
             async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/cambiarStatus`;
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
                 const res = await fetch(url, {
                     method: 'PATCH',
                     headers: {

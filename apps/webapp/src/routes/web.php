@@ -27,10 +27,10 @@ Route::prefix('proyectos')->controller(ProyectoController::class)->group(functio
     Route::middleware('auth')->group(function () {
         Route::get('/', 'gestor')->name('proyectos.gestor');
         Route::get('/listado', 'listarRest')->name('proyectos.listado');
-        Route::post('/registrar', 'registrarRest')->name('proyectos.registrar');
-        Route::patch('/{id}/actualizacion', 'actualizarRest')->name('proyectos.actualizar');
-        Route::delete('/{id}/eliminacion', 'eliminarRest')->name('proyectos.eliminar');
-        Route::patch('/{id}/cambiarStatus', 'cambiarStatus')->name('proyectos.activar');
+        Route::post('/', 'registrarRest')->name('proyectos.registrar');
+        Route::patch('/{id}', 'actualizarRest')->name('proyectos.actualizar');
+        Route::delete('/{id}', 'eliminarRest')->name('proyectos.eliminar');
+        Route::patch('/{id}/status', 'cambiarStatus')->name('proyectos.activar');
         Route::get('/{id}/logs', 'logsRest')->name('proyectos.logs');
         Route::get('/{id}/usuarios', 'usuariosRest')->name('proyectos.usuarios');
     });
