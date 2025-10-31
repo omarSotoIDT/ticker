@@ -17,7 +17,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->text('contacto')->comment('Hace referencia a un nombre que se da como contacto por parte del cliente');
             $table->text('email');
-            $table->enum('status', ['ACTIVO','INACTIVO'])->comment('Columna que posee las opciones de ACTIVO e INACTIVO');
+            $table->enum('status', ['ACTIVO','INACTIVO','ELIMINADO'])->comment('Columna que posee las opciones de ACTIVO, INACTIVO y ELIMINADO');
             $table->text('motivo_eliminacion')->nullable()->comment('Columna que hace eferencia al motivo por el cual se haya eliminado el usuario');
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');

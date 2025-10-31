@@ -32,28 +32,26 @@
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}">Usuarios</a>
             <a href="">Perfiles</a>
             <a href="">Clientes</a>
-            <a href="">Proyectos</a>
+            <a 
+                href="{{ route('proyectos.gestor') }}"
+                class="{{ Str::startsWith(Route::currentRouteName(), 'proyectos.') ? 'active' : '' }}"
+            >Proyectos</a>
             <a href="">Reportes</a>
 
             <div class="logout">
                 <p>{{ Auth::user()->usuario }}</p>
                 <P>{{ Auth::user()->email }}</P>
-                <form action="" method="post">
+                <form action="/logout" method="post">
                     @csrf
                     <button type="submit">Cerrar Sesión</button>
                 </form>
             </div>
         </aside>
 
-        <!-- Barra superior -->
-        <header>
-            <h1>@yield('titulo', 'Tickets')</h1>
-        </header>
+    <!-- Contenido principal -->
+    <main>
+        @yield('contenido')
+    </main>
 
-        <!-- Contenido principal -->
-        <main>
-            @yield('contenido')
-        </main>
-    </body>
 </body>
 </html>

@@ -18,7 +18,7 @@ class AuthController extends Controller
                 'email' => 'required|email',
                 'contrasena' => 'required'
             ]);
-            if (AuthService::iniciarSesion($datos)) return redirect()->route('dashboard');
+            if (AuthCoordinator::iniciarSesion($datos)) return redirect()->route('dashboard');
             return redirect()->back()->with('error', 'Las credenciales ingresadas no son validas')->withInput();
         } catch (ValidationException $e) {
             throw $e;

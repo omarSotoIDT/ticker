@@ -14,7 +14,7 @@ return new class extends Migration
             $table->text('nombre');
             $table->text('descripcion');
             $table->enum('status', ['ACTIVO', 'INACTIVO', 'ELIMINADO'])->default('ACTIVO')->comment('ACTIVO, INACTIVO, ELIMINADO');
-            $table->text('motivo_eliminacion');
+            $table->text('motivo_eliminacion')->nullable();
             $table->unsignedBigInteger('registro_autor_id');
             $table->timestamp('registro_fecha');
             $table->unsignedBigInteger('actualizacion_autor_id')->nullable();
