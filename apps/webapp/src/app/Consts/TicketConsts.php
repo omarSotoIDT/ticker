@@ -19,5 +19,5 @@ class TicketConsts
     const CANCELADO = 'Cancelado';    
 
     // Constante de serie
-    const SERIE = 't';
+    const SERIE = 'T';
 }

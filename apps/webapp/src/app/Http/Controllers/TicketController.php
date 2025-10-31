@@ -91,7 +91,7 @@ class TicketController extends Controller
         }
     }
 
-    public static function editarEstadoRest(Request $request, $id)
+    public static function editarStatusRest(Request $request, $id)
     {
         try {
             $datos = $request->validate([
