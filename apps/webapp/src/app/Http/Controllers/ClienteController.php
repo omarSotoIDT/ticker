@@ -27,7 +27,7 @@ class ClienteController extends Controller
         return $request->validate($reglas);
     }
 
-    public function listaRest(Request $request)
+    public function listarRest(Request $request)
     {
         try {
             $busqueda = $request->query('busqueda');
@@ -44,7 +44,7 @@ class ClienteController extends Controller
         }
     }
     
-    public function registroRest(Request $request)
+    public function registrarRest(Request $request)
     {
         try {
             $data = $this->validarCliente($request, false);
@@ -64,7 +64,7 @@ class ClienteController extends Controller
         }
     }
 
-    public function actualizacionRest(Request $request, $id)
+    public function actualizarRest(Request $request, $id)
     {
         try {
             $data = $this->validarCliente($request, true);
@@ -84,7 +84,7 @@ class ClienteController extends Controller
         }
     }
 
-    public function eliminacionRest(Request $request, $id)
+    public function eliminarRest(Request $request, $id)
     {
         try {
             $request->validate([
@@ -107,7 +107,7 @@ class ClienteController extends Controller
         }
     }
 
-    public function cambioStatus($id)
+    public function cambiarStatus($id)
     {
         try {
             ClienteService::cambioStatus($id);

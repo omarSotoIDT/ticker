@@ -194,7 +194,7 @@
                     const {
                         res,
                         data
-                    } = await this.fetchJson('/clientes/listado' + params, {
+                    } = await this.fetchJson('/clientes/listar' + params, {
                         headers: {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': this.token
@@ -297,7 +297,7 @@
                     return;
                 }
 
-                const url = `/clientes/${this.cliente.cliente_id}/eliminacion`;
+                const url = `/clientes/${this.cliente.cliente_id}`;
                 const body = JSON.stringify({
                     motivo_eliminacion: this.formToggle.motivo
                 });
@@ -306,7 +306,7 @@
             },
 
             async cambiarStatusCliente() {
-                const url = `/clientes/${this.cliente.cliente_id}/cambioStatus`;
+                const url = `/clientes/${this.cliente.cliente_id}/status`;
                 return this.realizarPeticion(url, 'PATCH');
             },
 
