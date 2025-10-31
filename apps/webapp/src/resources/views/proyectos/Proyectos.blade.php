@@ -52,7 +52,7 @@
                 </td>
             </tr>
             <tr v-if="proyectos.length === 0">
-                <td colspan="6" class="text-center text-gray-500">No hay proyectos registrados.</td>
+                <td colspan="6" class="">No hay proyectos registrados.</td>
             </tr>
         </tbody>
     </table>
@@ -109,18 +109,6 @@
         </form>
     </modal-componente>
 
-    <script type="text/x-template" id="alert-template">
-        <div v-if="mostrar" :class="['alerta', tipo === 'success' ? 'alert-success' : tipo === 'error' ? 'alert-error' : 'alert-info']" style="position:fixed; top:1rem; right:1rem; z-index:9999;">
-            <div style="padding:0.75rem 1rem; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.12); background:#fff; display:flex; align-items:center; gap:0.5rem;">
-                <strong v-if="tipo === 'success'">OK</strong>
-                <strong v-else-if="tipo === 'error'">Error</strong>
-                <strong v-else>Info</strong>
-                <span>@{{ mensaje }}</span>
-                <button @click="close" style="margin-left:0.5rem; background:transparent; border:0; cursor:pointer;">✕</button>
-            </div>
-        </div>
-    </script>
-
     <alerta-componente :mostrar="alerta.mostrar" :tipo="alerta.tipo" :mensaje="alerta.mensaje"></alerta-componente>
 
     <modal-componente
@@ -130,25 +118,25 @@
         texto-confirmacion="Cerrar"
         :mostrar-botones="false">
 
-        <div class="modal-historial space-y-4">
+        <div class="modal-historial">
             <h4>Usuarios asignados</h4>
-            <ul v-if="usuariosProyecto.length > 0" class="list-disc pl-5">
+            <ul v-if="usuariosProyecto.length > 0" class="">
                 <li v-for="usuario in usuariosProyecto" :key="usuario.usuario_id">
                     @{{ usuario.usuario }} (@{{ usuario.email }})
                 </li>
             </ul>
-            <p v-else class="text-gray-500">No hay usuarios asignados.</p>
+            <p v-else class="">No hay usuarios asignados.</p>
 
             <h4>Logs del proyecto</h4>
-            <ul v-if="logsProyecto.length > 0" class="space-y-1">
+            <ul v-if="logsProyecto.length > 0" class="">
                 <li v-for="log in logsProyecto" :key="log.id">
-                    <small class="text-gray-500 text-sm">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                    <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
                     <br>
-                    <small class="text-gray-500 text-sm">@{{ log.accion }}</small>
+                    <small class="">@{{ log.accion }}</small>
                     <hr>
                 </li>
             </ul>
-            <p v-else class="text-gray-500">No hay registros de actividad.</p>
+            <p v-else class="">No hay registros de actividad.</p>
         </div>
     </modal-componente>
 
