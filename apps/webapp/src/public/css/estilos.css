@@ -239,6 +239,10 @@ overflow-y: auto;
   color: #a1a1aa;
 }
 
+input, select{
+  height: 40px;
+}
+
 textarea.input {
 height: 100px;
 resize: none;
@@ -373,6 +377,11 @@ background: #fefefe;
   transition: background 0.2s;
 }
 
+.select-busqueda{
+  width: 170px;
+  padding: 0 10px;
+}
+
 .modulo {
   padding: 20px 28px;
   background-color: #ffffff;
@@ -385,6 +394,11 @@ background: #fefefe;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+}
+
+.items-busqueda{
+  display: flex;
+  gap: 10px;
 }
 
 .cont-buscador {

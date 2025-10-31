@@ -4,14 +4,17 @@
 
 @section('contenido')
     <div id="app">
-        <div class="">
-            <div class="cont-buscador">
-                <input type="text" name="ticket" id="ticket" class="input" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
-                <select id="busquedaCliente" class="input" v-model="busqueda.cliente_id" @change="buscar()">
+        <div class="modulo-encabezado">
+            <div class="items-busqueda">
+                <div class="cont-buscador">
+                    <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                    <input type="text" name="ticket" id="ticket" class="input inputBusqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
+                </div>
+                <select id="busquedaCliente" class="input select-busqueda" v-model="busqueda.cliente_id" @change="buscar()">
                     <option value="">Todos</option>
                     <option v-for="cliente in clientes" :value="cliente.cliente_id">@{{ cliente }}</option>
                 </select>
-                <select id="busquedaPrioridad" class="input" v-model="busqueda.prioridad" @change="buscar()">
+                <select id="busquedaPrioridad" class="input select-busqueda" v-model="busqueda.prioridad" @change="buscar()">
                     <option value="">Todas</option>
                     <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
                 </select>
