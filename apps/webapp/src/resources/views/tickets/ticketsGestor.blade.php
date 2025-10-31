@@ -170,7 +170,7 @@
                     erroresRegistroFeedback: {},
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     }
                 }
             },
@@ -214,7 +214,7 @@
                             params.append('cliente_id', this.busqueda.cliente_id)
                             params.append('prioridad', this.busqueda.prioridad)
                         }
-                        const response = await fetch('tickets/listarRest?' + params.toString(), {
+                        const response = await fetch('tickets/listadoRest?' + params.toString(), {
                             method: 'GET', headers: this.headers
                         })
 
@@ -240,7 +240,7 @@
                 },
                 async listarTickets(){
                     try {
-                        const response = await fetch('/tickets/listarRest', {
+                        const response = await fetch('/tickets/listadoRest', {
                             method: 'GET', headers: this.headers
                         })
 
@@ -261,7 +261,7 @@
                 },
                 async obtenerTicket(id){
                     try {
-                        const response = await fetch('/tickets/obtenerRest/' + id, {
+                        const response = await fetch(`/tickets/${id}/detalleRest`, {
                             method: 'GET', headers: this.headers
                         })
 
@@ -278,7 +278,7 @@
                 },
                 async agregar(){
                     try {
-                        const response = await fetch('/tickets/agregarRest', {
+                        const response = await fetch('/tickets/registroRest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
 
@@ -300,7 +300,7 @@
                 },
                 async editar(){
                     try {
-                        const response = await fetch('/tickets/editarRest/' + this.ticket.ticketId, {
+                        const response = await fetch(`/tickets/${this.ticket.ticketId}/edicionRest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
 
@@ -322,7 +322,7 @@
                 },
                 async agregarFeedback(){
                     try {
-                        const response = await fetch('/tickets/agregarFeedbackRest/' + this.ticket.ticketId, {
+                        const response = await fetch(`/tickets/${this.ticket.ticketId}/FeedbackRest/`, {
                             method: 'POST', headers: this.headers, body: JSON.stringify()
                         })
 
