@@ -107,7 +107,7 @@ class ClienteController extends Controller
         }
     }
 
-    public function cambiarStatus($id)
+    public function cambiarStatusRest($id)
     {
         try {
             ClienteService::cambioStatus($id);

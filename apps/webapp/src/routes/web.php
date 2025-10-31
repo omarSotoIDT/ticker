@@ -29,6 +29,6 @@ Route::prefix('clientes')->controller(ClienteController::class)->group(function 
         Route::post('/', 'registrarRest')->name('clientes.registro');
         Route::patch('/{id}', 'actualizarRest')->name('clientes.actualizacion');
         Route::delete('/{id}', 'eliminarRest')->name('clientes.eliminacion');
-        Route::patch('/{id}/status', 'cambiarStatus')->name('clientes.cambio');
+        Route::patch('/{id}/status', 'cambiarStatusRest')->name('clientes.cambio');
     });
 });
