@@ -87,7 +87,9 @@ class ProyectoService
         }
 
         $nombreProyecto = $proyecto->nombre ?? '';
-        $resultado = ProyectoRepoAction::eliminarProyecto($id, $motivo);
+
+        $resultado = ProyectoBO::armarUpdateEliminacion($motivo);
+        ProyectoRepoAction::actualizarProyecto($id, $resultado);
 
         $descripcion = "Proyecto '{$nombreProyecto}' eliminado. Motivo: {$motivo}";
 
@@ -107,25 +109,24 @@ class ProyectoService
         if (!$proyecto) {
             throw new \Exception("El proyecto con ID {$id} no existe.");
         }
-
-        $nuevoEstado = $proyecto
-        ->status === StatusConsts::ACTIVO 
-        ? StatusConsts::INACTIVO 
-        : StatusConsts::ACTIVO;
-        $resultado = ProyectoRepoAction::cambiarStatus($id, $proyecto->status);
-
+    
+        $updateData = ProyectoBO::armarUpdateStatus($proyecto->status);
+    
+        $resultado = ProyectoRepoAction::cambiarStatus($id, $updateData);
+    
+        $nuevoEstado = $updateData['status'];
+    
         $descripcion = "Estado de proyecto '{$proyecto->nombre}' cambiado de {$proyecto->status} a {$nuevoEstado}";
-
+    
         self::agregarLog([
             'proyectoId'  => $id,
             'folio'       => $folio,
             'descripcion' => $descripcion,
         ]);
-
+    
         return $resultado;
     }
-
-
+    
     public static function obtenerLogs(int $id)
     {
         return ProyectoRepoData::obtenerLogs($id);

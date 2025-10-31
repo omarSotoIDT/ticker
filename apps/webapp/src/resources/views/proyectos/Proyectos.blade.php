@@ -234,7 +234,7 @@
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {
-                    console.error('Error al listar proyectos:', err);
+                    this.mostrarAlerta('error','Error al listar proyectos:');
                 }
             },
 
@@ -271,7 +271,7 @@
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    console.error('Error al cargar clientes:', err);
+                    this.mostrarAlerta('error','Error al cargar clientes:');
                 }
             },
 
@@ -287,7 +287,7 @@
                         ...u
                     }));
                 } catch (err) {
-                    console.error('Error al cargar usuarios:', err);
+                    this.mostrarAlerta('error','Error al cargar usuarios:');
                 }
             },
 
@@ -320,7 +320,6 @@
                     this.erroresModal = {};
                     this.mostrarAlerta('success', 'Proyecto creado correctamente');
                 } catch (err) {
-                    console.error('Error al crear proyecto:', err);
                     this.mostrarAlerta('error', 'Error al crear proyecto');
                 }
             },
@@ -355,7 +354,6 @@
                     this.erroresModal = {};
                     this.mostrarAlerta('success', 'Proyecto actualizado correctamente');
                 } catch (err) {
-                    console.error('Error al actualizar proyecto:', err);
                     this.mostrarAlerta('error', 'Error al actualizar proyecto');
                 }
             },
@@ -372,7 +370,7 @@
                     this.usuariosProyecto = data.usuarios || [];
                     this.mostrarModalHistorial = true;
                 } catch (err) {
-                    console.error('Error al obtener historial:', err);
+                    this.mostrarAlerta('error', 'Error al obtener historial:');
                 }
             },
 
@@ -409,7 +407,6 @@
 
                     this.mostrarAlerta('success', successMsg);
                 } catch (err) {
-                    console.error('Error en cambiarEstado:', err);
                     this.mostrarAlerta('error', 'Error al procesar la acción.');
                 }
             },
@@ -499,7 +496,7 @@
                     const usuarios = data.data || [];
                     this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
                 } catch (err) {
-                    console.error('Error al cargar usuarios asignados:', err);
+                    this.mostrarAlerta('error', 'Error al cargar usuarios asignados:');
                 }
             },
 

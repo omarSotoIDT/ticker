@@ -4,7 +4,6 @@ namespace App\RepoAction;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 use App\Consts\StatusConsts;
 
 class ProyectoRepoAction
@@ -12,7 +11,7 @@ class ProyectoRepoAction
     public static function crearProyecto(array $insertData): int
     {
         $insertData['registro_autor_id'] = Auth::id();
-        $insertData['registro_fecha'] = Carbon::now();
+        $insertData['registro_fecha'] = now();
 
         return DB::table('proyectos')->insertGetId($insertData);
     }
@@ -20,37 +19,20 @@ class ProyectoRepoAction
     public static function actualizarProyecto(int $id, array $updateData): bool
     {
         $updateData['actualizacion_autor_id'] = Auth::id();
-        $updateData['actualizacion_fecha'] = Carbon::now();
+        $updateData['actualizacion_fecha'] = now();
 
         return DB::table('proyectos')
             ->where('proyecto_id', $id)
             ->update($updateData);
     }
 
-    public static function cambiarStatus(int $id, string $estadoActual): bool
-    {
-        $nuevoEstado = $estadoActual === StatusConsts::ACTIVO ? StatusConsts::INACTIVO : StatusConsts::ACTIVO;
-
-        return DB::table('proyectos')
-            ->where('proyecto_id', $id)
-            ->update([
-                'status'               => $nuevoEstado,
-                'actualizacion_autor_id' => Auth::id(),
-                'actualizacion_fecha'  => Carbon::now(),
-            ]);
-    }
-
-    public static function eliminarProyecto(int $id, string $motivo): bool
+    public static function cambiarStatus($id, $accion): bool
     {
         return DB::table('proyectos')
             ->where('proyecto_id', $id)
-            ->update([
-                'status'               => StatusConsts::ELIMINADO,
-                'motivo_eliminacion'   => $motivo,
-                'actualizacion_autor_id' => Auth::id(),
-                'actualizacion_fecha'  => Carbon::now(),
-            ]);
+            ->update($accion);
     }
+
 
     public static function asignarUsuarios(int $proyectoId, array $usuarios)
     {
@@ -60,7 +42,7 @@ class ProyectoRepoAction
                 [
                     'status' => StatusConsts::ACTIVO,
                     'registro_autor_id' => Auth::id(),
-                    'registro_fecha' => Carbon::now(),
+                    'registro_fecha' => now(),
                 ]
             );
         }

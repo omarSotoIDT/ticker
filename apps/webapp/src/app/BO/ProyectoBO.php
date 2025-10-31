@@ -93,4 +93,28 @@ class ProyectoBO
         return $acciones;
     }
 
+    public static function armarUpdateStatus(string $estadoActual): array
+    {
+        $nuevoEstado = $estadoActual === StatusConsts::ACTIVO
+            ? StatusConsts::INACTIVO
+            : StatusConsts::ACTIVO;
+    
+        return [
+            'status' => $nuevoEstado,
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now(),
+        ];
+    }
+    
+    
+    public static function armarUpdateEliminacion(string $motivo): array
+    {
+        return [
+            'status' => StatusConsts::ELIMINADO,
+            'motivo_eliminacion' => $motivo,
+            'actualizacion_autor_id' => Auth::id(),
+            'actualizacion_fecha' => now(),
+        ];
+    }
+
 }
