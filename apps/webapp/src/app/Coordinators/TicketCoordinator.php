@@ -3,8 +3,10 @@
 namespace App\Coordinators;
 
 use App\Consts\StatusConsts;
+use App\Services\ClienteService;
 use App\Services\EtiquetaService;
 use App\Services\FolioService;
+use App\Services\ProyectoService;
 use App\Services\TicketFeedbackService;
 use App\Services\TicketService;
 use App\Services\UsuarioService;
@@ -19,7 +21,9 @@ class TicketCoordinator
         $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
         $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
-        return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios];
+        $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO]);
+        $clientes = ClienteService::listarClientes(['status' => StatusConsts::ACTIVO]);
+        return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
     }
 
     public static function agregar(array $datos)

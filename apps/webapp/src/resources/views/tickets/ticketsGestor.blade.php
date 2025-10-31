@@ -269,9 +269,9 @@
                     ticketHistorial: [],
                     etiquetas: {{ JS::from($etiquetas) }},
                     prioridades: [BAJA, MEDIA, ALTA, URGENTE],
-                    estados: [ABIERTO, EN_PROGRESO, ATENDIDO, CERRADO, INFO_REQUERIDA, CANCELADO],
-                    clientes: {},
-                    proyectos: {},
+                    estados: [ABIERTO,EN_PROGRESO,ATENDIDO,CERRADO,INFO_REQUERIDA,CANCELADO],
+                    clientes: {{ JS::from($clientes) }},
+                    proyectos: {{ JS::from($proyectos) }},
                     usuarios: {{ JS::from($usuarios) }},
                     alerta: {
                         mostrar: false,
