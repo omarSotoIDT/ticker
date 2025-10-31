@@ -10,6 +10,7 @@
   {{-- VUE --}}
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="{{ asset('componentes/alerta.js') }}?v={{ config('app.version') }}"></script>
+  <script src="{{ asset('constantes.js') }}?v={{ config('app.version') }}"></script>
 
   <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
   {{-- Estilos--}}
@@ -27,7 +28,7 @@
             </div>
             <p class="titulo-enlaces">Menú Principal</p>
             <a href="/dashboard">Dashboard</a>
-            <a href="">Tickets</a>
+            <a href="{{ route('tickets.gestor') }}" class="{{ Route::currentRouteName() == 'tickets.gestor' ? 'active' : '' }}">Tickets</a>
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}">Usuarios</a>
             <a href="">Perfiles</a>
             <a href="">Clientes</a>

@@ -244,6 +244,20 @@ height: 100px;
 resize: none;
 }
 
+input, select{
+  height: 40px;
+}
+
+.select-busqueda{
+  width: 170px;
+  padding: 0 10px;
+}
+
+.items-busqueda{
+  display: flex;
+  gap: 10px;
+}
+
 .error{
   margin: 8px 0;
 }

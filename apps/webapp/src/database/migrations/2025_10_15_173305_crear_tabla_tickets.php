@@ -15,6 +15,7 @@ return new class extends Migration
             $table->unsignedBigInteger('etiqueta_id');
             $table->unsignedBigInteger('usuario_asignado_id');
             $table->unsignedBigInteger('folio');
+            $table->text('serie_folio');
             $table->text('titulo');
             $table->text('descripcion');
             $table->enum('prioridad', ['Baja','Media','Alta','Urgente'])->comment('Baja','Media','Alta','Urgente');
