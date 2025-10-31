@@ -4,20 +4,33 @@ body{
     font-family: "Inter", Tahoma, sans-serif;
     font-weight: 400;
     color: #333;
+    overflow: hidden;
 }
 
 body.layout {
-display: grid;
-grid-template-columns: 250px 1fr;
-grid-template-rows: 60px auto;
-grid-template-areas:
-  "sidebar header"
-  "sidebar main";
-margin: 0;
-background-color: #ffffff;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  grid-template-rows: 60px auto;
+  grid-template-areas:
+    "sidebar header"
+    "sidebar main";
+  margin: 0;
+  background-color: #ffffff;
+  height: 100vh;
 }
 
 .centrado{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/*=== SIDEBAR ===*/
+aside {
+  grid-area: sidebar;
+  background-color: #fafafa;
+  border-right: 1px solid #dcdcdc;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -47,36 +60,48 @@ aside a i{
   text-align: center;
 }
 
+/*--- Alineación de los iconos ---*/
+aside a i{
+  width: 10px; 
+  margin-right: 10px; 
+  text-align: center;
+}
+
+.no-wrap {
+  white-space: nowrap;
+  text-align: center;
+}
+
 /* --- Título del sistema --- */
 aside .titulo {
-border-bottom: 1px solid #dcdcdc;
-padding: 16px;
-text-align: center;
-font-weight: bold;
-background-color: #fafafa;
-font-size: 17.6px;
-height: 48px;
+  border-bottom: 1px solid #dcdcdc;
+  padding: 16px;
+  text-align: center;
+  font-weight: bold;
+  background-color: #fafafa;
+  font-size: 17.6px;
+  height: 48px;
 }
 
 /* --- Navegación --- */
 aside .titulo-enlaces{
-font-size: 14px;
+  font-size: 14px;
 }
 
 aside p {
-margin: 16px;
-font-size: 17.6px;
-font-weight: bold;
-color: #666;
+  margin: 16px;
+  font-size: 17.6px;
+  font-weight: bold;
+  color: #666;
 }
 
 aside a {
-display: block;
-padding: 10px 16px;
-font-size: 14px;
-text-decoration: none;
-color: #000;
-transition: background 0.2s, color 0.2s;
+  display: block;
+  padding: 10px 16px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #000;
+  transition: background 0.2s, color 0.2s;
 }
 
 aside a:hover {
@@ -89,31 +114,36 @@ aside a.active {
   font-weight: bold;
 }
 
+aside a.active {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
 /* --- Logout --- */
 aside .logout {
-margin-top: auto;
-border-top: 1px solid #dcdcdc;
-padding: 16px;
-background-color: #fafafa;
-text-align: left;
+  margin-top: auto;
+  border-top: 1px solid #dcdcdc;
+  padding: 16px;
+  background-color: #fafafa;
+  text-align: left;
 }
 
 aside .logout p {
-margin: 4px 0;
-color: #555;
-font-size: 13.6px;
+  margin: 4px 0;
+  color: #555;
+  font-size: 13.6px;
 }
 
 aside .logout button {
-margin-top: 8px;
-background-color: #ffffff;
-color: #333;
-border: 1px #dcdcdc solid;
-border-radius: 8px;
-padding: 8px 16px;
-cursor: pointer;
-transition: background 0.2s;
-width: 100%;
+  margin-top: 8px;
+  background-color: #ffffff;
+  color: #333;
+  border: 1px #dcdcdc solid;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
 }
 
 aside .logout button:hover {
@@ -122,29 +152,29 @@ background-color: #cfcece;
 
 /*=== BARRA SUPERIOR ===*/
 header {
-grid-area: header;
-display: flex;
-justify-content: space-between;
-align-items: center;
-background-color: #ffffff;
-border-bottom: 1px solid #dcdcdc;
-padding: 16px 24px;
-height: 48px;
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border-bottom: 1px solid #dcdcdc;
+  padding: 16px 24px;
+  height: 48px;
 }
 
 header h1 {
-font-size: 17.6px;
-font-weight: bold;
-margin: 16px;
+  font-size: 17.6px;
+  font-weight: bold;
+  margin: 16px;
 }
 
 header .acciones button {
-background-color: #004aad;
-color: #fff;
-border: none;
-border-radius: 4px;
-padding: 8px 16px;
-cursor: pointer;
+  background-color: #004aad;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
 }
 
 header .acciones button:hover {
@@ -153,9 +183,11 @@ background-color: #003b8e;
 
 /*=== CONTENIDO PRINCIPAL ===*/
 main {
-grid-area: main;
-padding: 24px;
-overflow-y: auto;
+  grid-area: main;
+  padding: 24px;
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .login{
@@ -261,6 +293,7 @@ input, select{
 .error{
   margin: 8px 0;
 }
+<<<<<<< HEAD
 .btn {
 border: none;
 border-radius: 6px;
@@ -305,6 +338,43 @@ border: #000 solid 1px;
 
 .secondary-btn:hover {
 background: #fefefe;
+=======
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.18s;
+  margin: 0px 2px;
+}
+
+.primary-btn {
+  background: #11111a;
+  color: #fff;
+}
+
+.primary-btn:hover {
+  background: #232333;
+}
+
+.secondary-btn {
+  background: #fff;
+  color: #11111a;
+  border: #000 solid 1px;
+}
+
+.edit-btn{
+  position: absolute;
+  top: 33px;
+  right: 50px;
+}
+
+.secondary-btn:hover {
+  background: #fefefe;
+>>>>>>> bebe68e (style: implementa cambios en la vista de ticketsGestor y en la hoja de estilos)
 }
 
 /* ======== Componente Alerta ======== */
@@ -372,7 +442,7 @@ background: #fefefe;
 }
 
 /*=== ESTILOS GLOBALES PARA LA ESTRUCTURA DE LAS TABLAS E INPUTS DE BÚSQUEDA ===*/
-.inputBusqueda {
+.input-busqueda {
   width: 100%;
   box-sizing: border-box;
   background: #f3f3f5;
@@ -471,14 +541,9 @@ background: #fefefe;
 .tabla thead tr:first-child th:first-child {
   border-top-left-radius: 14px;
 }
+
 .tabla thead tr:first-child th:last-child {
   border-top-right-radius: 14px;
-}
-.tabla tbody tr:last-child td:first-child {
-  border-bottom-left-radius: 14px;
-}
-.tabla tbody tr:last-child td:last-child {
-  border-bottom-right-radius: 14px;
 }
 
 /* --- Columna de acciones --- */
@@ -584,12 +649,15 @@ background: #fefefe;
 .animation-fade-enter-active, .animation-fade-leave-active {
   transition: opacity 0.3s ease;
 }
+
 .animation-fade-enter-active .animation, .animation-fade-leave-active .animation {
   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
 .animation-fade-enter-from, .animation-fade-leave-to {
   opacity: 0;
 }
+
 .animation-fade-enter-from .animation, .animation-fade-leave-to .animation {
   transform: scale(0.95);
 }
@@ -605,16 +673,20 @@ background: #fefefe;
   box-sizing: border-box;
   overflow-y: auto;
 }
+
 .item-contenedor {
   display: flex;
   align-items: flex-start;
 }
+
 .item-contenedor:not(:last-child) {
   margin-bottom: 16px;
 }
+
 .item-contenedor input[type="checkbox"] {
   display: none;
 }
+
 .item-contenedor label {
   position: relative;
   padding-left: 30px;
@@ -622,6 +694,7 @@ background: #fefefe;
   display: flex;
   flex-direction: column;
 }
+
 .item-contenedor label::before {
   content: '';
   position: absolute;
@@ -634,6 +707,7 @@ background: #fefefe;
   background: #fff;
   transition: background-color 0.2s, border-color 0.2s;
 }
+
 .item-contenedor input[type="checkbox"]:checked + label::after {
   content: '';
   position: absolute;
@@ -645,16 +719,278 @@ background: #fefefe;
   border-width: 0 2.5px 2.5px 0;
   transform: rotate(45deg);
 }
+
 .item-contenedor input[type="checkbox"]:checked + label::before {
   background-color: #111827;
   border-color: #111827;
 }
+
 .titulo-item {
   font-weight: 500;
   color: #111827;
   font-size: 14px;
 }
+
 .descripcion-item {
   font-size: 12.8px;
   color: #6b7280;
+}
+
+/*===NUEVOS ESTILOS PARA LOS MODALES DEL MÓDULO TICKET===*/
+
+.grid-2-col { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr;     
+    gap: 18px;  
+    width: 100%; 
+    align-items: center; 
+}
+
+.grid-3-col { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr 1fr; 
+    gap: 16px; 
+}
+
+.nota-campo { 
+    font-size: 13.6px; 
+    color: #6c757d; 
+    margin-top: 4px; 
+}
+
+/* Clases para contadores y asignados */
+.badge-contador-inline {
+    font-size: 14.4px;
+    color: #6c757d;
+    margin-left: 4px;
+    font-weight: 500;
+}
+
+.badge-contador {
+    background-color: #e5e7eb;
+    color: #374151;
+    padding: 2px 6px;
+    border-radius: 99px;
+    font-size: 12px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+.badge-asignado {
+    display: inline-block;
+    background-color: #e9ecef;
+    color: #212529;
+    padding: 0.25em 0.6em;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-size: 0.9em;
+}
+
+/* Clases de color para Badges especificos de tickets */
+.badge.status-abierto { background-color: #11111a; color: #fff; }
+.badge.status-progreso { background-color: #e0e7ff; color: #3730a3; } /* Azul claro */
+.badge.status-requerida { background-color: #fee2e2; color: #b91c1c; } /* Rojo claro */
+.badge.status-atendido { background-color: #e5e7eb; color: #6b7280; } /* Gris (badge-inactive) */
+.badge.status-pendiente { background-color: #fef3c7; color: #a16207; } /* Amarillo claro */
+.badge.status-cerrado { background-color: #d1fae5; color: #065f46; } /* Verde claro */
+
+.badge.prioridad-baja { background-color: #e0f2fe; color: #075985; } /* Azul muy claro */
+.badge.prioridad-media { background-color: #e5e7eb; color: #6b7280; } /* Gris (badge-inactive) */
+.badge.prioridad-alta { background-color: #d1d5db; color: #1f2937; } /* Gris oscuro */
+.badge.prioridad-urgente { background-color: #dc2626; color: #fff; } /* Rojo sólido */
+
+/* Estilos especifcos para Modal Ver Ticket */
+.modal-grande .modal-dialog { max-width: 800px; }
+.modal-vista-detalle .modal-header { 
+    border-bottom: none; 
+    padding-bottom: 8px;
+}
+
+.modal-vista-detalle .modal-body { padding-top: 0; }
+.modal-vista-detalle .subtitulo {
+    font-size: 14.4px;
+    color: #6b7280;
+    margin-top: -12px;
+    margin-bottom: 16px;
+}
+
+.vista-detalle-header-status {
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 16px;
+}
+
+.vista-detalle-header-status .campo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.vista-detalle-header-status .badge-info-item strong {
+    font-size: 12.8rem;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.vista-detalle-header-status .cont-asignados {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+.vista-detalle-header-status .cont-asignados .badge-asignado {
+    margin-left: 0;
+}
+
+/* Tabs del modal de Ver Ticket */
+.vista-ticket-secciones-nav {
+    display: flex;
+    background-color: #f3f4f6;
+    border-radius: 8px;
+    padding: 5.6px;
+    margin-bottom: 24px;
+}
+
+.vista-ticket-secciones-nav button {
+    flex-grow: 1;
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14.4px;
+    font-weight: 600;
+    color: #374151;
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.vista-ticket-secciones-nav button:hover {
+    background-color: #e5e7eb;
+}
+
+.vista-ticket-secciones-nav button.activo {
+    background-color: #ffffff;
+    color: #111827;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.vista-ticket-secciones-nav button i { 
+    margin-right: 8px; 
+    color: #9ca3af;
+}
+
+.vista-ticket-secciones-nav button.activo i {
+    color: #111827;
+}
+
+.vista-ticket-secciones-contenido {
+    min-height: 250px;
+}
+
+.empty-state { text-align:center; padding: 32px; color: #777; }
+
+/* Sección Descripción */
+.seccion-descripcion .descripcion-contenido {
+    white-space: pre-wrap;
+    font-size: 15.2px;
+    line-height: 1.6;
+    color: #374151;
+}
+
+.seccion-descripcion .descripcion-fechas {
+    display: flex;
+    justify-content: flex-start;
+    gap: 24px;
+    font-size: 0.85em;
+    color: #6c757d;
+    margin-top: 30px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Sección de Comentarios */
+.seccion-comentarios .lista-comentarios {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 24px;
+    padding-right: 10px;
+}
+
+.comentario-item { display: flex; gap: 12px; margin-bottom: 24px; }
+.comentario-avatar {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #e5e7eb;
+    color: #374151;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+}
+
+.comentario-cuerpo { flex-grow: 1; }
+.comentario-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.comentario-header strong { font-size: 14.4px; }
+.comentario-fecha { font-size: 0.8em; color: #6c757d; }
+.comentario-texto {
+    font-size: 14.4px;
+    color: #374151;
+    white-space: pre-wrap;
+}
+
+.nuevo-comentario-form { display: flex; gap: 8px; margin-top: 16px; }
+.nuevo-comentario-form textarea { flex-grow: 1; min-height: 40px; }
+.btn-enviar-comentario { flex-shrink: 0; height: 40px; width: 40px; padding: 0; margin-top: 60px}
+
+/* Sección de Historial */
+.seccion-historial .lista-historial {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.seccion-historial .lista-historial li {
+    padding: 12px 8px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 0.9em;
+}
+
+.seccion-historial .lista-historial li:last-child { border-bottom: none; }
+.historial-fecha-usuario { 
+    display: block; 
+    font-size: 0.85em; 
+    color: #6b7280; 
+    margin-bottom: 4px; 
+}
+
+.historial-cambio {
+    color: #374151;
+}
+
+.historial-cambio .dato-antiguo {
+    text-decoration: line-through;
+    color: #b91c1c;
+    background-color: #fee2e2;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.historial-cambio .dato-nuevo {
+    color: #065f46;
+    background-color: #d1fae5;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+/* Footer personalizado para modal Ver Ticket*/
+.vista-ticket-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    text-align: right;
 }
