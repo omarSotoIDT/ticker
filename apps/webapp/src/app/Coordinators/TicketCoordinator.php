@@ -51,17 +51,17 @@ class TicketCoordinator
     public static function actualizarTicket(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId);
+            $ticketActual = TicketService::obtener($ticketId, 'titulo,descripcion,prioridad,status,usuarioAsignadoId' );
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
 
             $cambios = [];
-            $camposComparar = ['titulo', 'descripcion', 'prioridad', 'status', 'usuario_asignado_id'];
 
-            foreach ($camposComparar as $campo) {
-                if (isset($datos[$campo]) && $datos[$campo] != $ticketActual->$campo) {
-                    $cambios[] = ucfirst($campo) . " cambiado de '{$ticketActual->$campo}' a '{$datos[$campo]}'";
+            $camposComparar = ['titulo' => 'titulo', 'descripcion' => 'descripcion', 'prioridad' => 'prioridad', 'status' => 'status', 'usuario_asignado_id' => 'usuarioAsignadoId'];
+             foreach ($camposComparar as $campo => $valor) {
+                if (isset($datos[$campo]) && $datos[$campo] != $ticketActual->$valor) {
+                    $cambios[] = ucfirst($campo) . " cambiado de '{$ticketActual->$valor}' a '{$datos[$campo]}'";
                 }
             }
 
