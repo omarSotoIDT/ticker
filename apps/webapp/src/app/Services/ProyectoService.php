@@ -139,7 +139,8 @@ class ProyectoService
         $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
     
         if (!empty($usuariosAgregados) || !empty($usuariosEliminados)) {
-            ProyectoRepoAction::actualizarUsuariosAsignados($proyectoId, $usuariosAgregados, $usuariosEliminados);
+            $acciones = ProyectoBO::construirUsuariosAsignados($proyectoId, $usuariosAgregados, $usuariosEliminados);
+            ProyectoRepoAction::actualizarUsuariosAsignados($acciones);
     
             $nombresAgregados = ProyectoRepoData::reasignarUsuarios($usuariosAgregados);
             $nombresEliminados = ProyectoRepoData::reasignarUsuarios($usuariosEliminados);

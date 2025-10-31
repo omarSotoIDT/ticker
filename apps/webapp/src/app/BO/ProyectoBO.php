@@ -51,5 +51,46 @@ class ProyectoBO
             'descripcion'    => $datos['descripcion'],
             'registro_fecha' => now(),
         ];
-    }   
+    }
+    
+    public static function construirUsuariosAsignados(
+         $proyectoId,
+         $usuariosAgregados,
+         $usuariosEliminados
+    ): array {
+        $ahora = now();
+        $usuarioActual = Auth::id();
+
+        $acciones = [
+            'inserciones' => [],
+            'actualizaciones' => [],
+        ];
+
+        foreach ($usuariosAgregados as $uid) {
+            $acciones['inserciones'][] = [
+                'filtros' => ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
+                'valores' => [
+                    'status' => StatusConsts::ACTIVO,
+                    'registro_autor_id' => $usuarioActual,
+                    'registro_fecha' => $ahora,
+                    'actualizacion_autor_id' => $usuarioActual,
+                    'actualizacion_fecha' => $ahora,
+                ],
+            ];
+        }
+
+        foreach ($usuariosEliminados as $uid) {
+            $acciones['actualizaciones'][] = [
+                'filtros' => ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
+                'valores' => [
+                    'status' => StatusConsts::ELIMINADO,
+                    'actualizacion_autor_id' => $usuarioActual,
+                    'actualizacion_fecha' => $ahora,
+                ],
+            ];
+        }
+
+        return $acciones;
+    }
+
 }

@@ -66,39 +66,22 @@ class ProyectoRepoAction
         }
     }
 
-    public static function actualizarUsuariosAsignados(
-        int $proyectoId,
-        array $usuariosAgregados,
-        array $usuariosEliminados
-    ) {
-        $ahora = Carbon::now();
-        $usuarioActual = Auth::id();
-    
-        foreach ($usuariosAgregados as $uid) {
+    public static function actualizarUsuariosAsignados($acciones) 
+    {
+        foreach ($acciones['inserciones'] as $accion) {
             DB::table('rel_usuarios_proyectos')->updateOrInsert(
-                ['usuario_id' => $uid, 'proyecto_id' => $proyectoId],
-                [
-                    'status' => StatusConsts::ACTIVO,
-                    'registro_autor_id' => $usuarioActual,
-                    'registro_fecha' => $ahora,
-                    'actualizacion_autor_id' => $usuarioActual,
-                    'actualizacion_fecha' => $ahora,
-                ]
+                $accion['filtros'],
+                $accion['valores']
             );
         }
-    
-        foreach ($usuariosEliminados as $uid) {
+
+        foreach ($acciones['actualizaciones'] as $accion) {
             DB::table('rel_usuarios_proyectos')
-                ->where('usuario_id', $uid)
-                ->where('proyecto_id', $proyectoId)
-                ->update([
-                    'status' => StatusConsts::ELIMINADO,
-                    'actualizacion_autor_id' => $usuarioActual,
-                    'actualizacion_fecha' => $ahora,
-                ]);
+                ->where($accion['filtros'])
+                ->update($accion['valores']);
         }
     }
-
+    
     public static function crearLog(array $log)
     {
         return DB::table('log_proyectos')->insert($log);
