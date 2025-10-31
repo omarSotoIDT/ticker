@@ -31,7 +31,10 @@
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}">Usuarios</a>
             <a href="">Perfiles</a>
             <a href="">Clientes</a>
-            <a href="">Proyectos</a>
+            <a 
+                href="{{ route('proyectos.gestor') }}"
+                class="{{ Str::startsWith(Route::currentRouteName(), 'proyectos.') ? 'active' : '' }}"
+            >Proyectos</a>
             <a href="">Reportes</a>
 
             <div class="logout">
