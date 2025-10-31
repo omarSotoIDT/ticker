@@ -33,31 +33,7 @@ aside {
   border-right: 1px solid #dcdcdc;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/*=== SIDEBAR ===*/
-aside {
-grid-area: sidebar;
-background-color: #fafafa;
-border-right: 1px solid #dcdcdc;
-display: flex;
-flex-direction: column;
-justify-content: start;
-padding: 0;
-}
-
-/*--- Alineación de los iconos ---*/
-aside a i{
-  width: 10px; 
-  margin-right: 10px; 
-  text-align: center;
-}
-
-.no-wrap {
-  white-space: nowrap;
-  text-align: center;
+  justify-content: start;
 }
 
 /*--- Alineación de los iconos ---*/
@@ -293,52 +269,6 @@ input, select{
 .error{
   margin: 8px 0;
 }
-<<<<<<< HEAD
-.btn {
-border: none;
-border-radius: 6px;
-font-size: 14px;
-font-weight: 700;
-padding: 10px 12px;
-cursor: pointer;
-transition: background 0.18s;
-margin: 0px 2px;
-}
-
-.primary-btn {
-width: 100%;
-background: #11111a;
-color: #fff;
-border: none;
-border-radius: 6px;
-font-size: 1.08rem;
-font-weight: 700;
-padding: 11px 0;
-margin-top: 8px;
-cursor: pointer;
-transition: background 0.18s;
-background: #11111a;
-color: #fff;
-}
-
-.action-btn {
-background: #11111a;
-color: #fff;
-}
-
-.primary-btn:hover {
-background: #232333;
-}
-
-.secondary-btn {
-background: #fff;
-color: #11111a;
-border: #000 solid 1px;
-}
-
-.secondary-btn:hover {
-background: #fefefe;
-=======
 
 .btn {
   border: none;
@@ -374,7 +304,6 @@ background: #fefefe;
 
 .secondary-btn:hover {
   background: #fefefe;
->>>>>>> bebe68e (style: implementa cambios en la vista de ticketsGestor y en la hoja de estilos)
 }
 
 /* ======== Componente Alerta ======== */
