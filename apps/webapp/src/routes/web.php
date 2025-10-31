@@ -25,14 +25,14 @@ Route::prefix('usuarios')->group(function(){
 Route::prefix('tickets')->group(function () {
     Route::middleware('auth')->group(function() {
         Route::get('/', action: [TicketController::class, 'gestor'])->name('tickets.gestor');
-        Route::get('/listadoRest', [TicketController::class, 'listarRest'])->name('tickets.listarRest');
-        Route::get('{id}/detalleRest', [TicketController::class, 'obtenerRest'])->name('tickets.obtenerRest');
-        Route::post('/registroRest', [TicketController::class, 'agregarRest'])->name('tickets.agregarRest');
-        Route::patch('/{id}/edicionRest', [TicketController::class, 'editarRest'])->name('tickets.editarRest');
-        Route::patch('/{id}/statusRest', [TicketController::class, 'editarStatusRest'])->name('tickets.editarStatusRest');
-        Route::patch('/{id}/PrioridadRest', [TicketController::class, 'editarPrioridadRest'])->name('tickets.editarPrioridadRest');
-        Route::patch('/{id}/AsignacionRest', [TicketController::class, 'editarAsignacionRest'])->name('tickets.editarAsignacionRest');
-        Route::get('/{ticket_id}/FeedbackRest', [TicketFeedbackController::class, 'listarRest'])->name('tickets.listarFeedbackRest');
-        Route::post('/{ticket_id}/FeedbackRest', [TicketFeedbackController::class,'agregarRest'])->name('tickets.agregarFeedbackRest');
+        Route::get('/listado-rest', [TicketController::class, 'listarRest'])->name('tickets.listarRest');
+        Route::get('{id}/detalle-rest', [TicketController::class, 'obtenerRest'])->name('tickets.obtenerRest');
+        Route::post('/registro-rest', [TicketController::class, 'agregarRest'])->name('tickets.agregarRest');
+        Route::patch('/{id}/edicion-rest', [TicketController::class, 'editarRest'])->name('tickets.editarRest');
+        Route::patch('/{id}/status-rest', [TicketController::class, 'editarStatusRest'])->name('tickets.editarStatusRest');
+        Route::patch('/{id}/prioridad-rest', [TicketController::class, 'editarPrioridadRest'])->name('tickets.editarPrioridadRest');
+        Route::patch('/{id}/asignacion-rest', [TicketController::class, 'editarAsignacionRest'])->name('tickets.editarAsignacionRest');
+        Route::get('/{ticket_id}/feedback-rest', [TicketFeedbackController::class, 'listarRest'])->name('tickets.listarFeedbackRest');
+        Route::post('/{ticket_id}/feedback-rest', [TicketFeedbackController::class,'agregarRest'])->name('tickets.agregarFeedbackRest');
     });
 });

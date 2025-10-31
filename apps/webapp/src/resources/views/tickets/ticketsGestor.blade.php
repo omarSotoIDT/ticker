@@ -214,7 +214,7 @@
                             params.append('cliente_id', this.busqueda.cliente_id)
                             params.append('prioridad', this.busqueda.prioridad)
                         }
-                        const response = await fetch('tickets/listadoRest?' + params.toString(), {
+                        const response = await fetch('tickets/listado-rest?' + params.toString(), {
                             method: 'GET', headers: this.headers
                         })
 
@@ -240,7 +240,7 @@
                 },
                 async listarTickets(){
                     try {
-                        const response = await fetch('/tickets/listadoRest', {
+                        const response = await fetch('/tickets/listado-rest', {
                             method: 'GET', headers: this.headers
                         })
 
@@ -261,7 +261,7 @@
                 },
                 async obtenerTicket(id){
                     try {
-                        const response = await fetch(`/tickets/${id}/detalleRest`, {
+                        const response = await fetch(`/tickets/${id}/detalle-rest`, {
                             method: 'GET', headers: this.headers
                         })
 
@@ -278,7 +278,7 @@
                 },
                 async agregar(){
                     try {
-                        const response = await fetch('/tickets/registroRest', {
+                        const response = await fetch('/tickets/registro-rest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
 
@@ -300,7 +300,7 @@
                 },
                 async editar(){
                     try {
-                        const response = await fetch(`/tickets/${this.ticket.ticketId}/edicionRest/`, {
+                        const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
 
@@ -322,7 +322,7 @@
                 },
                 async agregarFeedback(){
                     try {
-                        const response = await fetch(`/tickets/${this.ticket.ticketId}/FeedbackRest/`, {
+                        const response = await fetch(`/tickets/${this.ticket.ticketId}/feedback-rest/`, {
                             method: 'POST', headers: this.headers, body: JSON.stringify()
                         })
 
