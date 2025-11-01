@@ -47,33 +47,26 @@ class TicketCoordinator
             return $ticketId;
         });
     }
-
-    public static function actualizarTicket(int $ticketId, array $datos)
+    public static function actualizarProyecto(int $id, array $data)
     {
-        return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId, 'titulo,descripcion,prioridad,status,usuarioAsignadoId' );
-            if (!$ticketActual) {
-                throw new \Exception("Ticket no existe");
+        $ticketActual = TicketService::obtener($id, 'titulo,descripcion,prioridad,status,usuarioAsignadoId');
+        if (!$ticketActual) {
+            throw new \Exception("El proyecto con ID {$id} no existe.");
+        }
+
+        return DB::transaction(function () use ($id, $data, $ticketActual) {
+            $folio = FolioService::obtener('log_tickets');
+            $nombreUsuarioAnterior = null;
+            $nombreUsuarioNuevo = null;
+            if (
+                isset($data['usuario_asignado_id']) &&
+                $data['usuario_asignado_id'] != $ticketActual->usuarioAsignadoId
+            ) {
+                $nombreUsuarioAnterior = UsuarioService::obtenerNombre($ticketActual->usuarioAsignadoId);
+                $nombreUsuarioNuevo = UsuarioService::obtenerNombre($data['usuario_asignado_id']);
             }
-
-            $cambios = [];
-
-            $camposComparar = ['titulo' => 'titulo', 'descripcion' => 'descripcion', 'prioridad' => 'prioridad', 'status' => 'status', 'usuario_asignado_id' => 'usuarioAsignadoId'];
-             foreach ($camposComparar as $campo => $valor) {
-                if (isset($datos[$campo]) && $datos[$campo] != $ticketActual->$valor) {
-                    $cambios[] = ucfirst($campo) . " cambiado de '{$ticketActual->$valor}' a '{$datos[$campo]}'";
-                }
-            }
-
-            if (!empty($cambios)) {
-                TicketService::editar($ticketId, $datos);
-
-                $logFolio = FolioService::obtener('log_tickets');
-                $descripcionLog = "Ticket actualizado: " . implode('; ', $cambios);
-                TicketService::agregarLog($ticketId, $logFolio, $descripcionLog);
-            }
-
-            return true;
+            
+            return TicketService::editar($id,$data,$nombreUsuarioAnterior,$nombreUsuarioNuevo,$folio);
         });
     }
 
@@ -86,7 +79,7 @@ class TicketCoordinator
             }
 
             if ($ticketActual->status === $datos['status']) {
-                return false; // No hay cambio
+                return false;
             }
 
             TicketService::editarEstado($ticketId, $datos);
@@ -124,25 +117,32 @@ class TicketCoordinator
     public static function editarAsignacion(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId);
+            $ticketActual = TicketService::obtener($ticketId, 'usuarioAsignadoId');
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
-
-            if ($ticketActual->usuario_asignado_id === $datos['usuario_asignado_id']) {
+    
+            if (
+                !isset($datos['usuario_asignado_id']) ||
+                $ticketActual->usuarioAsignadoId == $datos['usuario_asignado_id']
+            ) {
                 return false;
             }
-
+            
+            $nombreUsuarioAnterior = UsuarioService::obtenerNombre($ticketActual->usuarioAsignadoId);
+            $nombreUsuarioNuevo = UsuarioService::obtenerNombre($datos['usuario_asignado_id']);
+    
             TicketService::editarAsignacion($ticketId, $datos);
-
+    
             $folio = FolioService::obtener('log_tickets');
-            $descripcion = "Asignación cambiada de usuario ID '{$ticketActual->usuario_asignado_id}' a '{$datos['usuario_asignado_id']}'";
+            $descripcion = "Asignación cambiada de '{$nombreUsuarioAnterior}' a '{$nombreUsuarioNuevo}'";
+    
             TicketService::agregarLog($ticketId, $folio, $descripcion);
-
+    
             return true;
         });
     }
-
+    
 
     public static function obtener($id)
     {

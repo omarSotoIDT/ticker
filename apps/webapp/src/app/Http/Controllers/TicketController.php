@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\Ticket;
 use Throwable;
 
 class TicketController extends Controller
@@ -81,7 +82,7 @@ class TicketController extends Controller
                 'prioridad' => 'string',
                 'status' => 'string',
             ]);
-            if (TicketCoordinator::actualizarTicket($id, $datos)) {
+            if (TicketCoordinator::actualizarProyecto($id, $datos)) {
                 return Response::json(null, 204);
             }
         } catch (ValidationException $e) {
@@ -131,6 +132,17 @@ class TicketController extends Controller
         } catch (Throwable $error) {
             Log::error("Error al editar la asignación: " . $error);
             return Response::json(['error' => 'Ocurrió un error al editar la asignación'], 500);
+        }
+    }
+
+    public function logsRest($id)
+    {
+        try {
+            $logs = TicketService::obtenerLogs($id);
+            return Response::json($logs, 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al obtener logs " . $error);
+            return Response::json(['error' => 'Ocurrio un error al obtener los logs del ticket'], 500);
         }
     }
 }
