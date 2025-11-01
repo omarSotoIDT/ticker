@@ -58,4 +58,9 @@ class TicketService
         ]);
         return TicketRepoAction::crearLog($insertLog);
     }
+
+    public static function obtenerLogs($id, $columnas = '', $orden = []) {
+        $ticketLogs = TicketRepoData::obtenerLogs($id, $columnas, $orden);
+        return $ticketLogs;
+    }
 }

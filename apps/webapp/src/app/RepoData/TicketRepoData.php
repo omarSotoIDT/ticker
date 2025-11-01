@@ -2,6 +2,7 @@
 
 namespace App\RepoData;
 
+use App\RH\TicketLogRH;
 use App\RH\TicketRH;
 use Illuminate\Support\Facades\DB;
 
@@ -43,5 +44,16 @@ class TicketRepoData
         }
 
         return $query->first();
+    }
+
+    public static function obtenerLogs($ticket_id, $columnas, $orden) {
+        $query = DB::table('log_tickets as lt');
+
+        TicketLogRH::agregarColumnas($query, $columnas);
+        TicketLogRH::agregarOrden($query, $orden);
+
+        $query->where('lt.ticket_id', $ticket_id);
+
+        return $query->get()->toArray();
     }
 }
