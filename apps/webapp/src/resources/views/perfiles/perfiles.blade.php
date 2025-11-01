@@ -4,19 +4,19 @@
 
 @section('contenido')
 
-<div id="app" 
+<div id="app"
     class="clientes"
     data-perfiles='@json($perfilesConPermisos)'
     data-permisos='@json($permisos)'
     data-exito='@json(session("exito"))'
     data-error='@json(session("error"))'>
-    
+
     <div class="modulo-encabezado">
-        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador">
+        <form method="GET" action="{{ route('perfiles.gestor') }}" class="cont-buscador">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
+            <input type="text" name="busqueda" class="input-busqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
         </form>
-        <button class="btn action-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+        <button class="btn primary-btn" @click.prevent="modalCrear()"><i class="fa fa-plus"></i> Nuevo Perfil</button>
     </div>
 
     <table class="tabla">
@@ -37,7 +37,7 @@
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
                     <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    
+
                     <form :id="'form-eliminar-' + perfil.perfil_id" :action="routeEliminar(perfil.perfil_id)" method="POST" style="display:inline;">
                         @csrf
                         @method('PATCH')
@@ -51,7 +51,7 @@
         </tbody>
     </table>
 
-    <modal-componente 
+    <modal-componente
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
@@ -81,7 +81,7 @@
                 <textarea class="input" :class="{'input-error': errors.descripcion}" name="descripcion" id="descripcion" v-model="formPerfil.descripcion" rows="3"></textarea>
                 <span v-if="errors.descripcion" class="error-message">@{{ errors.descripcion }}</span>
             </div>
-            
+
             <div class="campo" v-if="tipoForm === 'editar'">
                 <label class="etiqueta" for="status">Status</label>
                 <select class="input" name="status" v-model="formPerfil.status">
@@ -93,19 +93,28 @@
             <div class="campo">
                 <label class="etiqueta">Permisos</label>
                 <div class="contenedor-checklist">
-                    <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
-                        <input type="checkbox" name="permisos[]" :id="'permiso-' + permiso.permiso_id" :value="permiso.permiso_id" v-model="formPerfil.permisos">
-                        <label :for="'permiso-' + permiso.permiso_id">
-                            <span class="titulo-item">@{{ permiso.titulo }}</span>
-                            <span class="descripcion-item">@{{ permiso.descripcion }}</span>
-                        </label>
+                    <div v-if="permisos && permisos.length">
+                        <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
+                            <input
+                                type="checkbox"
+                                name="permisos[]"
+                                :id="'permiso-' + permiso.permiso_id"
+                                :value="permiso.permiso_id"
+                                v-model="formPerfil.permisos">
+                            <label :for="'permiso-' + permiso.permiso_id">
+                                <span class="titulo-item">@{{ permiso.titulo }}</span>
+                                <span class="descripcion-item">@{{ permiso.descripcion }}</span>
+                            </label>
+                        </div>
                     </div>
+                    <p v-else class="contenido-vacio">No hay permisos registrados.</p>
                 </div>
             </div>
+
         </form>
     </modal-componente>
 
-    <modal-componente 
+    <modal-componente
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
         texto-confirmacion="Sí, Eliminar"
@@ -117,8 +126,7 @@
         :mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
-        :mensaje="alerta.mensaje"
-    >
+        :mensaje="alerta.mensaje">
     </alerta-componente>
 
 </div>
@@ -134,7 +142,12 @@
                 mostrarModal: false,
                 tipoForm: 'crear',
                 formPerfil: {
-                    clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
                 },
                 errors: {},
 
@@ -143,8 +156,8 @@
 
                 perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
                 permisos: JSON.parse(appElement.dataset.permisos || '[]'),
-                
-                routeGuardar: "{{ route('perfiles.guardar') }}",
+
+                routeGuardar: "{{ route('perfiles.agregar') }}",
                 routeActualizarBase: "{{ url('/perfiles') }}",
                 routeEliminarBase: "{{ url('/perfiles') }}",
 
@@ -158,9 +171,9 @@
         },
         computed: {
             formAction() {
-                return this.tipoForm === 'crear'
-                    ? this.routeGuardar
-                    : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
+                return this.tipoForm === 'crear' ?
+                    this.routeGuardar :
+                    `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
             }
         },
         methods: {
@@ -169,7 +182,7 @@
                 if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
                 if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
                 if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
-                
+
                 if (Object.keys(this.errors).length > 0) {
                     this.alerta = {
                         mostrar: true,
@@ -177,7 +190,9 @@
                         titulo: 'Campos incompletos',
                         mensaje: 'Por favor, revisa los campos marcados en rojo.'
                     };
-                    setTimeout(() => { this.alerta.mostrar = false }, 3000);
+                    setTimeout(() => {
+                        this.alerta.mostrar = false
+                    }, 3000);
                 }
 
                 return Object.keys(this.errors).length === 0;
@@ -188,16 +203,23 @@
                 }
             },
             modalCrear() {
-                this.errors = {}; 
+                this.errors = {};
                 this.tipoForm = 'crear';
-                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                this.formPerfil = {
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
+                };
                 this.mostrarModal = true;
             },
             modalEditar(perfilId) {
-                this.errors = {}; 
+                this.errors = {};
                 const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
                 if (!perfil) return;
-                
+
                 this.tipoForm = 'editar';
                 this.formPerfil = {
                     clave: perfil.clave,
@@ -212,10 +234,10 @@
             routeEliminar(perfilId) {
                 return `${this.routeEliminarBase}/eliminar/${perfilId}`;
             },
-            
+
             abrirModalEliminar(perfilId) {
-                this.perfilAEliminar = perfilId; 
-                this.mostrarModalEliminar = true; 
+                this.perfilAEliminar = perfilId;
+                this.mostrarModalEliminar = true;
             },
 
             ejecutarEliminacion() {
@@ -226,7 +248,7 @@
                         form.submit();
                     }
                 }
-                this.mostrarModalEliminar = false; 
+                this.mostrarModalEliminar = false;
             }
         },
         mounted() {

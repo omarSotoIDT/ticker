@@ -7,19 +7,19 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketFeedbackController;
-use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
 Route::post('/logout', [AuthController::class, 'cerrarSesion'])->name('logout');
 
-Route::get('/dashboard', function () { return view('dashboard'); })->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 Route::prefix('perfiles')->middleware('auth')->group(function () {
-    Route::get('/', [PerfilController::class, 'index'])->name('perfiles.index');
-    Route::post('/', [PerfilController::class, 'guardar'])->name('perfiles.guardar');
-    Route::put('/{perfil_id}', [PerfilController::class, 'actualizar'])->name('perfiles.actualizar');
+    Route::get('/', [PerfilController::class, 'gestor'])->name('perfiles.gestor');
+    Route::post('/', [PerfilController::class, 'agregar'])->name('perfiles.agregar');
+    Route::put('/{perfil_id}', [PerfilController::class, 'editar'])->name('perfiles.editar');
     Route::patch('/eliminar/{perfil_id}', [PerfilController::class, 'eliminar'])->name('perfiles.eliminar');
 });
 

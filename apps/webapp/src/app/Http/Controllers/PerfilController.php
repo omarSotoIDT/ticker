@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class PerfilController extends Controller
 {
-    public function index()
+    public function gestor()
     {
         try {
             $busqueda = request('busqueda', '');
@@ -23,7 +23,7 @@ class PerfilController extends Controller
         }
     }
 
-    public function guardar(Request $request)
+    public function agregar(Request $request)
     {
         try {
             $data = $request->validate([
@@ -41,7 +41,7 @@ class PerfilController extends Controller
         }
     }
 
-    public function actualizar(Request $request, $perfil_id)
+    public function editar(Request $request, $perfil_id)
     {
         try {
             $data = $request->validate([
