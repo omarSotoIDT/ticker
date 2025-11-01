@@ -1,10 +1,10 @@
 /*=== ESTILOS GENERALES ===*/
 body{
-    height: 100vh;
-    font-family: "Inter", Tahoma, sans-serif;
-    font-weight: 400;
-    color: #333;
-    overflow: hidden;
+  height: 100vh;
+  font-family: "Inter", Tahoma, sans-serif;
+  font-weight: 400;
+  color: #333;
+  overflow: hidden;
 }
 
 body.layout {
@@ -16,7 +16,6 @@ body.layout {
     "sidebar main";
   margin: 0;
   background-color: #ffffff;
-  height: 100vh;
 }
 
 .centrado{
@@ -33,43 +32,8 @@ aside {
   border-right: 1px solid #dcdcdc;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-/*=== SIDEBAR ===*/
-aside {
-grid-area: sidebar;
-background-color: #fafafa;
-border-right: 1px solid #dcdcdc;
-display: flex;
-flex-direction: column;
-justify-content: start;
-padding: 0;
-}
-
-/*--- Alineación de los iconos ---*/
-aside a i{
-  width: 10px; 
-  margin-right: 10px; 
-  text-align: center;
-}
-
-.no-wrap {
-  white-space: nowrap;
-  text-align: center;
-}
-
-/*--- Alineación de los iconos ---*/
-aside a i{
-  width: 10px; 
-  margin-right: 10px; 
-  text-align: center;
-}
-
-.no-wrap {
-  white-space: nowrap;
-  text-align: center;
+  justify-content: start;
+  padding: 0;
 }
 
 /* --- Título del sistema --- */
@@ -105,13 +69,8 @@ aside a {
 }
 
 aside a:hover {
-background-color: #b6b6b6;
-color: #333;
-}
-
-aside a.active {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background-color: #b6b6b6;
+  color: #333;
 }
 
 aside a.active {
@@ -147,7 +106,7 @@ aside .logout button {
 }
 
 aside .logout button:hover {
-background-color: #cfcece;
+  background-color: #cfcece;
 }
 
 /*=== BARRA SUPERIOR ===*/
@@ -178,7 +137,7 @@ header .acciones button {
 }
 
 header .acciones button:hover {
-background-color: #003b8e;
+  background-color: #003b8e;
 }
 
 /*=== CONTENIDO PRINCIPAL ===*/
@@ -186,8 +145,6 @@ main {
   grid-area: main;
   padding: 24px;
   overflow: hidden;
-  height: 100%;
-  box-sizing: border-box;
 }
 
 .login{
@@ -272,8 +229,8 @@ main {
 }
 
 textarea.input {
-height: 100px;
-resize: none;
+  height: 100px;
+  resize: none;
 }
 
 input, select{
@@ -293,52 +250,6 @@ input, select{
 .error{
   margin: 8px 0;
 }
-<<<<<<< HEAD
-.btn {
-border: none;
-border-radius: 6px;
-font-size: 14px;
-font-weight: 700;
-padding: 10px 12px;
-cursor: pointer;
-transition: background 0.18s;
-margin: 0px 2px;
-}
-
-.primary-btn {
-width: 100%;
-background: #11111a;
-color: #fff;
-border: none;
-border-radius: 6px;
-font-size: 1.08rem;
-font-weight: 700;
-padding: 11px 0;
-margin-top: 8px;
-cursor: pointer;
-transition: background 0.18s;
-background: #11111a;
-color: #fff;
-}
-
-.action-btn {
-background: #11111a;
-color: #fff;
-}
-
-.primary-btn:hover {
-background: #232333;
-}
-
-.secondary-btn {
-background: #fff;
-color: #11111a;
-border: #000 solid 1px;
-}
-
-.secondary-btn:hover {
-background: #fefefe;
-=======
 
 .btn {
   border: none;
@@ -368,13 +279,12 @@ background: #fefefe;
 
 .edit-btn{
   position: absolute;
-  top: 33px;
+  top: 34px;
   right: 50px;
 }
 
 .secondary-btn:hover {
   background: #fefefe;
->>>>>>> bebe68e (style: implementa cambios en la vista de ticketsGestor y en la hoja de estilos)
 }
 
 /* ======== Componente Alerta ======== */
@@ -541,9 +451,14 @@ background: #fefefe;
 .tabla thead tr:first-child th:first-child {
   border-top-left-radius: 14px;
 }
-
 .tabla thead tr:first-child th:last-child {
   border-top-right-radius: 14px;
+}
+.tabla tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 14px;
+}
+.tabla tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 14px;
 }
 
 /* --- Columna de acciones --- */
@@ -649,15 +564,12 @@ background: #fefefe;
 .animation-fade-enter-active, .animation-fade-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .animation-fade-enter-active .animation, .animation-fade-leave-active .animation {
   transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-
 .animation-fade-enter-from, .animation-fade-leave-to {
   opacity: 0;
 }
-
 .animation-fade-enter-from .animation, .animation-fade-leave-to .animation {
   transform: scale(0.95);
 }
@@ -739,52 +651,52 @@ background: #fefefe;
 /*===NUEVOS ESTILOS PARA LOS MODALES DEL MÓDULO TICKET===*/
 
 .grid-2-col { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr;     
-    gap: 18px;  
-    width: 100%; 
-    align-items: center; 
+  display: grid; 
+  grid-template-columns: 1fr 1fr;     
+  gap: 18px;  
+  width: 100%; 
+  align-items: center; 
 }
 
 .grid-3-col { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr 1fr; 
-    gap: 16px; 
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  gap: 16px; 
 }
 
 .nota-campo { 
-    font-size: 13.6px; 
-    color: #6c757d; 
-    margin-top: 4px; 
+  font-size: 13.6px; 
+  color: #6c757d; 
+  margin-top: 4px; 
 }
 
 /* Clases para contadores y asignados */
 .badge-contador-inline {
-    font-size: 14.4px;
-    color: #6c757d;
-    margin-left: 4px;
-    font-weight: 500;
+  font-size: 14.4px;
+  color: #6c757d;
+  margin-left: 4px;
+  font-weight: 500;
 }
 
 .badge-contador {
-    background-color: #e5e7eb;
-    color: #374151;
-    padding: 2px 6px;
-    border-radius: 99px;
-    font-size: 12px;
-    margin-left: 8px;
-    vertical-align: middle;
-    font-weight: 600;
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 2px 6px;
+  border-radius: 99px;
+  font-size: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 600;
 }
 
 .badge-asignado {
-    display: inline-block;
-    background-color: #e9ecef;
-    color: #212529;
-    padding: 0.25em 0.6em;
-    border-radius: 4px;
-    margin-left: 5px;
-    font-size: 0.9em;
+  display: inline-block;
+  background-color: #e9ecef;
+  color: #212529;
+  padding: 0.25em 0.6em;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-size: 0.9em;
 }
 
 /* Clases de color para Badges especificos de tickets */
@@ -803,133 +715,133 @@ background: #fefefe;
 /* Estilos especifcos para Modal Ver Ticket */
 .modal-grande .modal-dialog { max-width: 800px; }
 .modal-vista-detalle .modal-header { 
-    border-bottom: none; 
-    padding-bottom: 8px;
+  border-bottom: none; 
+  padding-bottom: 8px;
 }
 
 .modal-vista-detalle .modal-body { padding-top: 0; }
 .modal-vista-detalle .subtitulo {
-    font-size: 14.4px;
-    color: #6b7280;
-    margin-top: -12px;
-    margin-bottom: 16px;
+  font-size: 14.4px;
+  color: #6b7280;
+  margin-top: -12px;
+  margin-bottom: 16px;
 }
 
 .vista-detalle-header-status {
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
-    margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 16px;
 }
 
 .vista-detalle-header-status .campo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .vista-detalle-header-status .badge-info-item strong {
-    font-size: 12.8rem;
-    color: #6b7280;
-    font-weight: 500;
-    text-transform: uppercase;
+  font-size: 12.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
 }
 
 .vista-detalle-header-status .cont-asignados {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
 }
 
 .vista-detalle-header-status .cont-asignados .badge-asignado {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 /* Tabs del modal de Ver Ticket */
 .vista-ticket-secciones-nav {
-    display: flex;
-    background-color: #f3f4f6;
-    border-radius: 8px;
-    padding: 5.6px;
-    margin-bottom: 24px;
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 5.6px;
+  margin-bottom: 24px;
 }
 
 .vista-ticket-secciones-nav button {
-    flex-grow: 1;
-    background: none;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 14.4px;
-    font-weight: 600;
-    color: #374151;
-    border-radius: 6px;
-    transition: background-color 0.2s, color 0.2s;
+  flex-grow: 1;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14.4px;
+  font-weight: 600;
+  color: #374151;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .vista-ticket-secciones-nav button:hover {
-    background-color: #e5e7eb;
+  background-color: #e5e7eb;
 }
 
 .vista-ticket-secciones-nav button.activo {
-    background-color: #ffffff;
-    color: #111827;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background-color: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 .vista-ticket-secciones-nav button i { 
-    margin-right: 8px; 
-    color: #9ca3af;
+  margin-right: 8px; 
+  color: #9ca3af;
 }
 
 .vista-ticket-secciones-nav button.activo i {
-    color: #111827;
+  color: #111827;
 }
 
 .vista-ticket-secciones-contenido {
-    min-height: 250px;
+  min-height: 250px;
 }
 
 .empty-state { text-align:center; padding: 32px; color: #777; }
 
 /* Sección Descripción */
 .seccion-descripcion .descripcion-contenido {
-    white-space: pre-wrap;
-    font-size: 15.2px;
-    line-height: 1.6;
-    color: #374151;
+  white-space: pre-wrap;
+  font-size: 15.2px;
+  line-height: 1.6;
+  color: #374151;
 }
 
 .seccion-descripcion .descripcion-fechas {
-    display: flex;
-    justify-content: flex-start;
-    gap: 24px;
-    font-size: 0.85em;
-    color: #6c757d;
-    margin-top: 30px;
-    padding-top: 16px;
-    border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-start;
+  gap: 24px;
+  font-size: 0.85em;
+  color: #6c757d;
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
 }
 
 /* Sección de Comentarios */
 .seccion-comentarios .lista-comentarios {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 24px;
-    padding-right: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 24px;
+  padding-right: 10px;
 }
 
 .comentario-item { display: flex; gap: 12px; margin-bottom: 24px; }
 .comentario-avatar {
-    flex-shrink: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background-color: #e5e7eb;
-    color: #374151;
-    display: grid;
-    place-items: center;
-    font-weight: 600;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #374151;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
 }
 
 .comentario-cuerpo { flex-grow: 1; }
@@ -937,9 +849,9 @@ background: #fefefe;
 .comentario-header strong { font-size: 14.4px; }
 .comentario-fecha { font-size: 0.8em; color: #6c757d; }
 .comentario-texto {
-    font-size: 14.4px;
-    color: #374151;
-    white-space: pre-wrap;
+  font-size: 14.4px;
+  color: #374151;
+  white-space: pre-wrap;
 }
 
 .nuevo-comentario-form { display: flex; gap: 8px; margin-top: 16px; }
@@ -948,49 +860,170 @@ background: #fefefe;
 
 /* Sección de Historial */
 .seccion-historial .lista-historial {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 350px;
-    overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 350px;
+  overflow-y: auto;
 }
 
 .seccion-historial .lista-historial li {
-    padding: 12px 8px;
-    border-bottom: 1px solid #f3f4f6;
-    font-size: 0.9em;
+  padding: 12px 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9em;
 }
 
 .seccion-historial .lista-historial li:last-child { border-bottom: none; }
 .historial-fecha-usuario { 
-    display: block; 
-    font-size: 0.85em; 
-    color: #6b7280; 
-    margin-bottom: 4px; 
+  display: block; 
+  font-size: 0.85em; 
+  color: #6b7280; 
+  margin-bottom: 4px; 
 }
 
 .historial-cambio {
-    color: #374151;
+  color: #374151;
 }
 
 .historial-cambio .dato-antiguo {
-    text-decoration: line-through;
-    color: #b91c1c;
-    background-color: #fee2e2;
-    padding: 1px 4px;
-    border-radius: 3px;
+  text-decoration: line-through;
+  color: #b91c1c;
+  background-color: #fee2e2;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 .historial-cambio .dato-nuevo {
-    color: #065f46;
-    background-color: #d1fae5;
-    padding: 1px 4px;
-    border-radius: 3px;
+  color: #065f46;
+  background-color: #d1fae5;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 /* Footer personalizado para modal Ver Ticket*/
 .vista-ticket-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  text-align: right;
+}
+
+/*=== ESTILOS ESPECÍFICOS DEL DASHBOARD ===*/
+:root {
+    --texto-primario: #1f2937;
+    --texto-secundario: #6b7280;
+    --fondo-blanco: #ffffff;
+    --color-borde: #e5e7eb;
+
+    --icono-total-color: #818cf8;
+    --icono-activos-color: #38bdf8;
+    --icono-cerrados-color: #4ade80;
+    --icono-urgentes-color: #f87171;
+}
+
+/* Estructura General del Dashboard */
+#dashboard-root {
+    padding: 24px;
+    background-color: var(--fondo-blanco);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--texto-primario);
+    overflow-x: hidden;
+}
+
+/* Fila de Tarjetas de Estadísticas */
+#dashboard-root .fila-tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+}
+
+#dashboard-root .tarjeta-estadistica {
+    background-color: var(--fondo-blanco);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid var(--color-borde);
+    min-height: 130px; 
+    display: flex;
+}
+
+#dashboard-root .tarjeta-contenido {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+#dashboard-root .tarjeta-encabezado {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px; 
+}
+
+#dashboard-root .tarjeta-titulo {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--texto-secundario);
+}
+
+#dashboard-root .tarjeta-valor {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+}
+
+#dashboard-root .tarjeta-descripcion {
+    font-size: 13px;
+    color: var(--texto-secundario);
+}
+
+#dashboard-root .tarjeta-icono {
+    font-size: 22px;
+}
+#dashboard-root .tarjeta-icono.icono-total { color: var(--icono-total-color); }
+#dashboard-root .tarjeta-icono.icono-activos { color: var(--icono-activos-color); }
+#dashboard-root .tarjeta-icono.icono-cerrados { color: var(--icono-cerrados-color); }
+#dashboard-root .tarjeta-icono.icono-urgentes { color: var(--icono-urgentes-color); }
+
+#dashboard-root .cuadricula-graficas {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
     margin-top: 24px;
-    padding-top: 16px;
-    text-align: right;
+}
+
+@media (min-width: 768px) {
+    #dashboard-root .cuadricula-graficas {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+#dashboard-root .tarjeta-grafica {
+    background-color: var(--fondo-blanco);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    border: 1px solid var(--color-borde);
+}
+
+#dashboard-root .tarjeta-grafica h3 {
+    font-size: 18px; font-weight: 600; margin: 0 0 16px 0;
+}
+
+#dashboard-root .lienzo-grafica {
+    width: 100%; height: 300px;
+}
+
+#dashboard-root .grafica-ancho-completo {
+    grid-column: 1 / -1;
+}
+
+body:has(#dashboard-root) header,
+body:has(#dashboard-root) aside {
+  position: relative;
+  z-index: 10;
+}
+
+body:has(#dashboard-root) main {
+  overflow-y: auto;
 }
