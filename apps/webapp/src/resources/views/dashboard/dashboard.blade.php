@@ -88,9 +88,9 @@
         const prioridad = JSON.parse(root.dataset.ticketsPorPrioridad || '{}');
         const topClientes = JSON.parse(root.dataset.topClientes || '{}');
 
-        const colorsEstado = ['#3b82f6', '#f97316', '#22c55e', '#8b5cf6'];
-        const colorsPrioridad = ['#ef4444', '#f59e0b', '#ef4444', '#22c55e'];
-        const colorTopClientes = '#3b82f6';
+        const colorsEstado = ['#3b82f6', '#69404aff', '#fdac17ff', '#8b5cf6', '#56df83ff', '#ec5a5aff'];
+        const colorsPrioridad = ['#f59e0b', '#ef4444', '#ec0e0eff', '#37af63ff'];
+        const colorTopClientes = '#5695faff';
 
         const yAxisOptions = {
             beginAtZero: true,
@@ -112,12 +112,23 @@
                     datasets: [{
                         data: estado.data || [],
                         backgroundColor: colorsEstado,
-                        borderWidth: 0
+                        borderWidth: 1,          
+                        borderColor: '#fff',     
+                        hoverBorderColor: '#fff'
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    aspectRatio: 1,
+                    layout: {
+                        padding: 30
+                    },
+                    elements: {
+                        arc: {
+                            borderWidth: 0
+                        }
+                    },
                     plugins: {
                         legend: {
                             display: false,
@@ -132,15 +143,18 @@
                             color: (ctx) => colorsEstado[ctx.dataIndex],
                             font: {
                                 weight: '600',
-                                size: 14
+                                size: 13
                             },
                             anchor: 'end',
                             align: 'end',
-                            offset: 8,
+                            offset: 11,
+                            clamp: false,
+                            clip: false,
                             textAlign: 'center'
                         }
                     }
                 }
+
             });
         }
 

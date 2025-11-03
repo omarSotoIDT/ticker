@@ -6,23 +6,22 @@ class DashboardBO
 {
     public static function armarCardsFromTotales(array $totales): array
     {
-        $total = isset($totales['total']) ? (int) $totales['total'] : 0;
-        $cerrados = isset($totales['cerrados']) ? (int) $totales['cerrados'] : 0;
-        $urgentes = isset($totales['urgentes']) ? (int) $totales['urgentes'] : 0;
+        $total      = isset($totales['total']) ? (int) $totales['total'] : 0;
+        $cerrados   = isset($totales['cerrados']) ? (int) $totales['cerrados'] : 0;
+        $cancelados = isset($totales['cancelados']) ? (int) $totales['cancelados'] : 0;
+        $urgentes   = isset($totales['urgentes']) ? (int) $totales['urgentes'] : 0;
 
-        if (isset($totales['activos'])) {
-            $activos = (int) $totales['activos'];
-        } else {
-            $activos = max(0, $total - $cerrados);
-        }
+        $activos = isset($totales['activos']) ? (int) $totales['activos'] : 0;
 
         return [
-            'total' => $total,
-            'activos' => $activos,
-            'cerrados' => $cerrados,
-            'urgentes' => $urgentes,
+            'total'      => $total,
+            'activos'    => $activos,
+            'cerrados'   => $cerrados,
+            'cancelados' => $cancelados,
+            'urgentes'   => $urgentes,
         ];
     }
+
 
     public static function armarDataset(array $rows, string $labelKey, string $valueKey): array
     {

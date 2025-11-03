@@ -3,24 +3,42 @@
 namespace App\RepoData;
 
 use Illuminate\Support\Facades\DB;
+use App\Consts\TicketConsts;
 
 class DashboardRepoData
 {
     public static function obtenerTotales(): array
     {
         $total = DB::table('tickets')->count();
+        $statusCerrados = [
+            TicketConsts::ATENDIDO,
+            TicketConsts::CERRADO,
+        ];
 
         $cerrados = DB::table('tickets')
-            ->whereRaw('UPPER(status) = ?', [mb_strtoupper('Atendido')])
+            ->whereIn(DB::raw('UPPER(status)'), array_map('mb_strtoupper', $statusCerrados))
+            ->count();
+
+        $cancelados = DB::table('tickets')
+            ->whereRaw('UPPER(status) = ?', [mb_strtoupper(TicketConsts::CANCELADO)])
             ->count();
 
         $urgentes = DB::table('tickets')
-            ->whereRaw('UPPER(prioridad) = ?', [mb_strtoupper('Urgente')])
+            ->whereRaw('UPPER(prioridad) = ?', [mb_strtoupper(TicketConsts::URGENTE)])
             ->count();
 
-        $activos = max(0, $total - $cerrados);
+    $estadosExcluidos = array_merge($statusCerrados, [TicketConsts::CANCELADO]);
+        $activos = DB::table('tickets')
+            ->whereNotIn(DB::raw('UPPER(status)'), array_map('mb_strtoupper', $estadosExcluidos))
+            ->count();
 
-        return ['total' => $total, 'activos' => $activos, 'cerrados' => $cerrados, 'urgentes' => $urgentes];
+        return [
+            'total' => $total,
+            'activos' => (int) $activos,
+            'cerrados' => (int) $cerrados,
+            'cancelados' => (int) $cancelados,
+            'urgentes' => (int) $urgentes,
+        ];
     }
 
     public static function contarPorEstado()
