@@ -13,6 +13,10 @@ class UsuarioService
         return $usuarios;
     }
 
+    public static function obtener($id, $columnas = '') {
+        return UsuarioRepoData::obtener($id, $columnas);
+    }
+
     public static function agregar($datos) {
         $insertUsuario = UsuarioBO::armarInsert($datos);
         return UsuarioRepoAction::crear($insertUsuario);

@@ -31,9 +31,7 @@ class UsuarioRepoData
         $query->leftJoin('rel_usuarios_perfiles as rup', 'su.usuario_id', '=', 'rup.usuario_id');
         $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
 
-        if (isset($id)) {
-            $query->where('su.usuario_id', $id);
-        }
+        $query->where('su.usuario_id', $id);
 
         UsuarioRH::agregarColumnas($query, $columnas);
 

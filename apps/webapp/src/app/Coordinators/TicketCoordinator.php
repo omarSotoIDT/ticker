@@ -62,8 +62,8 @@ class TicketCoordinator
                 isset($data['usuario_asignado_id']) &&
                 $data['usuario_asignado_id'] != $ticketActual->usuarioAsignadoId
             ) {
-                $nombreUsuarioAnterior = UsuarioService::obtenerNombre($ticketActual->usuarioAsignadoId);
-                $nombreUsuarioNuevo = UsuarioService::obtenerNombre($data['usuario_asignado_id']);
+                $nombreUsuarioAnterior = UsuarioService::obtener($ticketActual->usuarioAsignadoId, 'usuario')->usuario;
+                $nombreUsuarioNuevo = UsuarioService::obtener($data['usuario_asignado_id'], 'usuario')->usuario;
             }
             
             return TicketService::editar($id,$data,$nombreUsuarioAnterior,$nombreUsuarioNuevo,$folio);
@@ -129,8 +129,8 @@ class TicketCoordinator
                 return false;
             }
             
-            $nombreUsuarioAnterior = UsuarioService::obtenerNombre($ticketActual->usuarioAsignadoId);
-            $nombreUsuarioNuevo = UsuarioService::obtenerNombre($datos['usuario_asignado_id']);
+                $nombreUsuarioAnterior = UsuarioService::obtener($ticketActual->usuarioAsignadoId, 'usuario')->usuario;
+                $nombreUsuarioNuevo = UsuarioService::obtener($datos['usuario_asignado_id'], 'usuario')->usuario;
     
             TicketService::editarAsignacion($ticketId, $datos);
     
