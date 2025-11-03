@@ -25,7 +25,7 @@ class TicketController extends Controller
     public function listarRest(Request $request)
     {
         try {
-            $tickets = TicketService::listar($request->only('titulo', 'cliente', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
+            $tickets = TicketService::listar($request->only('titulo', 'cliente_id', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
             return Response::json($tickets, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los tickets " . $error);

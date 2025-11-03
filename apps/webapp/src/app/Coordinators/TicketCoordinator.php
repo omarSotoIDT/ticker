@@ -18,7 +18,7 @@ class TicketCoordinator
 {
     public static function cargarGestor()
     {
-        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
+        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
         $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
         $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO]);
@@ -51,14 +51,14 @@ class TicketCoordinator
     public static function actualizarTicket(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId, 'titulo,descripcion,prioridad,status,usuarioAsignadoId' );
+            $ticketActual = TicketService::obtener($ticketId, 'titulo,descripcion,prioridad,status,usuarioAsignadoId,clienteId,proyectoId');
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
 
             $cambios = [];
 
-            $camposComparar = ['titulo' => 'titulo', 'descripcion' => 'descripcion', 'prioridad' => 'prioridad', 'status' => 'status', 'usuario_asignado_id' => 'usuarioAsignadoId'];
+            $camposComparar = ['titulo' => 'titulo', 'descripcion' => 'descripcion', 'prioridad' => 'prioridad', 'status' => 'status', 'usuario_asignado_id' => 'usuarioAsignadoId', 'cliente_id' => 'clienteId', 'proyecto_id' => 'proyectoId'];
              foreach ($camposComparar as $campo => $valor) {
                 if (isset($datos[$campo]) && $datos[$campo] != $ticketActual->$valor) {
                     $cambios[] = ucfirst($campo) . " cambiado de '{$ticketActual->$valor}' a '{$datos[$campo]}'";
@@ -80,7 +80,7 @@ class TicketCoordinator
     public static function editarEstado(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId);
+            $ticketActual = TicketService::obtener($ticketId, 'ticketId,status');
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
@@ -102,7 +102,7 @@ class TicketCoordinator
     public static function editarPrioridad(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId);
+            $ticketActual = TicketService::obtener($ticketId, 'ticketId,prioridad');
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
@@ -124,19 +124,19 @@ class TicketCoordinator
     public static function editarAsignacion(int $ticketId, array $datos)
     {
         return DB::transaction(function () use ($ticketId, $datos) {
-            $ticketActual = TicketService::obtener($ticketId);
+            $ticketActual = TicketService::obtener($ticketId,'ticketId,usuarioAsignadoId');
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
 
-            if ($ticketActual->usuario_asignado_id === $datos['usuario_asignado_id']) {
+            if ($ticketActual->usuarioAsignadoId === $datos['usuario_asignado_id']) {
                 return false;
             }
 
             TicketService::editarAsignacion($ticketId, $datos);
 
             $folio = FolioService::obtener('log_tickets');
-            $descripcion = "Asignación cambiada de usuario ID '{$ticketActual->usuario_asignado_id}' a '{$datos['usuario_asignado_id']}'";
+            $descripcion = "Asignación cambiada de usuario ID '{$ticketActual->usuarioAsignadoId}' a '{$datos['usuario_asignado_id']}'";
             TicketService::agregarLog($ticketId, $folio, $descripcion);
 
             return true;
@@ -146,8 +146,8 @@ class TicketCoordinator
 
     public static function obtener($id)
     {
-        $ticket = TicketService::obtener($id, 'ticketId,clienteId,proyectoId,etiquetaId,usuarioAsignadoId,titulo,descripcion,prioridad,status');
-        $ticketFeedback = TicketFeedbackService::listar(['ticket_id' => $id], 'ticketFeedbackId,ticketId,usuario,folio,comentario,registroFecha', ['folio' => 'asc']);
+        $ticket = TicketService::obtener($id, 'ticketId,clienteId,cliente,proyectoId,proyecto,etiquetaId,etiqueta,usuarioAsignadoId,usuarioAsignado,serieFolio,titulo,descripcion,prioridad,status,registroFecha,actualizacionFecha');
+        $ticketFeedback = TicketFeedbackService::listar(['ticket_id' => $id], 'usuario,folio,comentario,registroFecha', ['folio' => 'desc']);
         $ticketLogs = TicketService::obtenerLogs($id, 'folio,descripcion,registroFecha', ['folio' => 'desc']);
         return ['ticket' => $ticket, 'feedback' => $ticketFeedback, 'logs' => $ticketLogs];
     }

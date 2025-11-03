@@ -549,7 +549,6 @@ input, select{
   padding: 30px;
   border-radius: 10px;
   min-width: 300px;
-  width: 550px;
 }
 
 .titulo-modal {
@@ -718,19 +717,20 @@ input, select{
 
 /* Clases de color para Badges especificos de tickets */
 .badge.status-abierto { background-color: #11111a; color: #fff; }
-.badge.status-progreso { background-color: #e0e7ff; color: #3730a3; } /* Azul claro */
-.badge.status-requerida { background-color: #fee2e2; color: #b91c1c; } /* Rojo claro */
-.badge.status-atendido { background-color: #e5e7eb; color: #6b7280; } /* Gris (badge-inactive) */
-.badge.status-pendiente { background-color: #fef3c7; color: #a16207; } /* Amarillo claro */
-.badge.status-cerrado { background-color: #d1fae5; color: #065f46; } /* Verde claro */
+.badge.status-progreso { background-color: #e5e7eb;  } 
+.badge.status-requerida { background-color: #eceef2; } 
+.badge.status-atendido { background-color: #fff; border: 1px solid #d1d5db; }
+.badge.status-cancelado { background-color: #d3163e; color: #fff; } 
+.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;} 
 
-.badge.prioridad-baja { background-color: #e0f2fe; color: #075985; } /* Azul muy claro */
-.badge.prioridad-media { background-color: #e5e7eb; color: #6b7280; } /* Gris (badge-inactive) */
-.badge.prioridad-alta { background-color: #d1d5db; color: #1f2937; } /* Gris oscuro */
-.badge.prioridad-urgente { background-color: #dc2626; color: #fff; } /* Rojo sólido */
+.badge.prioridad-baja { background-color: #fff; border: 1px solid #d1d5db; }
+.badge.prioridad-media { background-color: #eceef2;  }
+.badge.prioridad-alta { background-color: #11111a; color: #fff; } 
+.badge.prioridad-urgente { background-color: #d3163e; color: #fff; } 
 
 /* Estilos especifcos para Modal Ver Ticket */
-.modal-grande .modal-dialog { max-width: 800px; }
+.modal-grande { width: 900px; }
+.modal-base { width: 550px; }
 .modal-vista-detalle .modal-header { 
     border-bottom: none; 
     padding-bottom: 8px;
@@ -816,7 +816,7 @@ input, select{
 }
 
 .vista-ticket-secciones-contenido {
-    min-height: 250px;
+    min-height: 290px;
 }
 
 .empty-state { text-align:center; padding: 32px; color: #777; }
@@ -842,7 +842,7 @@ input, select{
 
 /* Sección de Comentarios */
 .seccion-comentarios .lista-comentarios {
-    max-height: 300px;
+    height: 165px;
     overflow-y: auto;
     margin-bottom: 24px;
     padding-right: 10px;
@@ -880,7 +880,7 @@ input, select{
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 350px;
+    height: 285px;
     overflow-y: auto;
 }
 
@@ -920,6 +920,5 @@ input, select{
 /* Footer personalizado para modal Ver Ticket*/
 .vista-ticket-footer {
     margin-top: 24px;
-    padding-top: 16px;
     text-align: right;
 }
