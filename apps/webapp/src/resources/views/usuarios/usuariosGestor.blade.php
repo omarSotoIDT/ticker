@@ -6,7 +6,8 @@
   <div id="app">
     <div class="modulo-encabezado">
       <div class="cont-buscador">
-        <input type="text" name="usuario" id="usuario" class="input" v-model="busqueda" @change="buscar()" placeholder="Buscar usuarios..."></input>
+        <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+        <input type="text" name="usuario" id="usuario" class="input-busqueda" v-model="busqueda" @change="buscar()" placeholder="Buscar usuarios..."></input>
       </div>
       <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
     </div>
