@@ -33,7 +33,18 @@ aside {
   display: flex;
   flex-direction: column;
   justify-content: start;
-  padding: 0;
+}
+
+/*--- Alineación de los iconos ---*/
+aside a i{
+  width: 10px; 
+  margin-right: 10px; 
+  text-align: center;
+}
+
+.no-wrap {
+  white-space: nowrap;
+  text-align: center;
 }
 
 /* --- Título del sistema --- */
@@ -536,7 +547,6 @@ input, select{
   padding: 30px;
   border-radius: 10px;
   min-width: 300px;
-  width: 550px;
 }
 
 .titulo-modal {
@@ -649,78 +659,337 @@ input, select{
   color: #6b7280;
 }
 
+/*===NUEVOS ESTILOS PARA LOS MODALES DEL MÓDULO TICKET===*/
+
+.grid-2-col { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr;     
+  gap: 18px;  
+  width: 100%; 
+  align-items: center; 
+}
+
+.grid-3-col { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  gap: 16px; 
+}
+
+.nota-campo { 
+  font-size: 13.6px; 
+  color: #6c757d; 
+  margin-top: 4px; 
+}
+
+/* Clases para contadores y asignados */
+.badge-contador-inline {
+  font-size: 14.4px;
+  color: #6c757d;
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+.badge-contador {
+  background-color: #e5e7eb;
+  color: #374151;
+  padding: 2px 6px;
+  border-radius: 99px;
+  font-size: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  font-weight: 600;
+}
+
+.badge-asignado {
+  display: inline-block;
+  background-color: #e9ecef;
+  color: #212529;
+  padding: 0.25em 0.6em;
+  border-radius: 4px;
+  margin-left: 5px;
+  font-size: 0.9em;
+}
+
+/* Clases de color para Badges especificos de tickets */
+.badge.status-abierto { background-color: #11111a; color: #fff; }
+.badge.status-progreso { background-color: #e5e7eb;  } 
+.badge.status-requerida { background-color: #eceef2; } 
+.badge.status-atendido { background-color: #fff; border: 1px solid #d1d5db; }
+.badge.status-cancelado { background-color: #d3163e; color: #fff; } 
+.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;} 
+
+.badge.prioridad-baja { background-color: #fff; border: 1px solid #d1d5db; }
+.badge.prioridad-media { background-color: #eceef2;  }
+.badge.prioridad-alta { background-color: #11111a; color: #fff; } 
+.badge.prioridad-urgente { background-color: #d3163e; color: #fff; } 
+
+/* Estilos especifcos para Modal Ver Ticket */
+.modal-grande { width: 900px; }
+.modal-base { width: 550px; }
+.modal-vista-detalle .modal-header { 
+  border-bottom: none; 
+  padding-bottom: 8px;
+}
+
+.modal-vista-detalle .modal-body { padding-top: 0; }
+.modal-vista-detalle .subtitulo {
+  font-size: 14.4px;
+  color: #6b7280;
+  margin-top: -12px;
+  margin-bottom: 16px;
+}
+
+.vista-detalle-header-status {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 16px;
+}
+
+.vista-detalle-header-status .campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vista-detalle-header-status .badge-info-item strong {
+  font-size: 12.8rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.vista-detalle-header-status .cont-asignados {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.vista-detalle-header-status .cont-asignados .badge-asignado {
+  margin-left: 0;
+}
+
+/* Tabs del modal de Ver Ticket */
+.vista-ticket-secciones-nav {
+  display: flex;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+  padding: 5.6px;
+  margin-bottom: 24px;
+}
+
+.vista-ticket-secciones-nav button {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14.4px;
+  font-weight: 600;
+  color: #374151;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.vista-ticket-secciones-nav button:hover {
+  background-color: #e5e7eb;
+}
+
+.vista-ticket-secciones-nav button.activo {
+  background-color: #ffffff;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.vista-ticket-secciones-nav button i { 
+  margin-right: 8px; 
+  color: #9ca3af;
+}
+
+.vista-ticket-secciones-nav button.activo i {
+  color: #111827;
+}
+
+.vista-ticket-secciones-contenido {
+  min-height: 290px;
+}
+
+.empty-state { text-align:center; padding: 32px; color: #777; }
+
+/* Sección Descripción */
+.seccion-descripcion .descripcion-contenido {
+  white-space: pre-wrap;
+  font-size: 15.2px;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.seccion-descripcion .descripcion-fechas {
+  display: flex;
+  justify-content: flex-start;
+  gap: 24px;
+  font-size: 0.85em;
+  color: #6c757d;
+  margin-top: 30px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Sección de Comentarios */
+.seccion-comentarios .lista-comentarios {
+  height: 165px;
+  overflow-y: auto;
+  margin-bottom: 24px;
+  padding-right: 10px;
+}
+
+.comentario-item { display: flex; gap: 12px; margin-bottom: 24px; }
+.comentario-avatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #374151;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+}
+
+.comentario-cuerpo { flex-grow: 1; }
+.comentario-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+.comentario-header strong { font-size: 14.4px; }
+.comentario-fecha { font-size: 0.8em; color: #6c757d; }
+.comentario-texto {
+  font-size: 14.4px;
+  color: #374151;
+  white-space: pre-wrap;
+}
+
+.nuevo-comentario-form { display: flex; gap: 8px; margin-top: 16px; }
+.nuevo-comentario-form textarea { flex-grow: 1; min-height: 40px; }
+.btn-enviar-comentario { flex-shrink: 0; height: 40px; width: 40px; padding: 0; margin-top: 60px}
+
+/* Sección de Historial */
+.seccion-historial .lista-historial {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  height: 285px;
+  overflow-y: auto;
+}
+
+.seccion-historial .lista-historial li {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.9em;
+}
+
+.seccion-historial .lista-historial li:last-child { border-bottom: none; }
+.historial-fecha-usuario { 
+  display: block; 
+  font-size: 0.85em; 
+  color: #6b7280; 
+  margin-bottom: 4px; 
+}
+
+.historial-cambio {
+  color: #374151;
+}
+
+.historial-cambio .dato-antiguo {
+  text-decoration: line-through;
+  color: #b91c1c;
+  background-color: #fee2e2;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.historial-cambio .dato-nuevo {
+  color: #065f46;
+  background-color: #d1fae5;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Footer personalizado para modal Ver Ticket*/
+.vista-ticket-footer {
+  margin-top: 24px;
+  text-align: right;
+}
+
 /*=== ESTILOS ESPECÍFICOS DEL DASHBOARD ===*/
 :root {
-    --texto-primario: #1f2937;
-    --texto-secundario: #6b7280;
-    --fondo-blanco: #ffffff;
-    --color-borde: #e5e7eb;
+  --texto-primario: #1f2937;
+  --texto-secundario: #6b7280;
+  --fondo-blanco: #ffffff;
+  --color-borde: #e5e7eb;
 
-    --icono-total-color: #818cf8;
-    --icono-activos-color: #38bdf8;
-    --icono-cerrados-color: #4ade80;
-    --icono-urgentes-color: #f87171;
+  --icono-total-color: #818cf8;
+  --icono-activos-color: #38bdf8;
+  --icono-cerrados-color: #4ade80;
+  --icono-urgentes-color: #f87171;
 }
 
 /* Estructura General del Dashboard */
 #dashboard-root {
-    padding: 24px;
-    background-color: var(--fondo-blanco);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--texto-primario);
-    overflow-x: hidden;
+  padding: 24px;
+  background-color: var(--fondo-blanco);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--texto-primario);
+  overflow-x: hidden;
 }
 
 /* Fila de Tarjetas de Estadísticas */
 #dashboard-root .fila-tarjetas {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
 }
 
 #dashboard-root .tarjeta-estadistica {
-    background-color: var(--fondo-blanco);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    border: 1px solid var(--color-borde);
-    min-height: 130px; 
-    display: flex;
+  background-color: var(--fondo-blanco);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border: 1px solid var(--color-borde);
+  min-height: 130px; 
+  display: flex;
 }
 
 #dashboard-root .tarjeta-contenido {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 #dashboard-root .tarjeta-encabezado {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px; 
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px; 
 }
 
 #dashboard-root .tarjeta-titulo {
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--texto-secundario);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--texto-secundario);
 }
 
 #dashboard-root .tarjeta-valor {
-    font-size: 34px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 6px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
 }
 
 #dashboard-root .tarjeta-descripcion {
-    font-size: 13px;
-    color: var(--texto-secundario);
+  font-size: 13px;
+  color: var(--texto-secundario);
 }
 
 #dashboard-root .tarjeta-icono {
-    font-size: 22px;
+  font-size: 22px;
 }
 #dashboard-root .tarjeta-icono.icono-total { color: var(--icono-total-color); }
 #dashboard-root .tarjeta-icono.icono-activos { color: var(--icono-activos-color); }
@@ -728,10 +997,10 @@ input, select{
 #dashboard-root .tarjeta-icono.icono-urgentes { color: var(--icono-urgentes-color); }
 
 #dashboard-root .cuadricula-graficas {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 24px;
-    margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 24px;
 }
 
 @media (min-width: 768px) {
@@ -741,23 +1010,23 @@ input, select{
 }
 
 #dashboard-root .tarjeta-grafica {
-    background-color: var(--fondo-blanco);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    border: 1px solid var(--color-borde);
+  background-color: var(--fondo-blanco);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  border: 1px solid var(--color-borde);
 }
 
 #dashboard-root .tarjeta-grafica h3 {
-    font-size: 18px; font-weight: 600; margin: 0 0 16px 0;
+  font-size: 18px; font-weight: 600; margin: 0 0 16px 0;
 }
 
 #dashboard-root .lienzo-grafica {
-    width: 100%; height: 300px;
+  width: 100%; height: 300px;
 }
 
 #dashboard-root .grafica-ancho-completo {
-    grid-column: 1 / -1;
+  grid-column: 1 / -1;
 }
 
 body:has(#dashboard-root) header,
