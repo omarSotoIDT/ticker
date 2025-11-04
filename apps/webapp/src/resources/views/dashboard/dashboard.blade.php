@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const prioridad = JSON.parse(root.dataset.ticketsPorPrioridad || '{}');
             const topClientes = JSON.parse(root.dataset.topClientes || '{}');
 
-            const colorsEstado = ['#3b82f6', '#69404aff', '#fdac17ff', '#8b5cf6', '#56df83ff', '#ec5a5aff'];
+            const colorsEstado = ['#3b82f6', '#69404aff', '#fdac17ff', '#8b5cf6', '#ec5a5aff', '#56df83ff'];
             const colorsPrioridad = ['#f59e0b', '#ef4444', '#ec0e0eff', '#37af63ff'];
             const colorTopClientes = '#5695faff';
 
