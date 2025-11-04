@@ -54,8 +54,8 @@ class ProyectoController extends Controller
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
-
-            $proyectos = ProyectoRepoData::obtenerProyectos($filtros);
+            $proyectos = ProyectoService::listar($filtros);
+            
             $proyectos = $proyectos->map(function ($p) {
                 $p->cliente = [
                     'cliente_id' => $p->cliente_id,
