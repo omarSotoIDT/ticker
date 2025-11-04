@@ -13,7 +13,6 @@ class PerfilCoordinator
         $perfiles = PerfilService::obtenerPerfiles($filtros);
         $permisos = PermisoService::obtenerPermisos();
 
-        // ⚠️ No usar map() directamente sobre el paginator
         $perfiles->getCollection()->transform(function ($perfil) use ($permisos) {
             $permisosAsignados = DB::table('rel_perfiles_permisos')
                 ->where('perfil_id', $perfil->perfil_id)
@@ -24,7 +23,7 @@ class PerfilCoordinator
         });
 
         return [
-            'perfiles' => $perfiles, // sigue siendo paginator
+            'perfiles' => $perfiles,
             'permisos' => $permisos
         ];
     }

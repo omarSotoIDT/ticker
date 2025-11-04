@@ -74,8 +74,8 @@ aside a:hover {
 }
 
 aside a.active {
-  background-color: #f3f4f6; /* Fondo gris claro */
-  font-weight: 600; /* Texto en negritas */
+  background-color: #f3f4f6;
+  font-weight: 600; 
   color: #111827;
 }
 

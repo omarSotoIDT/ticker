@@ -19,7 +19,6 @@ class PerfilController extends Controller
                 'perfilesConPermisos' => $perfilesConPermisos,
                 'permisos' => $permisos,
                 'busqueda' => $busqueda,
-                // Agregamos los enlaces de paginación
                 'links' => $perfilesConPermisos->toArray()['links'] ?? []
             ]);
         } catch (\Exception $e) {
