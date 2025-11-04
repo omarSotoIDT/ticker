@@ -6,8 +6,9 @@
 
 <div id="app"
     class="clientes"
-    data-perfiles='@json($perfilesConPermisos)'
+    data-perfiles='@json($perfilesConPermisos->items())'
     data-permisos='@json($permisos)'
+    data-links='@json($perfilesConPermisos->linkCollection())'
     data-exito='@json(session("exito"))'
     data-error='@json(session("error"))'>
 
@@ -50,6 +51,8 @@
             </tr>
         </tbody>
     </table>
+
+    <paginador-componente :links="links"></paginador-componente>
 
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -156,6 +159,7 @@
 
                 perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
                 permisos: JSON.parse(appElement.dataset.permisos || '[]'),
+                links: JSON.parse(appElement.dataset.links || '[]'),
 
                 routeGuardar: "{{ route('perfiles.agregar') }}",
                 routeActualizarBase: "{{ url('/perfiles') }}",
@@ -262,6 +266,7 @@
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>
 @endsection

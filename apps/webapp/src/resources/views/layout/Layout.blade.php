@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('titulo', 'Tickets')</title>
+    
     {{-- Fuentes --}}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -13,7 +14,7 @@
     <script src="{{ asset('componentes/alerta.js') }}?v={{ config('app.version') }}"></script>
     <script src="{{ asset('constantes.js') }}?v={{ config('app.version') }}"></script>
     <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
-
+    <script src="{{ asset('componentes/paginador.js') }}?v={{ config('app.version') }}"></script>
     {{-- Chart.js --}}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
@@ -38,8 +39,8 @@
             <a href="{{ route('tickets.gestor') }}" class="{{ Route::currentRouteName() == 'tickets.gestor' ? 'active' : '' }}"><i class="fa-solid fa-ticket"></i>Tickets</a>
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Usuarios</a>
             <a href="{{ route('perfiles.gestor') }}" class="{{ Route::currentRouteName() == 'perfiles.gestor' ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i>Perfiles</a>
-            <a href=""><i class="fa-solid fa-file-lines"></i>Clientes</a>
-            <a href="{{ route('proyectos.gestor') }}" class="{{ Str::startsWith(Route::currentRouteName(), 'proyectos.') ? 'active' : '' }}"><i class="fa-solid fa-clipboard-list"></i>Proyectos</a>
+            <a href="{{ route('clientes.gestor') }}" class="{{ Route::currentRouteName() == 'clientes.gestor' ? 'active' : '' }}"><i class="fa-solid fa-file-lines"></i>Clientes</a>
+            <a href="{{ route('proyectos.gestor') }}" class="{{ Route::currentRouteName() == 'proyectos.gestor' ? 'active' : '' }}"><i class="fa-solid fa-clipboard-list"></i>Proyectos</a>
             <a href=""><i class="fa-solid fa-chart-simple"></i>Reportes</a>
 
             <div class="logout">
@@ -60,6 +61,7 @@
         <!-- Contenido principal -->
         <main>
             @yield('contenido')
+
         </main>
 
     </body>

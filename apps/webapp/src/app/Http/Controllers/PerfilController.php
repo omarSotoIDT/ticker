@@ -13,15 +13,21 @@ class PerfilController extends Controller
     {
         try {
             $busqueda = request('busqueda', '');
-
             ['perfiles' => $perfilesConPermisos, 'permisos' => $permisos] = PerfilCoordinator::obtenerPerfiles(['busqueda' => $busqueda]);
 
-            return view('perfiles.perfiles', compact('perfilesConPermisos', 'permisos', 'busqueda'));
+            return view('perfiles.perfiles', [
+                'perfilesConPermisos' => $perfilesConPermisos,
+                'permisos' => $permisos,
+                'busqueda' => $busqueda,
+                // Agregamos los enlaces de paginación
+                'links' => $perfilesConPermisos->toArray()['links'] ?? []
+            ]);
         } catch (\Exception $e) {
             Log::error('Error en index: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error al cargar perfiles: ' . $e->getMessage());
         }
     }
+
 
     public function agregar(Request $request)
     {
@@ -50,7 +56,7 @@ class PerfilController extends Controller
                 'descripcion' => 'required|string|max:100',
                 'status' => 'in:ACTIVO,ELIMINADO',
             ]);
-            
+
             $data['permisos'] = $request->input('permisos', []);
             PerfilCoordinator::actualizarPerfil($perfil_id, $data);
             return redirect()->back()->with('exito', 'Perfil actualizado exitosamente');
@@ -71,4 +77,3 @@ class PerfilController extends Controller
         }
     }
 }
-
