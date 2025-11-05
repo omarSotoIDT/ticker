@@ -417,8 +417,10 @@ background: #fefefe;
   pointer-events: none;
 }
 
+
+/* === TABLA BASE === */
 .tabla {
-  width: 100%;                      
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background-color: #fff;
@@ -426,53 +428,61 @@ background: #fefefe;
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  table-layout: auto;               
+  table-layout: fixed; /* mantiene alineación de columnas */
 }
 
-/* --- Encabezado --- */
+.tabla td {
+  vertical-align: middle;
+}
+
+/* === ENCABEZADO === */
 .tabla thead th {
   background-color: #fff;
   font-weight: 600;
-  font-size: 14.72px;
+  font-size: 14.4px;
   color: #000;
-  padding: 12px 10px;               
-  padding-left: 11px;
+  padding: 12px 10px;
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
   vertical-align: middle;
-  min-width: 80px;                  
-  max-width: 300px;                 
-  word-wrap: break-word;            
+  white-space: nowrap;
 }
 
-/* --- Celdas --- */
-.tabla td {
-  padding: 12px 10px;            
-  padding-left: 11px;
-  font-size: 14.88px;
+.tabla thead th:first-child {
+  border-top-left-radius: 14px;
+}
+
+.tabla thead th:last-child {
+  border-top-right-radius: 14px;
+}
+
+/* === CUERPO === */
+.tabla tbody td {
+  padding: 12px 10px;
+  font-size: 14.8px;
   color: #000;
   border-bottom: 1px solid #e5e7eb;
   vertical-align: middle;
-
-  min-width: 80px;                  
-  max-width: 300px;                 
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  background: #fff;
 }
 
-/* --- Filas --- */
-.tabla tbody tr:last-child td {
-  border-bottom: none;
-}
-
+/* Alternancia de color en filas */
 .tabla tbody tr:nth-child(even) {
   background-color: #fdfdfd;
 }
 
-.tabla thead tr:first-child th:first-child {
-  border-top-left-radius: 14px;
+/* Última fila sin borde inferior */
+.tabla tbody tr:last-child td {
+  border-bottom: none;
 }
-.tabla thead tr:first-child th:last-child {
-  border-top-right-radius: 14px;
+
+/* === COLUMNAS === */
+.tabla th.col-30, 
+.tabla td.col-30 {
+  width: 30%;
+  min-width: 200px;
 }
 .tabla tbody tr:last-child td:first-child {
   border-bottom-left-radius: 14px;
@@ -481,64 +491,78 @@ background: #fefefe;
   border-bottom-right-radius: 14px;
 }
 
-/* --- Columna de acciones --- */
+.tabla th.columna-grande, 
+.tabla td.columna-grande {
+  width: 40%;
+  min-width: 200px;
+}
+.tabla th.columna-mediana, 
+.tabla td.columna-mediana {
+  width: 20%;
+  min-width: 200px;
+}
+
+
+/* === CELDA DE ACCIONES === */
 .tabla td.acciones,
 .tabla th.acciones {
-  text-align: right;               
-  padding: 15px 20px;              
-  padding-left: 50px;
-  padding-right: 11px;
-  padding-bottom: 15px;
-  vertical-align: middle; 
-  min-width: 90px;                 
-  max-width: 100px;                
+  text-align: right;
+  padding: 10px 16px;
+  white-space: nowrap;
+  border-left: none;
+  border-right: none;
+  vertical-align: middle; /* ✅ centra verticalmente los botones */
 }
 
-/* --- Contenedor interno de botones/íconos --- */
-.acciones {
-  display: flex;
-  justify-content: flex-end;       
-  align-items: center;             
-  gap: 32px;                     
-  width: 100%;                      
-  box-sizing: border-box;          
-  margin-left: 0;                  
+/* === CONTENEDOR DE ACCIONES (interior del td) === */
+.acciones-contenedor {
+  display: inline-flex; /* inline para no romper alineación del td */
+  justify-content: flex-end;
+  align-items: center; /* ✅ centra los iconos verticalmente */
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.acciones button,
-.acciones a {
+/* === BOTONES E ICONOS === */
+.acciones-contenedor button,
+.acciones-contenedor a {
   background: none;
   border: none;
   cursor: pointer;
   color: #111827;
-  font-size: 16px ;                 
-  padding: 0;
+  font-size: 16px;
   transition: color 0.2s ease;
 }
 
-.acciones button:hover,
-.acciones a:hover {
+.acciones-contenedor button:hover,
+.acciones-contenedor a:hover {
   color: #1e40af;
 }
 
-/* --- Badges --- */
+/* === BADGES === */
 .badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 12.8px;
+  padding: 4px 10px;
+  border: 1px solid #000;
+  border-radius: 999px; 
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
+  text-transform: uppercase;
+  background-color: #fff;
+  color: #000000;
 }
 
 .badge-active {
-  background-color: #11111a;
-  color: #fff;
+  background-color: #111827;
+  color: #e5e7eb;
 }
 
 .badge-inactive {
   background-color: #e5e7eb;
-  color: #6b7280;
+  color: #000000;
+  border: 1px solid #e5e7eb;
 }
 
 /*=== ESTILOS GLOBALES PARA USO DE MODALES ===*/
@@ -657,4 +681,29 @@ background: #fefefe;
 .descripcion-item {
   font-size: 12.8px;
   color: #6b7280;
+}
+.vista-ticket-footer {
+  margin-top: 24px;
+  text-align: right;
+}
+.contenedor-scroll-modal {
+max-height: 250px;
+overflow-y: auto;
+padding-right: 8px;
+}
+.contenedor-scroll-modal::-webkit-scrollbar {
+width: 8px;
+background: #FAFAFA;
+border-radius: 4px;
+}
+.contenedor-scroll-modal::-webkit-scrollbar-thumb {
+background: #d1d5db;
+border-radius: 4px;
+}
+.contenedor-scroll-modal::-webkit-scrollbar-thumb:hover {
+background: #9ca3af;
+}
+.contenedor-scroll-modal {
+scrollbar-width: thin;
+scrollbar-color: #d1d5db #FAFAFA;
 }

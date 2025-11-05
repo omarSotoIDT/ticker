@@ -4,11 +4,14 @@
 
 @section('contenido')
   <div id="app">
-    <div class="">
-      <div class="cont-buscador">
-        <input type="text" name="usuario" id="usuario" class="input" v-model="busqueda" @change="buscar()" placeholder="Buscar usuarios..."></input>
-      </div>
-      <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
+    <div class="modulo-encabezado">
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
     </div>
     <table class="tabla">
       <thead>

@@ -4,22 +4,21 @@
 
 @section('contenido')
 <div id="app">
-    {{-- ======= ENCABEZADO ======= --}}
     <div class="modulo-encabezado">
-        <form id="formBuscar" @submit.prevent="buscar" class="cont-buscador">
-            <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" id="busqueda" name="busqueda" v-model="busqueda" class="inputBusqueda" placeholder="Buscar proyectos...">
-        </form>
-        <button class="btn-primary" @click="modalCrear"> + Nuevo proyecto </button>
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" name="proyecto" id="proyecto" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Proyectos..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Proyecto</button>
     </div>
-
-    {{-- ======= TABLA DE PROYECTOS ======= --}}
     <table class="tabla">
         <thead>
             <tr>
                 <th>Nombre</th>
                 <th>Cliente</th>
-                <th>Descripción</th>
+                <th class="columna-grande">Descripción</th>
                 <th>Estado</th>
                 <th class="acciones">Acciones</th>
             </tr>
@@ -27,32 +26,34 @@
         <tbody>
             <tr v-for="proyecto in proyectos" :key="proyecto.proyecto_id">
                 <td>@{{ proyecto.nombre }}</td>
-
                 <td>@{{ proyecto.cliente?.nombre }}</td>
-
-                <td>@{{ proyecto.descripcion }}</td>
+                <td class="columna-grande">@{{ proyecto.descripcion }}</td>
                 <td>
                     <span class="badge" :class="proyecto.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
                         @{{ proyecto.status }}
                     </span>
                 </td>
+
                 <td class="acciones">
-                    <button @click.prevent="mostrarHistorial(proyecto.proyecto_id)" title="Historial">
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                    </button>
-                    <button @click.prevent="modalToggle(proyecto.proyecto_id, 'activar')" title="Activar / Desactivar">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                    <button @click.prevent="modalEditar(proyecto.proyecto_id)" title="Editar">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button @click.prevent="modalToggle(proyecto.proyecto_id, 'eliminar')" title="Eliminar">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div class="acciones-contenedor">
+                        <button @click.prevent="mostrarHistorial(proyecto.proyecto_id)" title="Historial">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </button>
+                        <button @click.prevent="modalToggle(proyecto.proyecto_id, 'activar')" title="Activar / Desactivar">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                        <button @click.prevent="modalEditar(proyecto.proyecto_id)" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button @click.prevent="modalToggle(proyecto.proyecto_id, 'eliminar')" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
+
             <tr v-if="proyectos.length === 0">
-                <td colspan="6" class="">No hay proyectos registrados.</td>
+                <td colspan="6">No hay proyectos registrados.</td>
             </tr>
         </tbody>
     </table>
@@ -63,6 +64,7 @@
         :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
         :texto-confirmacion="tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios'"
+        clase-modal="modal-base"
         @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
 
         <form id="formproyecto" class="form centrado" @submit.prevent>
@@ -91,19 +93,21 @@
 
             <div class="campo">
                 <label class="etiqueta">Usuarios</label>
-                <div class="lista-usuarios">
-                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuario_id" class="usuario-item">
+                <div class="contenedor-checklist">
+                    <div v-for="usuario in usuariosDisponibles" :key="usuario.usuario_id" class="item-contenedor">
                         <input
                             type="checkbox"
+                            name="usuarios[]"
                             :id="'usuario-' + usuario.usuario_id"
                             :value="usuario.usuario_id"
                             v-model="formproyecto.usuarios">
                         <label :for="'usuario-' + usuario.usuario_id">
-                            @{{ usuario.usuario }}
+                            <span class="titulo-item">@{{ usuario.usuario }}</span>
+                            <span class="descripcion-item">@{{ usuario.email }}</span>
                         </label>
                     </div>
                 </div>
-                <span class="error" v-if="erroresModal.usuarios">@{{ erroresModal.usuarios[0] }}</span>
+                <span class="error-message" v-if="erroresModal.usuarios">@{{ erroresModal.usuarios[0] }}</span>
             </div>
 
         </form>
@@ -116,6 +120,7 @@
         titulo="Historial del Proyecto"
         subtitulo="Usuarios asignados y registros de actividad"
         texto-confirmacion="Cerrar"
+        clase-modal="modal-grande modal-vista-detalle"
         :mostrar-botones="false">
 
         <div class="modal-historial">
@@ -128,18 +133,20 @@
             <p v-else class="">No hay usuarios asignados.</p>
 
             <h4>Logs del proyecto</h4>
-            <ul v-if="logsProyecto.length > 0" class="">
-                <li v-for="log in logsProyecto" :key="log.id">
-                    <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
-                    <br>
-                    <small class="">@{{ log.accion }}</small>
-                    <hr>
-                </li>
-            </ul>
-            <p v-else class="">No hay registros de actividad.</p>
+            <div class="contenedor-scroll-modal">
+                <ul v-if="logsProyecto.length > 0" class="">
+                    <li v-for="log in logsProyecto" :key="log.id">
+                        <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                        <br>
+                        <small class="">@{{ log.accion }}</small>
+                        <hr>
+                    </li>
+                </ul>
+                <p v-else class="">No hay registros de actividad.</p>
+            </div>
+
         </div>
     </modal-componente>
-
 
     <modal-componente
         v-model:mostrar="mostrarModalStatus"
@@ -148,6 +155,7 @@
         ? '¿Estás seguro de eliminar este proyecto?'
         : '¿Deseas activar/desactivar este proyecto?'"
         texto-confirmacion="Confirmar"
+        clase-modal="modal-base"
         @confirmar="cambiarEstado">
 
         <form id="formEstado">
@@ -222,7 +230,7 @@
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error','Error al listar proyectos:');
+                    this.mostrarAlerta('error', 'Error al listar proyectos:');
                 }
             },
 
@@ -259,7 +267,7 @@
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error','Error al cargar clientes:');
+                    this.mostrarAlerta('error', 'Error al cargar clientes:');
                 }
             },
 
@@ -275,7 +283,7 @@
                         ...u
                     }));
                 } catch (err) {
-                    this.mostrarAlerta('error','Error al cargar usuarios:');
+                    this.mostrarAlerta('error', 'Error al cargar usuarios:');
                 }
             },
 

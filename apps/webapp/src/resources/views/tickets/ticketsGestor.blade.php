@@ -39,7 +39,8 @@
                 <tr v-for="ticket in tickets" :key="ticket.ticketId">
                     <td>@{{ ticket.serieFolio }}</td>
                     <td>
-                        @{{ ticket.titulo }} - @{{ ticket.etiqueta }}
+                        @{{ ticket.titulo }} - 
+                        @{{ ticket.etiqueta }}
                     </td>
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
@@ -48,8 +49,15 @@
                     <td>@{{ ticket.prioridad }}</td>
                     <td>@{{ ticket.registroFecha }}</td>
                     <td class="acciones">
-                        <button @click.prevent="mostrarTicket(ticket.ticketId)"><i class="fa fa-eye"></i></button>
+                        <div class="acciones-contenedor">
+                            <button @click.prevent="mostrarTicket(ticket.ticketId)" title="Ver Ticket">
+                                <i class="fa fa-eye"></i>
+                            </button>
+                        </div>
                     </td>
+                </tr>
+                <tr v-if="tickets.length === 0">
+                    <td colspan="9">No hay tickets registrados.</td>
                 </tr>
             </tbody>
         </table>
