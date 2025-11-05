@@ -26,54 +26,97 @@ class TicketService
     }
 
     public static function editar(
-        int $id,
-        array $data,
-        ?string $nombreUsuarioAnterior = null,
-        ?string $nombreUsuarioNuevo = null,
-        int $folio
+        $id,
+        $data,
+        $nombreUsuarioAnterior = null,
+        $nombreUsuarioNuevo = null,
+        $nombreClienteAnterior = null,
+        $nombreClienteNuevo = null,
+        $nombreProyectoAnterior = null,
+        $nombreProyectoNuevo = null,
+        $nombreEtiquetaAnterior = null,
+        $nombreEtiquetaNuevo = null,
+        $folio
     ) {
-        $ticketActual = TicketService::obtener($id, 'titulo,descripcion,prioridad,status,usuarioAsignadoId');
+        $ticketActual = TicketService::obtener(
+            $id,
+            'titulo,descripcion,prioridad,status,usuarioAsignadoId,clienteId,proyectoId,etiquetaId'
+        );
+    
         if (!$ticketActual) {
             throw new \Exception("El ticket con ID {$id} no existe.");
         }
-
+    
         $anterior = (array) $ticketActual;
-        if (array_key_exists('usuarioAsignadoId', $anterior)) {
-            $anterior['usuario_asignado_id'] = $anterior['usuarioAsignadoId'];
-            unset($anterior['usuarioAsignadoId']);
+    
+        // Normalizamos los nombres de campos
+        $map = [
+            'usuarioAsignadoId' => 'usuario_asignado_id',
+            'clienteId'         => 'cliente_id',
+            'proyectoId'        => 'proyecto_id',
+            'etiquetaId'        => 'etiqueta_id',
+        ];
+    
+        foreach ($map as $from => $to) {
+            if (isset($anterior[$from])) {
+                $anterior[$to] = $anterior[$from];
+                unset($anterior[$from]);
+            }
         }
-
+    
+        $camposComparar = [
+            'titulo',
+            'descripcion',
+            'prioridad',
+            'status',
+            'usuario_asignado_id',
+            'cliente_id',
+            'proyecto_id',
+            'etiqueta_id',
+        ];
+    
+        $etiquetas = [
+            'usuario_asignado_id' => ['label' => 'Usuario asignado', 'ant' => $nombreUsuarioAnterior, 'nvo' => $nombreUsuarioNuevo],
+            'cliente_id'          => ['label' => 'Cliente',           'ant' => $nombreClienteAnterior, 'nvo' => $nombreClienteNuevo],
+            'proyecto_id'         => ['label' => 'Proyecto',          'ant' => $nombreProyectoAnterior, 'nvo' => $nombreProyectoNuevo],
+            'etiqueta_id'         => ['label' => 'Etiqueta',          'ant' => $nombreEtiquetaAnterior, 'nvo' => $nombreEtiquetaNuevo],
+        ];
+    
         $cambios = [];
-        $camposComparar = ['titulo', 'descripcion', 'prioridad', 'status', 'usuario_asignado_id'];
-
+    
         foreach ($camposComparar as $campo) {
             if (array_key_exists($campo, $data) && array_key_exists($campo, $anterior)) {
                 $valorAnterior = $anterior[$campo];
                 $valorNuevo = $data[$campo];
-
-                if ($valorAnterior !== $valorNuevo) {
-                    if ($campo === 'usuario_asignado_id') {
-                        $cambios[] = "Usuario asignado cambiado de '{$nombreUsuarioAnterior}' a '{$nombreUsuarioNuevo}'";
+    
+                if ($valorAnterior != $valorNuevo) {
+                    if (isset($etiquetas[$campo])) {
+                        $info = $etiquetas[$campo];
+                        $cambios[] = "{$info['label']} cambiado de '{$info['ant']}' a '{$info['nvo']}'";
                     } else {
                         $cambios[] = ucfirst($campo) . " cambiado de '{$valorAnterior}' a '{$valorNuevo}'";
                     }
                 }
             }
         }
-
+    
         if (empty($cambios)) {
             return false;
         }
-
+    
         $updateData = TicketBO::armarUpdate($data);
         $resultado = TicketRepoAction::actualizar($id, $updateData);
-
+    
+        if ($resultado === 0) {
+            throw new \Exception("No se pudo actualizar el ticket o no hubo cambios en BD.");
+        }
+    
         $descripcion = "Ticket '{$anterior['titulo']}' actualizado:\n" . implode("\n", $cambios);
-
         self::agregarLog($id, $folio, $descripcion);
-
+    
         return $resultado;
     }
+    
 
     public static function editarEstado($id, $datos)
     {

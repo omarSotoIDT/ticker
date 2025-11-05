@@ -47,26 +47,72 @@ class TicketCoordinator
             return $ticketId;
         });
     }
+
     public static function actualizarProyecto(int $id, array $data)
     {
-        $ticketActual = TicketService::obtener($id, 'titulo,descripcion,prioridad,status,usuarioAsignadoId');
+        $ticketActual = TicketService::obtener(
+            $id,
+            'titulo,descripcion,prioridad,status,usuarioAsignadoId,clienteId,proyectoId,etiquetaId'
+        );
+
         if (!$ticketActual) {
             throw new \Exception("El proyecto con ID {$id} no existe.");
         }
 
         return DB::transaction(function () use ($id, $data, $ticketActual) {
             $folio = FolioService::obtener('log_tickets');
-            $nombreUsuarioAnterior = null;
-            $nombreUsuarioNuevo = null;
-            if (
-                isset($data['usuario_asignado_id']) &&
-                $data['usuario_asignado_id'] != $ticketActual->usuarioAsignadoId
-            ) {
-                $nombreUsuarioAnterior = UsuarioService::obtener($ticketActual->usuarioAsignadoId, 'usuario')->usuario;
-                $nombreUsuarioNuevo = UsuarioService::obtener($data['usuario_asignado_id'], 'usuario')->usuario;
+
+            // Configuración centralizada de campos comparables
+            $entidades = [
+                'usuario_asignado_id' => [
+                    'actual'  => $ticketActual->usuarioAsignadoId,
+                    'service' => fn($id) => UsuarioService::obtener($id, 'usuario')->usuario ?? 'N/A',
+                    'label'   => 'Usuario asignado',
+                ],
+                'cliente_id' => [
+                    'actual'  => $ticketActual->clienteId,
+                    'service' => fn($id) => ClienteService::obtenerNombre($id) ?? 'N/A',
+                    'label'   => 'Cliente',
+                ],
+                'proyecto_id' => [
+                    'actual'  => $ticketActual->proyectoId,
+                    'service' => fn($id) => ProyectoService::obtenerPorId($id)?->nombre ?? 'N/A',
+                    'label'   => 'Proyecto',
+                ],
+                'etiqueta_id' => [
+                    'actual'  => $ticketActual->etiquetaId,
+                    'service' => function ($id) {
+                        $res = EtiquetaService::listar(['etiquetaId' => $id], 'titulo');
+                        return $res[0]->titulo ?? 'N/A';
+                    },
+                    'label' => 'Etiqueta',
+                ],
+            ];
+
+            // Detectar cambios y obtener nombres anteriores/nuevos
+            $valores = [];
+            foreach ($entidades as $campo => $info) {
+                if (isset($data[$campo]) && $data[$campo] != $info['actual']) {
+                    $valores[$campo] = [
+                        'anterior' => $info['service']($info['actual']),
+                        'nuevo'    => $info['service']($data[$campo]),
+                    ];
+                }
             }
-            
-            return TicketService::editar($id,$data,$nombreUsuarioAnterior,$nombreUsuarioNuevo,$folio);
+
+            return TicketService::editar(
+                $id,
+                $data,
+                $valores['usuario_asignado_id']['anterior'] ?? null,
+                $valores['usuario_asignado_id']['nuevo'] ?? null,
+                $valores['cliente_id']['anterior'] ?? null,
+                $valores['cliente_id']['nuevo'] ?? null,
+                $valores['proyecto_id']['anterior'] ?? null,
+                $valores['proyecto_id']['nuevo'] ?? null,
+                $valores['etiqueta_id']['anterior'] ?? null,
+                $valores['etiqueta_id']['nuevo'] ?? null,
+                $folio
+            );
         });
     }
 
@@ -121,34 +167,34 @@ class TicketCoordinator
             if (!$ticketActual) {
                 throw new \Exception("Ticket no existe");
             }
-    
+
             if (
                 !isset($datos['usuario_asignado_id']) ||
                 $ticketActual->usuarioAsignadoId == $datos['usuario_asignado_id']
             ) {
                 return false;
             }
-            
-                $nombreUsuarioAnterior = UsuarioService::obtener($ticketActual->usuarioAsignadoId, 'usuario')->usuario;
-                $nombreUsuarioNuevo = UsuarioService::obtener($datos['usuario_asignado_id'], 'usuario')->usuario;
-    
+
+            $nombreUsuarioAnterior = UsuarioService::obtener($ticketActual->usuarioAsignadoId, 'usuario')->usuario;
+            $nombreUsuarioNuevo = UsuarioService::obtener($datos['usuario_asignado_id'], 'usuario')->usuario;
+
             TicketService::editarAsignacion($ticketId, $datos);
-    
+
             $folio = FolioService::obtener('log_tickets');
             $descripcion = "Asignación cambiada de '{$nombreUsuarioAnterior}' a '{$nombreUsuarioNuevo}'";
-    
+
             TicketService::agregarLog($ticketId, $folio, $descripcion);
-    
+
             return true;
         });
     }
-    
+
 
     public static function obtener($id)
     {
         $ticket = TicketService::obtener($id, 'ticketId,clienteId,cliente,proyectoId,proyecto,etiquetaId,etiqueta,usuarioAsignadoId,usuarioAsignado,serieFolio,titulo,descripcion,prioridad,status,registroFecha,actualizacionFecha');
         $ticketFeedback = TicketFeedbackService::listar(['ticket_id' => $id], 'usuario,folio,comentario,registroFecha', ['folio' => 'desc']);
-        $ticketLogs = TicketService::obtenerLogs($id, 'folio,descripcion,registroFecha', ['folio' => 'desc']);
+        $ticketLogs = TicketService::obtenerLogs($id, 'folio,descripcion,registroFecha,usuarioId,usuario', ['folio' => 'desc']);
         return ['ticket' => $ticket, 'feedback' => $ticketFeedback, 'logs' => $ticketLogs];
     }
 }

@@ -8,6 +8,7 @@ class TicketLogRH
         'logTicketId' => 'lt.log_ticket_id',
         'ticketId' => 'lt.ticket_id',
         'usuarioId' => 'lt.usuario_id',
+        "usuario"   => 'su.usuario',
         'folio' => 'lt.folio',
         'descripcion' => 'lt.descripcion',
         'registroFecha' => 'lt.registro_fecha'

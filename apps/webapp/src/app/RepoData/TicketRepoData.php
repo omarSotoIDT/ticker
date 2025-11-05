@@ -46,8 +46,10 @@ class TicketRepoData
         return $query->first();
     }
 
-    public static function obtenerLogs($ticket_id, $columnas, $orden) {
-        $query = DB::table('log_tickets as lt');
+    public static function obtenerLogs($ticket_id, $columnas, $orden)
+    {
+        $query = DB::table('log_tickets as lt')
+            ->leftJoin('sys_usuarios as su', 'lt.usuario_id', '=', 'su.usuario_id');
 
         TicketLogRH::agregarColumnas($query, $columnas);
         TicketLogRH::agregarOrden($query, $orden);

@@ -38,6 +38,10 @@ class EtiquetaRH
             if (isset($filtros['status'])) {
                 $query->where('e.status', $filtros['status']);
             };
+            if (isset($filtros['etiquetaId'])) {
+                $query->where('e.etiqueta_id', $filtros['etiquetaId']);
+            }
+            
         }
     }
 
