@@ -5,20 +5,21 @@
 @section('contenido')
 
 <div id="app">
-    {{-- ======= ENCABEZADO ======= --}}
-    <div class="modulo-encabezado">
-        <form id="formBuscar" @submit.prevent="buscar" class="cont-buscador">
-            <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" v-model="busqueda" class="inputBusqueda" placeholder="Buscar clientes...">
-        </form>
-        <button class="btn-primary" @click="modalCrear"> + Nuevo Cliente </button>
+<div class="modulo-encabezado">
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" name="cliente" id="cliente" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Clientes..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Cliente</button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
     <table class="tabla">
         <thead>
             <tr>
                 <th>Nombre</th>
-                <th>Descripción</th>
+                <th class="columna-grande">Descripción</th>
                 <th>Contacto</th>
                 <th>Email</th>
                 <th>Estado</th>
@@ -28,7 +29,7 @@
         <tbody>
             <tr v-for="cliente in clientes" :key="cliente.cliente_id">
                 <td>@{{ cliente.nombre }}</td>
-                <td>@{{ cliente.descripcion }}</td>
+                <td class="columna-grande">@{{ cliente.descripcion }}</td>
                 <td>@{{ cliente.contacto }}</td>
                 <td>@{{ cliente.email }}</td>
                 <td>
@@ -56,6 +57,7 @@
         :titulo="tipoForm === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo cliente' : 'Modifica los datos del cliente'"
         :texto-confirmacion="tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios'"
+        clase-modal="modal-base"
         @confirmar="guardarCliente">
         <form id="formCliente" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -88,11 +90,12 @@
         :titulo="accion === 'eliminar' ? 'Eliminar Cliente' : 'Cambiar Estado'"
         :subtitulo="accion === 'eliminar' ? 'Confirma la eliminación del cliente' : '¿Deseas cambiar el estado del cliente?'"
         :texto-confirmacion="accion === 'eliminar' ? 'Eliminar' : 'Confirmar'"
+        clase-modal="modal-base"
         @confirmar="confirmarToggle">
         <form id="formToggle" @submit.prevent>
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
-                <textarea class="input" id="motivo" v-model="formToggle.motivo" required></textarea>
+                <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required></textarea>
                 <span class="error" v-if="erroresModal.motivo || erroresModal.motivo_eliminacion">@{{ erroresModal.motivo ? erroresModal.motivo[0] : erroresModal.motivo_eliminacion[0] }}</span>
             </div>
         </form>
