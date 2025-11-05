@@ -8,7 +8,7 @@
             <div class="items-busqueda">
                 <div class="cont-buscador">
                     <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-                    <input type="text" name="ticket" id="ticket" class="input inputBusqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
+                    <input type="text" name="ticket" id="ticket" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
                 </div>
                 <select id="busquedaCliente" class="input select-busqueda" v-model="busqueda.cliente_id" @change="buscar()">
                     <option value="">Todos</option>

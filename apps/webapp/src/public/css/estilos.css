@@ -398,7 +398,8 @@ background: #fefefe;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-top: 24px;
+  margin-bottom: 18px;
 }
 
 .cont-buscador {
@@ -417,8 +418,6 @@ background: #fefefe;
   pointer-events: none;
 }
 
-
-/* === TABLA BASE === */
 .tabla {
   width: 100%;
   border-collapse: separate;
@@ -427,15 +426,14 @@ background: #fefefe;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  table-layout: fixed; /* mantiene alineación de columnas */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  table-layout: fixed;
 }
 
 .tabla td {
   vertical-align: middle;
 }
 
-/* === ENCABEZADO === */
 .tabla thead th {
   background-color: #fff;
   font-weight: 600;
@@ -456,7 +454,6 @@ background: #fefefe;
   border-top-right-radius: 14px;
 }
 
-/* === CUERPO === */
 .tabla tbody td {
   padding: 12px 10px;
   font-size: 14.8px;
@@ -468,42 +465,40 @@ background: #fefefe;
   background: #fff;
 }
 
-/* Alternancia de color en filas */
 .tabla tbody tr:nth-child(even) {
   background-color: #fdfdfd;
 }
 
-/* Última fila sin borde inferior */
 .tabla tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* === COLUMNAS === */
-.tabla th.col-30, 
+.tabla th.col-30,
 .tabla td.col-30 {
   width: 30%;
   min-width: 200px;
 }
+
 .tabla tbody tr:last-child td:first-child {
   border-bottom-left-radius: 14px;
 }
+
 .tabla tbody tr:last-child td:last-child {
   border-bottom-right-radius: 14px;
 }
 
-.tabla th.columna-grande, 
+.tabla th.columna-grande,
 .tabla td.columna-grande {
   width: 40%;
   min-width: 200px;
 }
-.tabla th.columna-mediana, 
+
+.tabla th.columna-mediana,
 .tabla td.columna-mediana {
   width: 20%;
   min-width: 200px;
 }
 
-
-/* === CELDA DE ACCIONES === */
 .tabla td.acciones,
 .tabla th.acciones {
   text-align: right;
@@ -511,20 +506,18 @@ background: #fefefe;
   white-space: nowrap;
   border-left: none;
   border-right: none;
-  vertical-align: middle; /* ✅ centra verticalmente los botones */
+  vertical-align: middle;
 }
 
-/* === CONTENEDOR DE ACCIONES (interior del td) === */
 .acciones-contenedor {
-  display: inline-flex; /* inline para no romper alineación del td */
+  display: inline-flex;
   justify-content: flex-end;
-  align-items: center; /* ✅ centra los iconos verticalmente */
+  align-items: center;
   gap: 10px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* === BOTONES E ICONOS === */
 .acciones-contenedor button,
 .acciones-contenedor a {
   background: none;
@@ -540,12 +533,11 @@ background: #fefefe;
   color: #1e40af;
 }
 
-/* === BADGES === */
 .badge {
   display: inline-block;
   padding: 4px 10px;
   border: 1px solid #000;
-  border-radius: 999px; 
+  border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
