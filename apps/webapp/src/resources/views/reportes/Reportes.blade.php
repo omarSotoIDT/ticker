@@ -1,7 +1,7 @@
 @extends('layout.Layout')
 @section('title', 'Reportes')
 @section('contenido')
-<div id="app">
+<div id="app" class="scrollable-reportes">
     <div class="contenedor-filtros">
         <h2 class="titulo-seccion">Filtros de Reporte</h2>
         <div class="flex-filtros">
@@ -34,11 +34,15 @@
     <div class="contenedor-graficas">
         <div class="caja-grafica">
             <h3>Gráfica de Barras</h3>
-            <canvas id="chartBar" class="lienzo-grafica"></canvas>
+            <div class="grafica-barra-wrapper">
+                <canvas id="chartBar" class="lienzo-grafica"></canvas>
+            </div>
         </div>
         <div class="caja-grafica">
             <h3>Gráfica Circular</h3>
-            <canvas id="chartPie" class="lienzo-grafica"></canvas>
+            <div class="grafica-pie-wrapper">
+                <canvas id="chartPie" class="lienzo-grafica"></canvas>
+            </div>
         </div>
     </div>
 
@@ -74,8 +78,8 @@
             No existe un ticket con esos filtros.
         </div>
     </div>
-
 </div>
+
 <script>
     const app = Vue.createApp({
         data() {
@@ -121,7 +125,6 @@
                     const params = new URLSearchParams();
                     let tipoParaGraficas = this.tipoReporte;
                     params.append('tipo', tipoParaGraficas);
-                    if (this.filtroExtra) params.append('filtro', this.filtroExtra);
 
                     const res = await fetch(`{{ route('reportes.datos') }}?${params.toString()}`);
                     const data = await res.json();
@@ -132,7 +135,25 @@
                     this.safeDestroyChart(this.barChart);
                     this.safeDestroyChart(this.pieChart);
 
-                    const barCtx = document.getElementById('chartBar').getContext('2d');
+                    function recreateCanvas(id, className) {
+                        const oldCanvas = document.getElementById(id);
+                        if (oldCanvas) {
+                            const parent = oldCanvas.parentNode;
+                            oldCanvas.remove();
+                            const newCanvas = document.createElement('canvas');
+                            newCanvas.id = id;
+                            if (className) newCanvas.className = className;
+                            parent.appendChild(newCanvas);
+                            return newCanvas;
+                        }
+                        return null;
+                    }
+
+                    const barCanvas = recreateCanvas('chartBar', 'lienzo-grafica');
+                    const pieCanvas = recreateCanvas('chartPie', 'lienzo-grafica');
+                    const barCtx = (barCanvas || document.getElementById('chartBar')).getContext('2d');
+                    const pieCtx = (pieCanvas || document.getElementById('chartPie')).getContext('2d');
+
                     this.barChart = new Chart(barCtx, {
                         type: 'bar',
                         data: {
@@ -171,11 +192,10 @@
                         }
                     });
 
-                    const pieCtx = document.getElementById('chartPie').getContext('2d');
                     let pieOptions = {
                         responsive: true,
                         maintainAspectRatio: false,
-                        aspectRatio: 0.9,
+                        aspectRatio: 1,
                         layout: {
                             padding: 30
                         },
@@ -186,15 +206,7 @@
                         },
                         plugins: {
                             legend: {
-                                display: true, 
-                                position: 'right',
-                                labels: {
-                                    color: '#333',
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                }
+                                display: false
                             }
                         }
                     };
@@ -266,7 +278,6 @@
             },
 
             async onFiltroExtraChange() {
-                await this.cargarGraficas();
                 await this.cargarTabla();
             }
         },
