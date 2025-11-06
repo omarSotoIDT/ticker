@@ -1,11 +1,13 @@
 var loader = {
-    template: `
-      <div class="loader" v-if="visible">
-        <div class="spinner"></div>
-      </div>
-    `,
     props: {
-      visible: { type: Boolean, default: false }
-    }
-  };
-  
+        visible: {
+            type: Boolean,
+            default: false
+        }
+    },
+    template: `
+      <div v-if="visible" class="loader-overlay">
+        <div class="loader-spinner"></div>
+      </div>
+    `
+};

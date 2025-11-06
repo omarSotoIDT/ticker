@@ -5,7 +5,11 @@
 @section('contenido')
 
 <div id="app">
-<div class="modulo-encabezado">
+
+    {{-- ======= LOADER ======= --}}
+    <loader-componente :visible="loading"></loader-componente>
+
+    <div class="modulo-encabezado">
         <div class="items-busqueda">
             <div class="cont-buscador">
                 <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
@@ -175,6 +179,7 @@
                 }
             },
             async listarClientes() {
+                this.loading = true;
                 try {
                     const {
                         res,
@@ -191,9 +196,12 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
+                } finally {
+                    this.loading = false;
                 }
             },
             async buscar() {
+                this.loading = true;
                 try {
                     const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''
                     const {
@@ -212,6 +220,8 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
+                } finally {
+                    this.loading = false;
                 }
             },
 
@@ -316,6 +326,7 @@
             },
 
             async realizarPeticion(url, metodo, body) {
+                this.loading = true;
                 try {
                     const {
                         res,
@@ -353,6 +364,8 @@
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error general al confirmar la acción.');
                     return false;
+                } finally {
+                    this.loading = false;
                 }
             },
 
@@ -372,12 +385,11 @@
         }
     })
 
-
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('loader-componente', loader);
 
     app.mount('#app')
 </script>
-
 
 @endsection

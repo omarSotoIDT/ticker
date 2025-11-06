@@ -11,8 +11,10 @@
     data-exito='@json(session("exito"))'
     data-error='@json(session("error"))'>
     
+    <loader-global :visible="loading"></loader-global>
+
     <div class="modulo-encabezado">
-        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador">
+        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador" @submit="loading = true">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
             <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
         </form>
@@ -131,6 +133,7 @@
             const error = JSON.parse(appElement.dataset.error || 'null');
 
             return {
+                loading: false,
                 mostrarModal: false,
                 tipoForm: 'crear',
                 formPerfil: {
@@ -184,49 +187,73 @@
             },
             guardar() {
                 if (this.validateForm()) {
-                    document.getElementById('form').submit();
+                    this.loading = true;
+                    setTimeout(() => {
+                        document.getElementById('form').submit();
+                    }, 10); // Deja renderizar el loader
                 }
             },
             modalCrear() {
-                this.errors = {}; 
-                this.tipoForm = 'crear';
-                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
-                this.mostrarModal = true;
+                this.loading = true;
+                setTimeout(() => {
+                    this.errors = {}; 
+                    this.tipoForm = 'crear';
+                    this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                    this.mostrarModal = true;
+                    this.loading = false;
+                }, 0);
             },
             modalEditar(perfilId) {
-                this.errors = {}; 
-                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
-                if (!perfil) return;
-                
-                this.tipoForm = 'editar';
-                this.formPerfil = {
-                    clave: perfil.clave,
-                    nombre: perfil.nombre,
-                    descripcion: perfil.descripcion,
-                    status: perfil.status,
-                    permisos: perfil.permisos,
-                    perfil_id: perfil.perfil_id
-                };
-                this.mostrarModal = true;
+                this.loading = true;
+                setTimeout(() => {
+                    this.errors = {}; 
+                    const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
+                    if (!perfil) {
+                        this.loading = false;
+                        return;
+                    }
+                    
+                    this.tipoForm = 'editar';
+                    this.formPerfil = {
+                        clave: perfil.clave,
+                        nombre: perfil.nombre,
+                        descripcion: perfil.descripcion,
+                        status: perfil.status,
+                        permisos: perfil.permisos,
+                        perfil_id: perfil.perfil_id
+                    };
+                    this.mostrarModal = true;
+                    this.loading = false;
+                }, 0);
             },
             routeEliminar(perfilId) {
                 return `${this.routeEliminarBase}/eliminar/${perfilId}`;
             },
             
             abrirModalEliminar(perfilId) {
-                this.perfilAEliminar = perfilId; 
-                this.mostrarModalEliminar = true; 
+                this.loading = true;
+                setTimeout(() => {
+                    this.perfilAEliminar = perfilId; 
+                    this.mostrarModalEliminar = true; 
+                    this.loading = false;
+                }, 0);
             },
 
             ejecutarEliminacion() {
                 if (this.perfilAEliminar) {
-                    const formId = `form-eliminar-${this.perfilAEliminar}`;
-                    const form = document.getElementById(formId);
-                    if (form) {
-                        form.submit();
-                    }
+                    this.loading = true;
+                    setTimeout(() => {
+                        const formId = `form-eliminar-${this.perfilAEliminar}`;
+                        const form = document.getElementById(formId);
+                        if (form) {
+                            form.submit();
+                        }
+                        this.loading = false;
+                        this.mostrarModalEliminar = false; 
+                    }, 10); // Deja renderizar el loader
+                } else {
+                    this.mostrarModalEliminar = false;
                 }
-                this.mostrarModalEliminar = false; 
             }
         },
         mounted() {
@@ -240,6 +267,7 @@
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('loader-global', loader);
     app.mount('#app');
 </script>
 @endsection

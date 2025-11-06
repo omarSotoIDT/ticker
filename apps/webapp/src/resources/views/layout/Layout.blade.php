@@ -11,7 +11,7 @@
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="{{ asset('componentes/alerta.js') }}?v={{ config('app.version') }}"></script>
   <script src="{{ asset('constantes.js') }}?v={{ config('app.version') }}"></script>
-
+  <script src="{{ asset('componentes/loader.js') }}?v={{ config('app.version') }}"></script>
   <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
 
   {{-- Chart.js --}}
