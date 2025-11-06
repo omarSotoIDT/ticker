@@ -4,6 +4,7 @@
 
 @section('contenido')
     <div id="app">
+        <loading-global :visible="loading"></loading-global>
         <div class="modulo-encabezado">
             <div class="items-busqueda">
                 <div class="cont-buscador">
@@ -20,6 +21,7 @@
                 </select>
             </div>
             <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Ticket</button>
+
         </div>
 
         <table class="tabla">
@@ -51,7 +53,7 @@
                     <td>@{{ ticket.registroFecha }}</td>
                     <td class="acciones">
                         <div class="acciones-contenedor">
-                            <button @click.prevent="mostrarTicket(ticket.ticketId)" title="Ver Ticket">
+                            <button @click.prevent="mostrarTicketConLoader(ticket.ticketId)" title="Ver Ticket">
                                 <i class="fa fa-eye"></i>
                             </button>
                         </div>
@@ -271,6 +273,7 @@
         const app = Vue.createApp({
             data() {
                 return {
+                    loading: false, 
                     tickets: {{ Js::from($tickets) }},
                     ticket: null,
                     ticketFeedback: null,
@@ -351,7 +354,7 @@
                 limparModalVer(){
                     this.ticket = null;
                     this.ticketFeedback = null;
-                    this.ticketHistorial = []; // Limpiar historial
+                    this.ticketHistorial = [];
                     this.formFeedback.comentario = '';
                     this.erroresRegistroFeedback = {};
                     this.modalVer.mostrar = false;
@@ -378,7 +381,9 @@
                     }, 3000);
                 },
                 async buscar(){
+                    this.loading = true;
                     try {
+                        this.params = new URLSearchParams();
                         if(this.busqueda){
                             this.params.append('titulo', this.busqueda.titulo)
                             this.params.append('cliente_id', this.busqueda.cliente_id)
@@ -395,6 +400,8 @@
                         this.tickets = data;
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar los tickets')
+                    }finally {
+                        this.loading = false;
                     }
                 },
 
@@ -414,6 +421,7 @@
                     this.modalRegistro.mostrar = true;
                 },
                 async listarTickets(){
+                    this.loading = true;
                     try {
                         const response = await fetch('/tickets/listado-rest?' + this.params.toString(), {
                             method: 'GET', headers: this.headers
@@ -427,19 +435,27 @@
                         this.modalRegistro.mostrar = false;
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los tickets')
+                    }finally {
+                        this.loading = false;
                     }
                 },
-                async mostrarTicket(id){
-                    await this.obtenerTicket(id); 
-                    this.ticketHistorial;
-                    if(this.ticket){
-                        this.modalVer.seccion = 'descripcion'; 
-                        this.formFeedback.comentario = ''; 
-                        this.erroresRegistroFeedback = {}; 
-                        this.modalVer.mostrar = true; 
+                async mostrarTicketConLoader(id){
+                    this.loading = true;
+                    try {
+                        await this.obtenerTicket(id); 
+                        this.ticketHistorial;
+                        if(this.ticket){
+                            this.modalVer.seccion = 'descripcion'; 
+                            this.formFeedback.comentario = ''; 
+                            this.erroresRegistroFeedback = {}; 
+                            this.modalVer.mostrar = true; 
+                        }
+                    } finally {
+                        this.loading = false;
                     }
                 },
                 async obtenerTicket(id){
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${id}/detalle-rest`, {
                             method: 'GET', headers: this.headers
@@ -455,9 +471,12 @@
                         this.ticketHistorial = data['logs'];
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al obtener el ticket')
+                    }finally {
+                        this.loading = false;
                     }
                 },
                 async agregar(){
+                    this.loading = true;
                     try {
                         const response = await fetch('/tickets/registro-rest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
@@ -473,13 +492,16 @@
                         }
 
                         this.modalRegistro.mostrar = false;
-                        this.listarTickets();
+                        await this.listarTickets();
                         this.mostrarAlerta('exito', 'Exito', 'Ticket creado')
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el ticket')
+                    }finally {
+                        this.loading = false;
                     }
                 },
                 async editar(){
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
@@ -495,13 +517,16 @@
                         }
 
                         this.modalRegistro.mostrar = false;
-                        this.listarTickets();
+                        await this.listarTickets();
                         this.mostrarAlerta('exito', 'Exito', 'Ticket editado')
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el ticket')
+                    }finally {
+                        this.loading = false;
                     }
                 },
                 async editarStatus() {
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/status-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({status: this.ticket.status})
@@ -520,10 +545,12 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar el status');
                     } finally {                        
                         await this.obtenerTicket(this.ticket.ticketId);
-                        this.listarTickets();
+                        await this.listarTickets();
+                        this.loading = false;
                     }
                 },
                 async editarPrioridad() {
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/prioridad-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({prioridad: this.ticket.prioridad})
@@ -542,10 +569,12 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la prioridad');
                     } finally {                        
                         await this.obtenerTicket(this.ticket.ticketId);
-                        this.listarTickets();
+                        await this.listarTickets();
+                        this.loading = false;
                     }
                 },
                 async editarAsignacion() {
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/asignacion-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({usuario_asignado_id: this.ticket.usuarioAsignadoId})
@@ -564,10 +593,12 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la asignacion');
                     } finally {                        
                         await this.obtenerTicket(this.ticket.ticketId);
-                        this.listarTickets();
+                        await this.listarTickets();
+                        this.loading = false;
                     }
                 },
                 async agregarFeedback(){
+                    this.loading = true;
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/feedback-rest`, {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formFeedback)
@@ -589,7 +620,9 @@
                         this.mostrarAlerta('exito', 'Exito', 'Comentario Agregado')
                     } catch (error){
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al agregar el comentario')
-                    } 
+                    }finally {                        
+                        this.loading = false;
+                    }
                 },
                 actualizarProyectos(cliente_id){
                     this.proyectosCliente = this.proyectos.filter(p => p.cliente_id === cliente_id);
@@ -602,6 +635,7 @@
         })
         app.component('modal-componente', modal)
         app.component('alerta-componente', alerta)
+        app.component('loading-global', loader)
         app.mount('#app')
     </script>
 @endsection
