@@ -10,7 +10,7 @@ class PerfilCoordinator
 {
     public static function obtenerPerfiles(array $filtros = [])
     {
-        $perfiles = PerfilService::obtenerPerfiles($filtros);
+        $perfiles = PerfilService::obtenerPerfiles($filtros); 
         $permisos = PermisoService::obtenerPermisos();
 
         $perfiles->getCollection()->transform(function ($perfil) use ($permisos) {
@@ -23,11 +23,11 @@ class PerfilCoordinator
         });
 
         return [
-            'perfiles' => $perfiles,
+            'perfiles' => $perfiles->items(),  
+            'links' => $perfiles->linkCollection(), 
             'permisos' => $permisos
         ];
     }
-
 
     public static function crearPerfil(array $datos)
     {

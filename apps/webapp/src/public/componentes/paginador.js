@@ -26,7 +26,7 @@ var paginador = {
   },
   methods: {
     goToPage(url) {
-      if (url) window.location.href = url;
+      if (url) this.$emit('navigate', url);
     }
   }
 };

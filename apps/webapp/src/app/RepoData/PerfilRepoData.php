@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class PerfilRepoData
 {
-    public static function obtenerPerfiles(array $filtros = [], $limit = 13)
+    public static function obtenerPerfiles(array $filtros = [], $limit = 10)
     {
         $consulta = DB::table('sys_perfiles')
             ->where('status', 'ACTIVO')

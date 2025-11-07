@@ -25,21 +25,26 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // Rutas de Perfiles
 Route::prefix('perfiles')->middleware('auth')->group(function () {
+
     Route::get('/', [PerfilController::class, 'gestor'])
         ->middleware('permiso:ver_perfiles')
         ->name('perfiles.gestor');
 
-    Route::post('/', [PerfilController::class, 'agregar'])
+    Route::get('/listar', [PerfilController::class, 'listarRest'])
+        ->middleware('permiso:ver_perfiles')
+        ->name('perfiles.listarRest');
+
+    Route::post('/agregar', [PerfilController::class, 'agregarRest'])
         ->middleware('permiso:crear_perfiles')
-        ->name('perfiles.agregar');
+        ->name('perfiles.agregarRest');
 
-    Route::put('/{perfil_id}', [PerfilController::class, 'editar'])
+    Route::put('/editar/{perfil_id}', [PerfilController::class, 'editarRest'])
         ->middleware('permiso:editar_perfiles')
-        ->name('perfiles.editar');
+        ->name('perfiles.editarRest');
 
-    Route::patch('/eliminar/{perfil_id}', [PerfilController::class, 'eliminar'])
+    Route::patch('/eliminar/{perfil_id}', [PerfilController::class, 'eliminarRest'])
         ->middleware('permiso:eliminar_perfiles')
-        ->name('perfiles.eliminar');
+        ->name('perfiles.eliminarRest');
 });
 
 // Rutas de Usuarios
