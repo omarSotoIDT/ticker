@@ -5,22 +5,42 @@ namespace App\Services;
 use App\BO\UsuarioBO;
 use App\RepoAction\UsuarioRepoAction;
 use App\RepoData\UsuarioRepoData;
+use Illuminate\Support\Facades\DB;
 
 class UsuarioService
 {
     public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
         $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
+        foreach ($usuarios as &$u) {
+            $u->idPerfiles = $u->idPerfiles ? array_map('intval', explode(',', $u->idPerfiles)) : [];
+            $u->nombrePerfiles = $u->nombrePerfiles ? explode(',', $u->nombrePerfiles) : [];
+        }
         return $usuarios;
     }
 
+    public static function listarPerfiles($id, $columnas = '') {
+        $perfiles = UsuarioRepoData::listarPerfiles($id, $columnas);
+        return $perfiles;
+    }
+
     public static function agregar($datos) {
-        $insertUsuario = UsuarioBO::armarInsert($datos);
-        return UsuarioRepoAction::crear($insertUsuario);
+        return DB::transaction(function () use ($datos) {
+            $insertUsuario = UsuarioBO::armarInsert($datos);
+            $usuario_id = UsuarioRepoAction::crear($insertUsuario);
+            $insertPerfiles = UsuarioBO::armarPerfilesInsert($usuario_id, $datos['perfiles']);
+            UsuarioRepoAction::sincronizarPerfiles($usuario_id, $insertPerfiles);
+            return $usuario_id;
+        });
     }
 
     public static function editar($id, $datos) {
-        $updateUsuario = UsuarioBO::armarUpdate($datos);
-        return UsuarioRepoAction::actualizar($id, $updateUsuario);
+        return DB::transaction( function() use ($id, $datos) {
+            $updateUsuario = UsuarioBO::armarUpdate($datos);
+            $actualizado = UsuarioRepoAction::actualizar($id, $updateUsuario);
+            $updatePerfiles = UsuarioBO::armarPerfilesInsert($id, $datos['perfiles']);
+            UsuarioRepoAction::sincronizarPerfiles($id, $updatePerfiles);
+            return $actualizado;
+        });
     }
 
     public static function eliminar($id, $datos) {
