@@ -17,14 +17,14 @@ class DatabaseSeeder extends Seeder
         public function run(): void
         {
             DB::table('sys_usuarios')->insert([
-                'usuario' => 'Enrique',
-                'email' => 'enrique@example.com',
+                'usuario' => 'Pablo',
+                'email' => 'pablo@example.com',
                 'password' => Hash::make('12345678'),
                 'ultimo_acceso_fecha' => null,
                 'status' => 'ACTIVO',
-                'super_usuario' => 1, // puedes poner 0 si no quieres que sea super usuario
+                'super_usuario' => 1, 
                 'motivo_eliminacion' => null,
-                'registro_autor_id' => 1, // puedes cambiar según corresponda
+                'registro_autor_id' => 1, 
                 'registro_fecha' => now(),
                 'actualizacion_autor_id' => null,
                 'actualizacion_fecha' => null,
