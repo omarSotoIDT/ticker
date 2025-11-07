@@ -1,11 +1,13 @@
 <?php
 
+namespace App\RH;
+
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-if (!function_exists('tienePermiso')) {
-
-    function tienePermiso(int $usuarioId, string $codigoPermiso): bool
+class PermisoRH
+{
+    public static function tienePermiso(int $usuarioId, string $codigoPermiso): bool
     {
         $perfilId = DB::table('rel_usuarios_perfiles')
             ->where('usuario_id', $usuarioId)
@@ -31,13 +33,11 @@ if (!function_exists('tienePermiso')) {
             ->toArray();
 
         return in_array($codigoPermiso, $permisos);
+    }
 
-        if (!function_exists('can')) {
-            function can(string $codigoPermiso): bool
-            {
-                $userId = Auth::id();
-                return $userId ? tienePermiso($userId, $codigoPermiso) : false;
-            }
-        }
+    public static function can(string $codigoPermiso): bool
+    {
+        $userId = Auth::id();
+        return $userId ? self::tienePermiso($userId, $codigoPermiso) : false;
     }
 }

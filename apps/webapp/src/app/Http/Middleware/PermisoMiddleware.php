@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\RH\PermisoRH;
 
-class VerificarPermiso
+class PermisoMiddleware
 {
     public function handle(Request $request, Closure $next, ...$permisos)
     {
@@ -17,7 +18,7 @@ class VerificarPermiso
         }
 
         foreach ($permisos as $permiso) {
-            if (tienePermiso($user->usuario_id, $permiso)) {
+            if (PermisoRH::tienePermiso($user->usuario_id, $permiso)) {
                 return $next($request);
             }
         }
