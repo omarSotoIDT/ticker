@@ -10,6 +10,7 @@ use App\Services\ProyectoService;
 use App\Services\TicketFeedbackService;
 use App\Services\TicketService;
 use App\Services\UsuarioService;
+use App\Services\LogService;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
@@ -50,69 +51,29 @@ class TicketCoordinator
 
     public static function actualizarProyecto(int $id, array $data)
     {
-        $ticketActual = TicketService::obtener(
+        $ticketAnterior = TicketService::obtener(
             $id,
             'titulo,descripcion,prioridad,status,usuarioAsignadoId,clienteId,proyectoId,etiquetaId'
         );
 
-        if (!$ticketActual) {
-            throw new \Exception("El proyecto con ID {$id} no existe.");
+        if (!$ticketAnterior) {
+            throw new \Exception("El ticket con ID {$id} no existe.");
         }
-
-        return DB::transaction(function () use ($id, $data, $ticketActual) {
+        $datosAnteriores = [
+            'titulo' => $ticketAnterior->titulo,
+            'descripcion' => $ticketAnterior->descripcion,
+            'prioridad' => $ticketAnterior->prioridad,
+            'status' => $ticketAnterior->status,
+            'cliente' => ClienteService::obtenerNombre($ticketAnterior->clienteId),
+            'proyecto' => ProyectoService::obtenerPorId($ticketAnterior->proyectoId)?->nombre,
+            'etiqueta' => EtiquetaService::listar(['etiquetaId' => $ticketAnterior->etiquetaId], 'titulo')[0]->titulo,
+            'usuario_asignado' => UsuarioService::obtener($ticketAnterior->usuarioAsignadoId, 'usuario')?->usuario,
+        ];
+        $descripcionLog = LogService::armarDescripcion($datosAnteriores, $data);
+        return DB::transaction(function () use ($id, $data, $descripcionLog) {
             $folio = FolioService::obtener('log_tickets');
-
-            // Configuración centralizada de campos comparables
-            $entidades = [
-                'usuario_asignado_id' => [
-                    'actual'  => $ticketActual->usuarioAsignadoId,
-                    'service' => fn($id) => UsuarioService::obtener($id, 'usuario')->usuario ?? 'N/A',
-                    'label'   => 'Usuario asignado',
-                ],
-                'cliente_id' => [
-                    'actual'  => $ticketActual->clienteId,
-                    'service' => fn($id) => ClienteService::obtenerNombre($id) ?? 'N/A',
-                    'label'   => 'Cliente',
-                ],
-                'proyecto_id' => [
-                    'actual'  => $ticketActual->proyectoId,
-                    'service' => fn($id) => ProyectoService::obtenerPorId($id)?->nombre ?? 'N/A',
-                    'label'   => 'Proyecto',
-                ],
-                'etiqueta_id' => [
-                    'actual'  => $ticketActual->etiquetaId,
-                    'service' => function ($id) {
-                        $res = EtiquetaService::listar(['etiquetaId' => $id], 'titulo');
-                        return $res[0]->titulo ?? 'N/A';
-                    },
-                    'label' => 'Etiqueta',
-                ],
-            ];
-
-            // Detectar cambios y obtener nombres anteriores/nuevos
-            $valores = [];
-            foreach ($entidades as $campo => $info) {
-                if (isset($data[$campo]) && $data[$campo] != $info['actual']) {
-                    $valores[$campo] = [
-                        'anterior' => $info['service']($info['actual']),
-                        'nuevo'    => $info['service']($data[$campo]),
-                    ];
-                }
-            }
-
-            return TicketService::editar(
-                $id,
-                $data,
-                $valores['usuario_asignado_id']['anterior'] ?? null,
-                $valores['usuario_asignado_id']['nuevo'] ?? null,
-                $valores['cliente_id']['anterior'] ?? null,
-                $valores['cliente_id']['nuevo'] ?? null,
-                $valores['proyecto_id']['anterior'] ?? null,
-                $valores['proyecto_id']['nuevo'] ?? null,
-                $valores['etiqueta_id']['anterior'] ?? null,
-                $valores['etiqueta_id']['nuevo'] ?? null,
-                $folio
-            );
+            TicketService::agregarLog($id, $folio, $descripcionLog);
+            return TicketService::editar($id, $data);
         });
     }
 

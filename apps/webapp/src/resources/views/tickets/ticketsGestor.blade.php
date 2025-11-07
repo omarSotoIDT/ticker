@@ -481,9 +481,25 @@
                 },
                 async editar(){
                     try {
+                        const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
+                        const proyectosDisponibles = this.proyectosCliente.length ? this.proyectosCliente : this.proyectos;
+                        const proyecto = proyectosDisponibles.find(p => p.proyecto_id === this.formTicket.proyecto_id);
+                        const etiqueta = this.etiquetas.find(e => e.etiquetaId === this.formTicket.etiqueta_id);
+                        const usuario = this.usuarios.find(u => u.usuarioId === this.formTicket.usuario_asignado_id);
+
+                        let payload = {
+                            ...this.formTicket,
+                            cliente: cliente ? cliente.nombre : null,
+                            proyecto: proyecto ? proyecto.nombre : null,
+                            etiqueta: etiqueta ? etiqueta.titulo : null,
+                            usuario_asignado: usuario ? usuario.usuario : null
+                        };
+
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
-                            method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
-                        })
+                            method: 'PATCH',
+                            headers: this.headers,
+                            body: JSON.stringify(payload)
+                        });
 
                         if (!response.ok) {
                             if (response.status === 422) {
@@ -491,7 +507,7 @@
                                 this.erroresRegistro = datosError.errors;
                                 return;
                             }
-                            throw new Error('Error al crear el ticket: ' + response.status);
+                            throw new Error('Error al editar el ticket: ' + response.status);
                         }
 
                         this.modalRegistro.mostrar = false;

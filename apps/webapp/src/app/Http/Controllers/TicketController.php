@@ -68,22 +68,27 @@ class TicketController extends Controller
             return Response::json(['error' => 'Ocurrio un error al agregar el ticket'], 500);
         }
     }
-
+    
     public function editarRest(Request $request, $id)
     {
         try {
             $datos = $request->validate([
-                'cliente_id' => 'integer',
-                'proyecto_id' => 'integer',
-                'etiqueta_id' => 'integer',
-                'usuario_asignado_id' => 'integer',
                 'titulo' => 'string|max:100',
                 'descripcion' => 'string',
                 'prioridad' => 'string',
                 'status' => 'string',
+                'cliente_id' => 'integer',
+                'cliente' => 'string|nullable',
+                'proyecto_id' => 'integer',
+                'proyecto' => 'string|nullable',
+                'etiqueta_id' => 'integer',
+                'etiqueta' => 'string|nullable',
+                'usuario_asignado_id' => 'integer',
+                'usuario_asignado' => 'string|nullable',
             ]);
+
             if (TicketCoordinator::actualizarProyecto($id, $datos)) {
-                return Response::json(null, 204);
+                return Response::json($datos, 200); 
             }
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
