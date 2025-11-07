@@ -5,17 +5,17 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\DB;
+use App\RH\PermisoRH; // 👈 importa tu helper desde su nuevo namespace
 
 class AuthServiceProvider extends ServiceProvider
 {
-    protected $policies = [
-
-    ];
+    protected $policies = [];
 
     public function boot(): void
     {
         $this->registerPolicies();
 
+        // Si el perfil es superusuario, tiene acceso total
         Gate::before(function ($user, $ability) {
             $perfil = DB::table('rel_usuarios_perfiles')
                 ->join('sys_perfiles', 'rel_usuarios_perfiles.perfil_id', '=', 'sys_perfiles.perfil_id')
@@ -23,20 +23,19 @@ class AuthServiceProvider extends ServiceProvider
                 ->first();
 
             if ($perfil && (int) $perfil->super_usuario === 1) {
-                return true; 
+                return true;
             }
 
-            return null; 
+            return null;
         });
 
+        // Registrar dinámicamente los permisos
         $permisos = DB::table('sys_permisos')->pluck('codigo');
 
         foreach ($permisos as $codigo) {
             if (! Gate::has($codigo)) {
                 Gate::define($codigo, function ($user) use ($codigo) {
-                    return function_exists('tienePermiso')
-                        ? tienePermiso($user->usuario_id, $codigo)
-                        : false;
+                    return PermisoRH::tienePermiso($user->usuario_id, $codigo); // 👈 llamada correcta
                 });
             }
         }
