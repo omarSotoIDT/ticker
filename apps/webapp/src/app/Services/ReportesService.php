@@ -14,10 +14,10 @@ class ReportesService
     public static function obtenerResumen($tipo = 'etiqueta', $filtros = [])
     {
         $columnasMap = [
-            'etiqueta_id'         => 'etiqueta_id, etiqueta',
-            'proyecto_id'         => 'proyecto_id, proyecto',
-            'cliente_id'          => 'cliente_id, cliente',
-            'usuario_asignado_id' => 'usuario_asignado_id, usuario_asignado',
+            'etiqueta_id'         => 'etiquetaId, etiqueta',
+            'proyecto_id'         => 'proyectoId, proyecto',
+            'cliente_id'          => 'clienteId, cliente',
+            'usuario_asignado_id' => 'usuarioAsignadoId, usuarioAsignado',
             'status'              => 'status',
         ];
 
@@ -43,7 +43,7 @@ class ReportesService
                 $nombrePorDefecto = 'Sin cliente';
                 break;
             case 'usuario_asignado_id':
-                $campoAgrupar = 'usuario_asignado';
+                $campoAgrupar = 'usuarioAsignado';
                 $nombrePorDefecto = 'Sin usuario';
                 break;
             case 'status':
@@ -67,9 +67,8 @@ class ReportesService
 
     public static function reportesTickets(array $filtros = [])
     {
-        $columnas = 'ticket_id,serie_folio,titulo,cliente,proyecto,usuario_asignado,status,prioridad,etiqueta,registro_fecha';
+        $columnas = 'ticketId,serieFolio,titulo,cliente,proyecto,usuarioAsignado,status,prioridad,etiqueta,registroFecha';
         $orden = ['t.registro_fecha' => 'desc'];
-
         return TicketService::listar($filtros, $columnas, $orden);
     }
 
@@ -85,12 +84,12 @@ class ReportesService
                 return collect($data)->map(fn($p) => ['valor' => $p->proyecto_id, 'texto' => $p->nombre])->values();
 
             case 'usuario_asignado_id':
-                $data = UsuarioService::listar([], 'usuario_id, usuario');
-                return collect($data)->map(fn($u) => ['valor' => $u->usuario_id, 'texto' => $u->usuario])->values();
+                $data = UsuarioService::listar([], 'usuarioId, usuario');
+                return collect($data)->map(fn($u) => ['valor' => $u->usuarioId, 'texto' => $u->usuario])->values();
 
             case 'etiqueta_id':
-                $data = EtiquetaService::listar([], 'etiqueta_id, titulo');
-                return collect($data)->map(fn($e) => ['valor' => $e->etiqueta_id, 'texto' => $e->titulo])->values();
+                $data = EtiquetaService::listar([], 'etiquetaId, titulo');
+                return collect($data)->map(fn($e) => ['valor' => $e->etiquetaId, 'texto' => $e->titulo])->values();
 
             case 'status':
                 return collect([

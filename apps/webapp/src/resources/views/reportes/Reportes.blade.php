@@ -8,11 +8,11 @@
             <div class="item-filtro">
                 <label for="tipoReporte">Tipo de Reporte</label>
                 <select id="tipoReporte" class="input select-busqueda" v-model="tipoReporte" @change="onTipoReporteChange">
-                    <option value="etiqueta_id">Por Categoria</option>
-                    <option value="status">Por Estado</option>
-                    <option value="usuario_asignado_id">Por Usuario Asignado</option>
-                    <option value="cliente_id">Por Cliente</option>
-                    <option value="proyecto_id">Por Proyecto</option>
+                    <option value="status">Estado</option>
+                    <option value="usuario_asignado_id">Usuario Asignado</option>
+                    <option value="cliente_id">Cliente</option>
+                    <option value="proyecto_id">Proyecto</option>
+                    <option value="etiqueta_id">Categoria</option>
                 </select>
             </div>
             <div class="item-filtro">
@@ -63,11 +63,11 @@
             </thead>
             <tbody>
                 <tr v-for="ticket in tickets" :key="ticket.serieFolio">
-                    <td>@{{ ticket.serie_folio }}</td>
+                    <td>@{{ ticket.serieFolio }}</td>
                     <td>@{{ ticket.titulo }}</td>
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
-                    <td>@{{ ticket.usuario_asignado }}</td>
+                    <td>@{{ ticket.usuarioAsignado }}</td>
                     <td><span class="badge">@{{ ticket.status }}</span></td>
                     <td><span class="badge">@{{ ticket.prioridad }}</span></td>
                     <td>@{{ ticket.etiqueta }}</td>

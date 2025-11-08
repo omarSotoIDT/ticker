@@ -46,25 +46,14 @@ class ReportesController extends Controller
         }
     }
 
+
     private function construirFiltros(Request $request, string $tipo): array
     {
         $filtros = $request->except(['tipo', 'filtro']);
         $filtroValor = $request->input('filtro');
 
         if (!is_null($filtroValor) && $filtroValor !== '') {
-            $map = [
-                'etiqueta'            => 'etiqueta_id',
-                'status'              => 'status',
-                'cliente'             => 'cliente_id',
-                'cliente_id'          => 'cliente_id',
-                'proyecto'            => 'proyecto_id',
-                'proyecto_id'         => 'proyecto_id',
-                'usuario_asignado'    => 'usuario_asignado_id',
-                'usuario_asignado_id' => 'usuario_asignado_id',
-            ];
-            if (isset($map[$tipo])) {
-                $filtros[$map[$tipo]] = $filtroValor;
-            }
+            $filtros[$tipo] = $filtroValor;
         }
 
         return $filtros;
