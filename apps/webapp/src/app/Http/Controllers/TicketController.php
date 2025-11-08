@@ -102,7 +102,7 @@ class TicketController extends Controller
     {
         try {
             $datos = $request->validate(['status' => 'string|required']);
-            TicketCoordinator::editarEstado($id, $datos);
+            TicketCoordinator::editarStatus($id, $datos);
             return Response::json(null, 204);
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);

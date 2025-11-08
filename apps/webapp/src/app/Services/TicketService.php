@@ -33,9 +33,9 @@ class TicketService
     }
     
 
-    public static function editarEstado($id, $datos)
+    public static function editarStatus($id, $datos)
     {
-        $updateTicket = TicketBO::armarUpdateEstado($datos);
+        $updateTicket = TicketBO::armarUpdateStatus($datos);
         return TicketRepoAction::actualizar($id, $updateTicket);
     }
 

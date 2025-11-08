@@ -54,7 +54,7 @@ class TicketBO
     }
     
 
-    public static function armarUpdateEstado($datos)
+    public static function armarUpdateStatus($datos)
     {
         $ticket = [
             'status' => $datos['status'],
