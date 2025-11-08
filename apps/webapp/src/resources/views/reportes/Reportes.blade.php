@@ -8,11 +8,11 @@
             <div class="item-filtro">
                 <label for="tipoReporte">Tipo de Reporte</label>
                 <select id="tipoReporte" class="input select-busqueda" v-model="tipoReporte" @change="onTipoReporteChange">
+                    <option value="etiqueta_id">Por Categoria</option>
                     <option value="status">Por Estado</option>
-                    <option value="usuario_asignado">Por Usuario Asignado</option>
-                    <option value="cliente">Por Cliente</option>
-                    <option value="proyecto">Por Proyecto</option>
-                    <option value="etiqueta">Por Categoria</option>
+                    <option value="usuario_asignado_id">Por Usuario Asignado</option>
+                    <option value="cliente_id">Por Cliente</option>
+                    <option value="proyecto_id">Por Proyecto</option>
                 </select>
             </div>
             <div class="item-filtro">
@@ -63,12 +63,12 @@
             </thead>
             <tbody>
                 <tr v-for="ticket in tickets" :key="ticket.serieFolio">
-                    <td>@{{ ticket.serieFolio }}</td>
+                    <td>@{{ ticket.serie_folio }}</td>
                     <td>@{{ ticket.titulo }}</td>
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
-                    <td>@{{ ticket.asignado }}</td>
-                    <td><span class="badge">@{{ ticket.estado }}</span></td>
+                    <td>@{{ ticket.usuario_asignado }}</td>
+                    <td><span class="badge">@{{ ticket.status }}</span></td>
                     <td><span class="badge">@{{ ticket.prioridad }}</span></td>
                     <td>@{{ ticket.etiqueta }}</td>
                 </tr>
@@ -84,7 +84,7 @@
     const app = Vue.createApp({
         data() {
             return {
-                tipoReporte: 'etiqueta',
+                tipoReporte: 'etiqueta_id',
                 filtroExtra: '',
                 filtrosDisponibles: [],
                 tickets: [],

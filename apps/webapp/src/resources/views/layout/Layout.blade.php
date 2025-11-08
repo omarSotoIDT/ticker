@@ -13,6 +13,10 @@
   <script src="{{ asset('constantes.js') }}?v={{ config('app.version') }}"></script>
 
   <script src="{{ asset('componentes/modal.js') }}?v={{ config('app.version') }}"></script>
+
+  {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
   {{-- Estilos--}}
   <link rel="stylesheet" href="{{ asset('css/normalizacion.css') }}" />
   <link rel="stylesheet" href="{{ asset('css/estilos.css') }}?v={{ config('app.version') }}" />

@@ -46,9 +46,6 @@ class ReportesController extends Controller
         }
     }
 
-    /**
-     * Construye los filtros requeridos para los reportes en base al tipo
-     */
     private function construirFiltros(Request $request, string $tipo): array
     {
         $filtros = $request->except(['tipo', 'filtro']);
