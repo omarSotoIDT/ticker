@@ -9,7 +9,7 @@ class ProyectoRepoHelper
     public static function aplicarFiltros(Builder $query, array $filters): Builder
     {
         if (!empty($filters['status'])) {
-            $query->where('p.status', $filters['status']);
+            $query->whereIn('p.status', $filters['status']);
         }
 
         if (!empty($filters['cliente_id'])) {
