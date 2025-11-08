@@ -426,8 +426,8 @@ background: #fefefe;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  table-layout: fixed;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  table-layout: fixed; /* mantiene alineación de columnas */
 }
 
 .tabla td {
@@ -437,7 +437,7 @@ background: #fefefe;
 .tabla thead th {
   background-color: #fff;
   font-weight: 600;
-  font-size: 14.4px;
+  font-size: 14px;
   color: #000;
   padding: 12px 10px;
   border-bottom: 1px solid #e5e7eb;
@@ -473,31 +473,23 @@ background: #fefefe;
   border-bottom: none;
 }
 
-.tabla th.col-30,
+.tabla th.col-30, 
 .tabla td.col-30 {
   width: 30%;
   min-width: 200px;
 }
 
-.tabla tbody tr:last-child td:first-child {
-  border-bottom-left-radius: 14px;
-}
-
-.tabla tbody tr:last-child td:last-child {
-  border-bottom-right-radius: 14px;
-}
-
-.tabla th.columna-grande,
+.tabla th.columna-grande, 
 .tabla td.columna-grande {
   width: 40%;
   min-width: 200px;
 }
-
-.tabla th.columna-mediana,
+.tabla th.columna-mediana, 
 .tabla td.columna-mediana {
   width: 20%;
   min-width: 200px;
 }
+
 
 .tabla td.acciones,
 .tabla th.acciones {
@@ -510,9 +502,9 @@ background: #fefefe;
 }
 
 .acciones-contenedor {
-  display: inline-flex;
+  display: inline-flex; 
   justify-content: flex-end;
-  align-items: center;
+  align-items: center; 
   gap: 10px;
   width: 100%;
   box-sizing: border-box;
@@ -537,7 +529,7 @@ background: #fefefe;
   display: inline-block;
   padding: 4px 10px;
   border: 1px solid #000;
-  border-radius: 999px;
+  border-radius: 999px; 
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
