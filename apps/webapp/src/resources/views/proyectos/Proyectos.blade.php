@@ -200,7 +200,9 @@
                 proyectos: [],
                 clientes: [],
                 usuariosDisponibles: [],
-                busqueda: '',
+                busqueda: {
+                    titulo: ''
+                },
                 mostrarModal: false,
                 tipoForm: 'crear',
                 formproyecto: {
@@ -226,7 +228,7 @@
         methods: {
             async listarProyectos() {
                 try {
-                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda)}`);
+                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`);
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {
