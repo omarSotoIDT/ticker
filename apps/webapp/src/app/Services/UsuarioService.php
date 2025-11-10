@@ -18,6 +18,10 @@ class UsuarioService
         return $usuarios;
     }
 
+    public static function obtener($id, $columnas = '') {
+        return UsuarioRepoData::obtener($id, $columnas);
+    }
+  
     public static function listarPerfiles($id, $columnas = '') {
         $perfiles = UsuarioRepoData::listarPerfiles($id, $columnas);
         return $perfiles;

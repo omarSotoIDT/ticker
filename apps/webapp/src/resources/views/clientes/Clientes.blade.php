@@ -5,7 +5,7 @@
 @section('contenido')
 
 <div id="app">
-    <div class="modulo-encabezado">
+<div class="modulo-encabezado">
         <div class="items-busqueda">
             <div class="cont-buscador">
                 <i class="fa-solid fa-magnifying-glass buscador-icono"></i>

@@ -134,14 +134,15 @@
 
             <h4>Logs del proyecto</h4>
             <div class="contenedor-scroll-modal">
-                <ul v-if="logsProyecto && logsProyecto.length > 0" class="">
+                <ul v-if="logsProyecto.length > 0" class="">
                     <li v-for="log in logsProyecto" :key="log.id">
-                        <small class="historial-fecha-usuario">@{{ log.fecha }} — @{{ log.usuario }}</small>
-                        <small class="historial-cambio" v-html="log.accion ? log.accion.replace(/\n/g, '<br>') : ''"></small>
+                        <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                        <br>
+                        <small class="">@{{ log.accion }}</small>
                         <hr>
                     </li>
                 </ul>
-                <p v-else class="empty-state">No hay registros de actividad.</p>
+                <p v-else class="">No hay registros de actividad.</p>
             </div>
 
         </div>

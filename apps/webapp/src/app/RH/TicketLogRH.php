@@ -2,18 +2,22 @@
 
 namespace App\RH;
 
-class EtiquetaRH
+class TicketLogRH
 {
     private static $columnasDisponibles = [
-        'etiquetaId' => 'e.etiqueta_id',
-        'titulo' => 'e.titulo',
-        'descripcion' => 'e.descripcion',
-        'status' => 'e.status'
+        'logTicketId' => 'lt.log_ticket_id',
+        'ticketId' => 'lt.ticket_id',
+        'usuarioId' => 'lt.usuario_id',
+        "usuario"   => 'su.usuario',
+        'folio' => 'lt.folio',
+        'descripcion' => 'lt.descripcion',
+        'registroFecha' => 'lt.registro_fecha'
     ];
 
-    public static function agregarColumnas(&$query, $columnasSeleccionadas) {
+    public static function agregarColumnas(&$query, $columnasSeleccionadas)
+    {
         if (empty($columnasSeleccionadas)) {
-            $query->select('e.etiqueta_id');
+            $query->select('lt.log_ticket_id');
             return;
         }
 
@@ -32,16 +36,12 @@ class EtiquetaRH
     public static function agregarFiltros(&$query, $filtros)
     {
         if (!empty($filtros)) {
-            if (isset($filtros['titulo'])) {
-                $query->where('e.titulo', $filtros['titulo']);
+            if (isset($filtros['ticket_id'])) {
+                $query->where('lt.ticket_id', $filtros['ticket_id']);
             };
-            if (isset($filtros['status'])) {
-                $query->where('e.status', $filtros['status']);
+            if (isset($filtros['usuario_id'])) {
+                $query->where('lt.usuario_id', $filtros['usuario_id']);
             };
-            if (isset($filtros['etiquetaId'])) {
-                $query->where('e.etiqueta_id', $filtros['etiquetaId']);
-            }
-            
         }
     }
 
@@ -53,4 +53,5 @@ class EtiquetaRH
             }
         }
     }
+
 }
