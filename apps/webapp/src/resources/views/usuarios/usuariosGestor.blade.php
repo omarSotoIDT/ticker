@@ -4,110 +4,120 @@
 
 @section('contenido')
   <div id="app">
-    {{-- Loader: Basado en Proyectos.blade.php --}}
     <loading-global :visible="loading"></loading-global>
-      <div class="modulo-encabezado">
-          <div class="items-busqueda">
-              <div class="cont-buscador">
-                  <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-                  <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
-              </div>
-          </div>
-          <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
-      </div>
-      <table class="tabla">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Perfil</th>
-            <th>Estado</th>
-            <th>Último acceso</th>
-            <th class="acciones">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
-            <td>@{{ usuario.usuario }}</td>
-            <td>@{{ usuario.email }}</td>
-            <td>@{{ usuario.nombrePerfil }}</td>
-            <td>
-              <span class="badge" :class="badgeStatus(usuario.status)">@{{ usuario.status }}</span>
-            </td>
-            <td>@{{ usuario.acceso }}</td>
-            <td class="acciones">
+    <div class="modulo-encabezado">
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
+    </div>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Perfil</th>
+          <th>Estado</th>
+          <th>Último acceso</th>
+          <th class="acciones">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
+          <td>@{{ usuario.usuario }}</td>
+          <td>@{{ usuario.email }}</td>
+          <td>
+            <span v-if="!usuario.nombrePerfiles.length">-</span>
+            @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
+          <td>
+            <span class="badge" :class="badgeStatus(usuario.status)">@{{ usuario.status }}</span>
+          </td>
+          <td>@{{ usuario.acceso }}</td>
+          <td class="acciones">
+            <div class="acciones-contenedor">
               <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
               <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
               <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      @if (session('error'))
-        <div class="error">
-          <span>{{ session('error') }}</span>
+            </div>
+        </td>
+        </tr>
+      </tbody>
+    </table>
+    @if (session('error'))
+      <div class="error">
+        <span>{{ session('error') }}</span>
+      </div>
+    @endif
+    <modal-componente 
+      v-model:mostrar="mostrarModal" 
+      :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
+      :subtitulo="subtituloModalPrincipal"
+      :texto-Confirmacion="textoConfirmacionPrincipal"
+      @limpiar="limpiarErrores"
+      clase-modal="modal-base"
+      :deshabilitar-confirmacion="loading"
+      @confirmar="confirmarGuardarUsuario">
+
+      <form id="form" class="form centrado">
+        <div class="campo">
+          <label class="etiqueta" for="nombre">Nombre</label>
+          <input class="input" type="text" name="nombre" id="nombre" v-model="formUsuario.nombre">
+          <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
         </div>
-      @endif
-      <modal-componente 
-        v-model:mostrar="mostrarModal" 
-        :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
-        :subtitulo="subtituloModalPrincipal"
-        :texto-Confirmacion="textoConfirmacionPrincipal"
-        @limpiar="limpiarErrores"
-        @confirmar="confirmarGuardarUsuario">
+        <div class="campo">
+          <label class="etiqueta" for="email">Email</label>
+          <input class="input" type="email" name="email" id="email" v-model="formUsuario.email">
+          <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="pasword">Contraseña</label>
+          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password">
+          <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="perfiles">Perfil</label>
+          <div class="contenedor-checklist">
+            <div class="item-contenedor" v-for="perfil in perfiles" :key="perfil.perfil_id">
+              <input type="checkbox" :id="'perfil-' + perfil.perfil_id" v-model="formUsuario.perfiles" :value="perfil.perfil_id">
+              <label :for="'perfil-' + perfil.perfil_id">@{{ perfil.nombre }}</label>
+            </div>
+          </div>
+          <span class="error" v-if="erroresModal.perfiles">@{{ erroresModal.perfil[0] }}</span>
+        </div>
+      </form>
+    </modal-componente>
 
-        <form id="form" class="form centrado">
-          <div class="campo">
-            <label class="etiqueta" for="nombre">Nombre</label>
-            <input class="input" type="text" name="nombre" id="nombre" v-model="formUsuario.nombre">
-            <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
-          </div>
-          <div class="campo">
-            <label class="etiqueta" for="email">Email</label>
-            <input class="input" type="email" name="email" id="email" v-model="formUsuario.email">
-            <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
-          </div>
-          <div class="campo">
-            <label class="etiqueta" for="pasword">Contraseña</label>
-            <input class="input" type="password" name="password" id="password" v-model="formUsuario.password">
-            <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
-          </div>
-          <div class="campo">
-            <label class="etiqueta" for="perfil">Perfil</label>
-            <select class="input" name="perfil" id="perfil" v-model="formUsuario.perfil"></select>
-              
-            <span class="error" v-if="erroresModal.perfil">@{{ erroresModal.perfil[0] }}</span>
-          </div>
-        </form>
-      </modal-componente>
+    <modal-componente 
+      v-model:mostrar="mostrarCambiarStatus" 
+      :titulo="tituloModalStatus"
+      :subtitulo="subtituloModalStatus"
+      :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"
+      @limpiar="limpiarErrores"
+      clase-modal="modal-base"
+      :deshabilitar-confirmacion="loading"
+      @confirmar="confirmarCambioStatus">
+      <form id="form">
+        <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
+        <div class="campo" v-if="tipoForm === 'eliminar'">
+          <label class="etiqueta" for="motivo">Motivo</label>
+          <textarea class="input" name="motivo" id="motivo" placeholder="Ingresa un motivo" v-model="formEliminar.motivo"></textarea>
+          <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
+        </div>
+      </form>
+    </modal-componente>
 
-      <modal-componente 
-        v-model:mostrar="mostrarCambiarStatus" 
-        :titulo="tituloModalStatus"
-        :subtitulo="subtituloModalStatus"
-        :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"
-        @limpiar="limpiarErrores"
-        @confirmar="confirmarCambioStatus">
-        <form id="form">
-          <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
-          <div class="campo" v-if="tipoForm === 'eliminar'">
-            <label class="etiqueta" for="motivo">Motivo</label>
-            <textarea class="input" name="motivo" id="motivo" placeholder="Ingresa un motivo" v-model="formEliminar.motivo"></textarea>
-            <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
-          </div>
-        </form>
-      </modal-componente>
-
-      <alerta-componente
-      :mostrar="alerta.mostrar"
-      :tipo="alerta.tipo"
-      :titulo="alerta.titulo"
-      :mensaje="alerta.mensaje"
-      >
-      </alerta-componente>
-    </div>
+    <alerta-componente
+    :mostrar="alerta.mostrar"
+    :tipo="alerta.tipo"
+    :titulo="alerta.titulo"
+    :mensaje="alerta.mensaje"
+    >
+    </alerta-componente>
+    
   </div>
-
   <script>
     const app = Vue.createApp({
       data() {
@@ -214,8 +224,8 @@
 
         async listarUsuarios() {
           this.loading = true;
-          try{
-            const response = await fetch('/usuarios/listarRest' , {
+          try {
+            const response = await fetch('/usuarios/listarRest', {
               method: 'GET',  
               headers: {
                 'Content-Type': 'application/json',
@@ -229,7 +239,6 @@
 
             const data = await response.json();
             this.usuarios = data;
-            this.busqueda = '';
           }catch(error){
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
           } finally {
@@ -284,8 +293,7 @@
               throw new Error('Error al crear el usuario: ' + response.status);
             }
 
-            const data = await response.json();
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario creado');
           }catch(error) {
@@ -316,9 +324,9 @@
               throw new Error('Error al editar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario actalizado');
+            this.mostrarAlerta('exito', 'Exito', 'Usuario actualizado');
 
           }catch(error) {
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el usuario');
@@ -348,7 +356,7 @@
               throw new Error('Error al eliminar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario eliminado');
           }catch(error) {
@@ -378,7 +386,7 @@
               throw new Error('Error al activar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario Activado');
           }catch(error) {
@@ -395,7 +403,7 @@
             return 'badge-inactivo';
           }
         },
-
+        
         confirmarGuardarUsuario() {
           if (this.tipoForm === 'crear') {
             this.crear();
@@ -409,7 +417,7 @@
           } else if (this.tipoForm === 'activar') {
             this.activar();
           }
-        }
+        },
       },
       mounted() {
         this.listarUsuarios();
