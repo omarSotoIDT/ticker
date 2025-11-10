@@ -69,7 +69,6 @@
         v-model:mostrar="modalRegistro.mostrar"
         :titulo="modalRegistro.tipo === 'crear' ? 'Nuevo Ticket' : 'Editar Ticket'"
         :subtitulo="modalRegistro.tipo === 'crear' ? 'Completa los datos del nuevo Ticket' : 'Modifica los datos del Ticket'"
-        :texto-confirmacion="modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios'"
         :texto-confirmacion="loading ? 'Procesando...' : (modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios')"
         clase-modal="modal-base"        
         @confirmar="modalRegistro.tipo === 'crear' ? agregar() : editar()">
@@ -252,114 +251,6 @@
                                 </span>
                             </li>
                         </ul>
-                    </div>
-
-                </div>
-
-                <div class="vista-ticket-footer">
-                    <button class="btn primary-btn" @click="modalVer.mostrar = false">Cerrar</button>
-                </div>
-
-            </div>
-        </modal-componente>
-        <modal-componente
-            v-model:mostrar="modalVer.mostrar"
-            :titulo="ticket ? ticket.titulo : 'Detalle'"
-            :subtitulo="ticket ? ('#' + ticket.serieFolio + ' • ' + ticket.proyecto + ' • ' + ticket.etiqueta) : ''"
-            :mostrar-botones="false"
-            clase-modal="modal-grande modal-vista-detalle"
-            @close="limparModalVer"
-        >
-
-            <button class="btn secondary-btn edit-btn" @click.prevent="modalEditar(ticket.ticketId)" title="Editar Ticket">
-                <i class="fa fa-pen-to-square"></i> Editar
-            </button>
-
-            <div v-if="ticket" class="vista-detalle-contenedor">
-                <div class="vista-detalle-header-status grid-3-col"> 
-                    <div class="campo"> 
-                        <label class="etiqueta">Estado</label>
-                        <select class="input" v-model="ticket.status" @change="editarStatus()">
-                            <option v-for="estado in estados" :value="estado">@{{ estado }}</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label class="etiqueta">Prioridad</label>
-                        <select class="input" v-model="ticket.prioridad" @change="editarPrioridad()">
-                            <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
-                        </select>
-                    </div>
-                    <div class="campo">
-                        <label class="etiqueta">Asignado a</label>
-                        <select class="input" v-model="ticket.usuarioAsignadoId" @change="editarAsignacion()">
-                            <option value="">-- Sin asignar --</option> 
-                            <option v-for="usuario in usuarios" :value="usuario.usuarioId" :key="usuario.usuarioId">
-                                @{{ usuario.usuario }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="vista-ticket-secciones-nav">
-                    <button :class="{'activo': modalVer.seccion === 'descripcion'}" @click="modalVer.seccion = 'descripcion'">
-                        <i class="fa-solid fa-align-left"></i> Descripción
-                    </button>
-                    <button :class="{'activo': modalVer.seccion === 'comentarios'}" @click="modalVer.seccion = 'comentarios'">
-                        <i class="fa-solid fa-comments"></i> Comentarios
-                        <span class="badge-contador">@{{ ticketFeedback ? ticketFeedback.length : 0 }}</span>
-                    </button>
-                    <button :class="{'activo': modalVer.seccion === 'historial'}" @click="modalVer.seccion = 'historial'">
-                        <i class="fa-solid fa-clock-rotate-left"></i> Historial
-                    </button>
-                </div>
-
-                <div class="vista-ticket-secciones-contenido">
-
-                    <div v-if="modalVer.seccion === 'descripcion'" class="seccion-descripcion">
-                        <div class="descripcion-contenido" v-text="ticket.descripcion"></div>
-                        <div class="descripcion-fechas">
-                            <span><strong>Creado:</strong> @{{ ticket.registroFecha }}</span>
-                            <span v-if="ticket.actualizacionFecha"><strong>Actualizado:</strong> @{{ ticket.actualizacionFecha }}</span>
-                        </div>
-                    </div>
-
-                    <div v-if="modalVer.seccion === 'comentarios'" class="seccion-comentarios">
-                        <div class="lista-comentarios">
-                             <p v-if="!ticketFeedback || !ticketFeedback.length" class="empty-state">
-                                No hay comentarios aún.
-                             </p>
-                            <div v-for="comentario in ticketFeedback" :key="comentario.feedbackId" class="comentario-item">
-                                <div class="comentario-avatar">@{{ comentario.usuario ? comentario.usuario.substring(0, 1) : 'U' }}</div>
-                                <div class="comentario-cuerpo">
-                                    <div class="comentario-header">
-                                        <strong>@{{ comentario.usuario }}</strong>
-                                        <span class="comentario-fecha">@{{ comentario.registroFecha }}</span>
-                                    </div>
-                                    <div class="comentario-texto" v-text="comentario.comentario"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="nuevo-comentario-form">
-                            <textarea class="input" v-model="formFeedback.comentario" placeholder="Escribe un comentario..."></textarea>
-                            <span class="error" v-if="erroresRegistroFeedback.comentario">@{{ erroresRegistroFeedback.comentario[0] }}</span>
-                            <button class="btn primary-btn btn-enviar-comentario" @click.prevent="agregarFeedback" title="Enviar Comentario">
-                                <i class="fa-solid fa-paper-plane"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div v-if="modalVer.seccion === 'historial'" class="seccion-historial">
-                        <div class="contenedor-scroll-modal">
-                            <ul v-if="ticketHistorial && ticketHistorial.length > 0" class="">
-                                <li v-for="log in ticketHistorial" :key="log.logTicketId">
-                                    <small class="historial-fecha-usuario">@{{ log.registroFecha }} — @{{ log.usuario }}</small>
-                                    <small class="historial-cambio" v-html="log.descripcion ? log.descripcion.replace(/\n/g, '<br>') : ''"></small>
-                                    <hr>
-                                </li>
-                            </ul>
-                            <p v-else class="empty-state">No hay historial de cambios.</p>
-                        </div>
                     </div>
 
                 </div>
@@ -612,25 +503,9 @@
                 async editar(){
                     this.loading = true;
                     try {
-                        const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
-                        const proyectosDisponibles = this.proyectosCliente.length ? this.proyectosCliente : this.proyectos;
-                        const proyecto = proyectosDisponibles.find(p => p.proyecto_id === this.formTicket.proyecto_id);
-                        const etiqueta = this.etiquetas.find(e => e.etiquetaId === this.formTicket.etiqueta_id);
-                        const usuario = this.usuarios.find(u => u.usuarioId === this.formTicket.usuario_asignado_id);
-
-                        let payload = {
-                            ...this.formTicket,
-                            cliente: cliente ? cliente.nombre : null,
-                            proyecto: proyecto ? proyecto.nombre : null,
-                            etiqueta: etiqueta ? etiqueta.titulo : null,
-                            usuario_asignado: usuario ? usuario.usuario : null
-                        };
-
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
-                            method: 'PATCH',
-                            headers: this.headers,
-                            body: JSON.stringify(payload)
-                        });
+                            method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
+                        })
 
                         if (!response.ok) {
                             if (response.status === 422) {
@@ -638,7 +513,7 @@
                                 this.erroresRegistro = datosError.errors;
                                 return;
                             }
-                            throw new Error('Error al editar el ticket: ' + response.status);
+                            throw new Error('Error al crear el ticket: ' + response.status);
                         }
 
                         this.modalRegistro.mostrar = false;
