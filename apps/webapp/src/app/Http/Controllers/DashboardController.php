@@ -15,7 +15,7 @@ class DashboardController extends Controller
             'ticketsPorEstado' => $datos['ticketsPorEstado'],
             'ticketsPorPrioridad' => $datos['ticketsPorPrioridad'],
             'topClientes' => $datos['topClientes'],
-            'cards' => $datos['cards'] ?? [],
+            'cards' => $datos['cards'],
         ]);
     }
 }

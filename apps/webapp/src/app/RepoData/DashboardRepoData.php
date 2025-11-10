@@ -7,38 +7,30 @@ use App\Consts\TicketConsts;
 
 class DashboardRepoData
 {
-    public static function obtenerTotales(): array
+    public static function obtenerDatosDashboard(): object
     {
-        $total = DB::table('tickets')->count();
         $statusCerrados = [
             TicketConsts::ATENDIDO,
             TicketConsts::CERRADO,
         ];
 
-        $cerrados = DB::table('tickets')
-            ->whereIn(DB::raw('UPPER(status)'), array_map('mb_strtoupper', $statusCerrados))
-            ->count();
+        return DB::table('tickets')->selectRaw('
+            COUNT(*) AS total,
+            SUM(CASE WHEN UPPER(status) NOT IN (?, ?, ?) THEN 1 ELSE 0 END) AS activos,
+            SUM(CASE WHEN UPPER(status) IN (?, ?) THEN 1 ELSE 0 END) AS cerrados,
+            SUM(CASE WHEN UPPER(status) = ? THEN 1 ELSE 0 END) AS cancelados,
+            SUM(CASE WHEN UPPER(prioridad) = ? THEN 1 ELSE 0 END) AS urgentes
+        ', [
+            mb_strtoupper(TicketConsts::ATENDIDO),
+            mb_strtoupper(TicketConsts::CERRADO),
+            mb_strtoupper(TicketConsts::CANCELADO),
 
-        $cancelados = DB::table('tickets')
-            ->whereRaw('UPPER(status) = ?', [mb_strtoupper(TicketConsts::CANCELADO)])
-            ->count();
+            mb_strtoupper(TicketConsts::ATENDIDO),
+            mb_strtoupper(TicketConsts::CERRADO),
 
-        $urgentes = DB::table('tickets')
-            ->whereRaw('UPPER(prioridad) = ?', [mb_strtoupper(TicketConsts::URGENTE)])
-            ->count();
-
-    $estadosExcluidos = array_merge($statusCerrados, [TicketConsts::CANCELADO]);
-        $activos = DB::table('tickets')
-            ->whereNotIn(DB::raw('UPPER(status)'), array_map('mb_strtoupper', $estadosExcluidos))
-            ->count();
-
-        return [
-            'total' => $total,
-            'activos' => (int) $activos,
-            'cerrados' => (int) $cerrados,
-            'cancelados' => (int) $cancelados,
-            'urgentes' => (int) $urgentes,
-        ];
+            mb_strtoupper(TicketConsts::CANCELADO),
+            mb_strtoupper(TicketConsts::URGENTE),
+        ])->first();
     }
 
     public static function contarPorEstado()

@@ -7,6 +7,21 @@ use App\BO\DashboardBO;
 
 class DashboardService
 {
+    public static function obtenerCards(): array
+    {
+        $data = DashboardRepoData::obtenerDatosDashboard();
+
+        $totales = [
+            'total' => (int) ($data->total),
+            'activos' => (int) ($data->activos),
+            'cerrados' => (int) ($data->cerrados),
+            'cancelados' => (int) ($data->cancelados),
+            'urgentes' => (int) ($data->urgentes),
+        ];
+
+        return DashboardBO::armarCardsFromTotales($totales);
+    }
+
     public static function ticketsPorEstado(): array
     {
         $rows = DashboardRepoData::contarPorEstado();
@@ -24,11 +39,4 @@ class DashboardService
         $rows = DashboardRepoData::topClientes($limit);
         return DashboardBO::armarDataset($rows->toArray(), 'nombre', 'total');
     }
-
-    public static function obtenerCards(): array
-    {
-        $totales = DashboardRepoData::obtenerTotales();
-        return DashboardBO::armarCardsFromTotales($totales);
-    }
 }
-
