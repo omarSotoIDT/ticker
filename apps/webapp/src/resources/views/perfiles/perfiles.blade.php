@@ -18,7 +18,7 @@
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
             <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
         </form>
-        <button class="btn action-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+        <button class="btn action-btn" @click.prevent="modalCrear" :disabled="loading"><i class="fa fa-plus"></i> Nuevo Perfil</button>
     </div>
 
     <table class="tabla">
@@ -57,7 +57,7 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
-        :texto-confirmacion="tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios'"
+        :texto-confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios')"        
         @confirmar="guardar">
 
         <form id="form" class="form centrado" @submit.prevent="guardar" :action="formAction" method="POST" novalidate>
@@ -110,7 +110,7 @@
     <modal-componente 
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
-        texto-confirmacion="Sí, Eliminar"
+        :texto-confirmacion="loading ? 'Procesando...' : 'Sí, Eliminar'"        
         @confirmar="ejecutarEliminacion">
         ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
     </modal-componente>

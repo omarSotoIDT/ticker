@@ -13,7 +13,7 @@
                   <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
               </div>
           </div>
-          <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
+          <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
       </div>
       <table class="tabla">
         <thead>
@@ -52,7 +52,7 @@
         v-model:mostrar="mostrarModal" 
         :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
-        :texto-Confirmacion="tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios'" 
+        :texto-Confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios')"         
         @limpiar="limpiarErrores"
         @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
 
@@ -85,7 +85,7 @@
         v-model:mostrar="mostrarCambiarStatus" 
         :titulo="tipoForm === 'eliminar' ? 'Eliminar Usuario' : tipoForm === 'activar' ? 'Activar Usuario' : ''" 
         :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
-        texto-Confirmacion="Confirmar" 
+        :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"         
         @limpiar="limpiarErrores"
         @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
         <form id="form">

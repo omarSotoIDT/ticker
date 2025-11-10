@@ -13,9 +13,7 @@
                 <input type="text" name="proyecto" id="proyecto" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Proyectos..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Proyecto</button>
-        <!-- Botón para mostrar el loader por 3 segundos -->
-        <button class="btn secondary-btn ml-2" @click.prevent="mostrarLoader3Segundos()" style="margin-left:10px;">Mostrar Loader 3s</button>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Proyecto</button>
     </div>
     <table class="tabla">
         <thead>
@@ -67,8 +65,9 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
-        :texto-confirmacion="tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios'"
+        :texto-confirmacion="loading ? 'Guardando...' : (tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios')"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
 
         <form id="formproyecto" class="form centrado" @submit.prevent>
@@ -159,7 +158,9 @@
         ? '¿Estás seguro de eliminar este proyecto?'
         : '¿Deseas activar/desactivar este proyecto?'"
         texto-confirmacion="Confirmar"
+        :texto-confirmacion="loading ? 'Procesando...' : 'Confirmar'"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="cambiarEstado">
 
         <form id="formEstado">
@@ -228,13 +229,6 @@
         },
 
         methods: {
-            // --- Agregado método para mostrar el loader por 3 segundos ---
-            mostrarLoader3Segundos() {
-                this.loading = true;
-                setTimeout(() => {
-                    this.loading = false;
-                }, 3000);
-            },
 
             async listarProyectos() {
                 this.loading = true;
@@ -410,7 +404,7 @@
             },
 
             async cambiarEstado() {
-                if (!this.proyectoSeleccionado) return;
+                if (!this.proyectoSeleccionado || this.loading) return; 
 
                 this.erroresModal = {};
                 this.loading = true;
@@ -543,6 +537,51 @@
                 }
             },
 
+            async eliminarProyecto() {
+                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
+                    this.erroresModal = {
+                        motivo_eliminacion: ['Debes ingresar un motivo']
+                    };
+                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                    throw new Error('Motivo requerido');
+                }
+
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
+                const res = await fetch(url, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.token
+                    },
+                    body: JSON.stringify(this.formEliminar)
+                });
+
+                await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
+            },
+
+            async activarProyecto() {
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
+                const res = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.token
+                    }
+                });
+
+                await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
+            },
+
+            async procesarRespuesta(res, mensajeError) {
+                const data = await res.json().catch(() => ({}));
+
+                if (!res.ok) {
+                    this.erroresModal = data.errores || {};
+                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
+                    this.mostrarAlerta('error', 'Error', msg);
+                    throw new Error(msg);
+                }
+            },
 
         }
     });

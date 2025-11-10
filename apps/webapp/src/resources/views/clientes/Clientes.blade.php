@@ -16,7 +16,7 @@
                 <input type="text" name="cliente" id="cliente" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Clientes..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Cliente</button>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Cliente</button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
     <table class="tabla">
@@ -62,8 +62,9 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo cliente' : 'Modifica los datos del cliente'"
-        :texto-confirmacion="tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios'"
+        :texto-confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios')"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="guardarCliente">
         <form id="formCliente" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -95,8 +96,9 @@
         v-model:mostrar="mostrarToggle"
         :titulo="accion === 'eliminar' ? 'Eliminar Cliente' : 'Cambiar Estado'"
         :subtitulo="accion === 'eliminar' ? 'Confirma la eliminación del cliente' : '¿Deseas cambiar el estado del cliente?'"
-        :texto-confirmacion="accion === 'eliminar' ? 'Eliminar' : 'Confirmar'"
+        :texto-confirmacion="loading ? 'Procesando...' : (accion === 'eliminar' ? 'Eliminar' : 'Confirmar')"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
         <form id="formToggle" @submit.prevent>
             <div class="campo" v-if="accion === 'eliminar'">
@@ -226,6 +228,7 @@
             },
 
             modalCrear() {
+                if (this.loading) return;
                 this.tipoForm = 'crear'
                 this.formCliente = {
                     nombre: '',
@@ -234,10 +237,12 @@
                     email: ''
                 }
                 this.erroresModal = {}
-                this.mostrarModal = true
+                this.mostrarModal = true;
             },
 
             modalEditar(id) {
+                if (this.loading) return;
+
                 const cliente = this.clientes.find(c => c.cliente_id === id)
                 if (!cliente) return
                 this.tipoForm = 'editar'
@@ -247,6 +252,7 @@
                 }
                 this.erroresModal = {}
                 this.mostrarModal = true
+
             },
 
             async guardarCliente() {
@@ -294,6 +300,7 @@
             },
 
             modalToggle(id, tipo) {
+                if (this.loading) return;
                 const cliente = this.clientes.find(c => c.cliente_id === id)
                 if (!cliente) return
                 this.cliente = cliente
@@ -304,7 +311,7 @@
             },
 
             async eliminarCliente() {
-                if (!this.formToggle.motivo || !this.formToggle.motivo.trim()) {
+                if (this.loading || !this.formToggle.motivo || !this.formToggle.motivo.trim()) {
                     this.erroresModal = {
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
@@ -321,6 +328,7 @@
             },
 
             async cambiarStatusCliente() {
+                if (this.loading) return;
                 const url = `/clientes/${this.cliente.cliente_id}/status`;
                 return this.realizarPeticion(url, 'PATCH');
             },
@@ -371,7 +379,8 @@
 
 
             async confirmarToggle() {
-                this.loading = true;
+                if (this.loading) return; // Evita múltiples ejecuciones si ya está cargando
+
                 this.erroresModal = {};
 
                 if (this.accion === 'eliminar') {
@@ -379,8 +388,6 @@
                 } else if (this.accion === 'activar') {
                     await this.cambiarStatusCliente();
                 }
-
-                this.loading = false;
             }
         }
     })

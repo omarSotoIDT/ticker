@@ -20,7 +20,7 @@
                     <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
                 </select>
             </div>
-            <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Ticket</button>
+            <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Ticket</button>
 
         </div>
 
@@ -54,7 +54,7 @@
                     <td class="acciones">
                         <div class="acciones-contenedor">
                             <button @click.prevent="mostrarTicketConLoader(ticket.ticketId)" title="Ver Ticket">
-                                <i class="fa fa-eye"></i>
+                                <i class="fa fa-eye" :class="{'fa-spinner fa-spin': loading}"></i>
                             </button>
                         </div>
                     </td>
@@ -70,7 +70,8 @@
         :titulo="modalRegistro.tipo === 'crear' ? 'Nuevo Ticket' : 'Editar Ticket'"
         :subtitulo="modalRegistro.tipo === 'crear' ? 'Completa los datos del nuevo Ticket' : 'Modifica los datos del Ticket'"
         :texto-confirmacion="modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios'"
-        clase-modal="modal-base"
+        :texto-confirmacion="loading ? 'Procesando...' : (modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios')"
+        clase-modal="modal-base"        
         @confirmar="modalRegistro.tipo === 'crear' ? agregar() : editar()">
 
             <form id="form" class="form centrado">
