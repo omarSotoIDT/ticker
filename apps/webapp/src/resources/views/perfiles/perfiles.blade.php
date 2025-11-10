@@ -57,7 +57,7 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
-        :texto-confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios')"        
+        :texto-confirmacion="textoConfirmacionPrincipal"
         @confirmar="guardar">
 
         <form id="form" class="form centrado" @submit.prevent="guardar" :action="formAction" method="POST" novalidate>
@@ -164,6 +164,11 @@
                 return this.tipoForm === 'crear'
                     ? this.routeGuardar
                     : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
+            },
+            textoConfirmacionPrincipal() {
+                if (this.loading) return 'Procesando...';
+                if (this.tipoForm === 'crear') return 'Crear Perfil';
+                return 'Guardar Cambios';
             }
         },
         methods: {
@@ -187,62 +192,59 @@
             },
             guardar() {
                 if (this.validateForm()) {
-                    this.loading = true;
-                    setTimeout(() => {
+                    this.loading = true; 
+                    this.$nextTick(() => {
                         document.getElementById('form').submit();
-                    }, 10); // Deja renderizar el loader
+                    });
                 }
             },
-            modalCrear() {
+            async modalCrear() {
                 this.loading = true;
-                setTimeout(() => {
-                    this.errors = {}; 
-                    this.tipoForm = 'crear';
-                    this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
-                    this.mostrarModal = true;
-                    this.loading = false;
-                }, 0);
+                await this.$nextTick();
+                this.errors = {}; 
+                this.tipoForm = 'crear';
+                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                this.mostrarModal = true;
+                this.loading = false;
             },
-            modalEditar(perfilId) {
+            async modalEditar(perfilId) {
                 this.loading = true;
-                setTimeout(() => {
-                    this.errors = {}; 
-                    const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
-                    if (!perfil) {
-                        this.loading = false;
-                        return;
-                    }
-                    
-                    this.tipoForm = 'editar';
-                    this.formPerfil = {
-                        clave: perfil.clave,
-                        nombre: perfil.nombre,
-                        descripcion: perfil.descripcion,
-                        status: perfil.status,
-                        permisos: perfil.permisos,
-                        perfil_id: perfil.perfil_id
-                    };
-                    this.mostrarModal = true;
+                await this.$nextTick();
+                this.errors = {}; 
+                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
+                if (!perfil) {
                     this.loading = false;
-                }, 0);
+                    return;
+                }
+                
+                this.tipoForm = 'editar';
+                this.formPerfil = {
+                    clave: perfil.clave,
+                    nombre: perfil.nombre,
+                    descripcion: perfil.descripcion,
+                    status: perfil.status,
+                    permisos: perfil.permisos,
+                    perfil_id: perfil.perfil_id
+                };
+                this.mostrarModal = true;
+                this.loading = false;
             },
             routeEliminar(perfilId) {
                 return `${this.routeEliminarBase}/eliminar/${perfilId}`;
             },
             
-            abrirModalEliminar(perfilId) {
+            async abrirModalEliminar(perfilId) {
                 this.loading = true;
-                setTimeout(() => {
-                    this.perfilAEliminar = perfilId; 
-                    this.mostrarModalEliminar = true; 
-                    this.loading = false;
-                }, 0);
+                await this.$nextTick();
+                this.perfilAEliminar = perfilId; 
+                this.mostrarModalEliminar = true; 
+                this.loading = false;
             },
 
             ejecutarEliminacion() {
                 if (this.perfilAEliminar) {
                     this.loading = true;
-                    setTimeout(() => {
+                    this.$nextTick(() => {
                         const formId = `form-eliminar-${this.perfilAEliminar}`;
                         const form = document.getElementById(formId);
                         if (form) {
@@ -250,7 +252,7 @@
                         }
                         this.loading = false;
                         this.mostrarModalEliminar = false; 
-                    }, 10); // Deja renderizar el loader
+                    });
                 } else {
                     this.mostrarModalEliminar = false;
                 }

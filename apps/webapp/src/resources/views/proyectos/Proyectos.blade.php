@@ -65,7 +65,7 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
-        :texto-confirmacion="loading ? 'Guardando...' : (tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios')"
+        :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
@@ -154,9 +154,7 @@
     <modal-componente
         v-model:mostrar="mostrarModalStatus"
         :titulo="tipoForm === 'eliminar' ? 'Eliminar proyecto' : 'Cambiar estado del proyecto'"
-        :subtitulo="tipoForm === 'eliminar'
-        ? '¿Estás seguro de eliminar este proyecto?'
-        : '¿Deseas activar/desactivar este proyecto?'"
+        :subtitulo="subtituloModalStatus"
         texto-confirmacion="Confirmar"
         :texto-confirmacion="loading ? 'Procesando...' : 'Confirmar'"
         clase-modal="modal-base"
@@ -227,9 +225,19 @@
         mounted() {
             this.listarProyectos();
         },
+         computed: {
+            textoConfirmacionPrincipal() {
+                if (this.loading) return 'Guardando...';
+                return this.tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios';
+            },
+            subtituloModalStatus() {
+                return this.tipoForm === 'eliminar'
+                    ? '¿Estás seguro de eliminar este proyecto?'
+                    : '¿Deseas activar/desactivar este proyecto?';
+            },
+        },
 
         methods: {
-
             async listarProyectos() {
                 this.loading = true;
                 try {

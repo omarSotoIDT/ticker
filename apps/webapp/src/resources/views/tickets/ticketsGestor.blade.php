@@ -69,7 +69,7 @@
         v-model:mostrar="modalRegistro.mostrar"
         :titulo="modalRegistro.tipo === 'crear' ? 'Nuevo Ticket' : 'Editar Ticket'"
         :subtitulo="modalRegistro.tipo === 'crear' ? 'Completa los datos del nuevo Ticket' : 'Modifica los datos del Ticket'"
-        :texto-confirmacion="loading ? 'Procesando...' : (modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios')"
+        :texto-confirmacion="textoConfirmacionRegistro"
         clase-modal="modal-base"        
         @confirmar="modalRegistro.tipo === 'crear' ? agregar() : editar()">
 
@@ -340,6 +340,12 @@
                     }
                 }
             },
+            computed: {
+                textoConfirmacionRegistro() {
+                    if (this.loading) return 'Procesando...';
+                    return this.modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios';
+                }
+            },
             methods: {
                 limpiarRegistro(){
                     this.formTicket.cliente_id = null,
@@ -402,7 +408,7 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar los tickets')
                     }finally {
                         this.loading = false;
-                    }
+                    } 
                 },
 
                 modalCrear(){
@@ -523,7 +529,7 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el ticket')
                     }finally {
                         this.loading = false;
-                    }
+                    } 
                 },
                 async editarStatus() {
                     this.loading = true;
@@ -571,7 +577,7 @@
                         await this.obtenerTicket(this.ticket.ticketId);
                         await this.listarTickets();
                         this.loading = false;
-                    }
+                    } 
                 },
                 async editarAsignacion() {
                     this.loading = true;
@@ -620,9 +626,9 @@
                         this.mostrarAlerta('exito', 'Exito', 'Comentario Agregado')
                     } catch (error){
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al agregar el comentario')
-                    }finally {                        
+                    } finally {                        
                         this.loading = false;
-                    }
+                    } 
                 },
                 actualizarProyectos(cliente_id){
                     this.proyectosCliente = this.proyectos.filter(p => p.cliente_id === cliente_id);

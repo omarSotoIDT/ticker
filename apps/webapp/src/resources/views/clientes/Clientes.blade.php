@@ -62,7 +62,7 @@
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo cliente' : 'Modifica los datos del cliente'"
-        :texto-confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios')"
+        :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="guardarCliente">
@@ -96,7 +96,7 @@
         v-model:mostrar="mostrarToggle"
         :titulo="accion === 'eliminar' ? 'Eliminar Cliente' : 'Cambiar Estado'"
         :subtitulo="accion === 'eliminar' ? 'Confirma la eliminación del cliente' : '¿Deseas cambiar el estado del cliente?'"
-        :texto-confirmacion="loading ? 'Procesando...' : (accion === 'eliminar' ? 'Eliminar' : 'Confirmar')"
+        :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
@@ -152,8 +152,18 @@
         mounted() {
             this.listarClientes()
         },
+        computed: {
+            textoConfirmacionPrincipal() {
+                if (this.loading) return 'Procesando...';
+                return this.tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios';
+            },
+            textoConfirmacionToggle() {
+                if (this.loading) return 'Procesando...';
+                return this.accion === 'eliminar' ? 'Eliminar' : 'Confirmar';
+            }
+        },
         methods: {
-            mostrarAlerta(tipo, titulo, mensaje) {
+             mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
                 this.alerta.titulo = titulo;
                 this.alerta.mensaje = mensaje;
@@ -379,7 +389,7 @@
 
 
             async confirmarToggle() {
-                if (this.loading) return; // Evita múltiples ejecuciones si ya está cargando
+                if (this.loading) return; 
 
                 this.erroresModal = {};
 

@@ -51,10 +51,10 @@
       <modal-componente 
         v-model:mostrar="mostrarModal" 
         :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
-        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
-        :texto-Confirmacion="loading ? 'Procesando...' : (tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios')"         
+        :subtitulo="subtituloModalPrincipal"
+        :texto-Confirmacion="textoConfirmacionPrincipal"
         @limpiar="limpiarErrores"
-        @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
+        @confirmar="confirmarGuardarUsuario">
 
         <form id="form" class="form centrado">
           <div class="campo">
@@ -83,11 +83,11 @@
 
       <modal-componente 
         v-model:mostrar="mostrarCambiarStatus" 
-        :titulo="tipoForm === 'eliminar' ? 'Eliminar Usuario' : tipoForm === 'activar' ? 'Activar Usuario' : ''" 
-        :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
-        :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"         
+        :titulo="tituloModalStatus"
+        :subtitulo="subtituloModalStatus"
+        :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"
         @limpiar="limpiarErrores"
-        @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
+        @confirmar="confirmarCambioStatus">
         <form id="form">
           <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
           <div class="campo" v-if="tipoForm === 'eliminar'">
@@ -137,6 +137,29 @@
             mensaje: ''
           },
           loading: false
+        }
+      },
+      computed: {
+        subtituloModalPrincipal() {
+          return this.tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario';
+        },
+        textoConfirmacionPrincipal() {
+          if (this.loading) {
+            return 'Procesando...';
+          }
+          return this.tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios';
+        },
+        tituloModalStatus() {
+          if (this.tipoForm === 'eliminar') {
+            return 'Eliminar Usuario';
+          }
+          return this.tipoForm === 'activar' ? 'Activar Usuario' : '';
+        },
+        subtituloModalStatus() {
+          if (this.tipoForm === 'eliminar') {
+            return '¿Deseas eliminar al siguiente usuario?';
+          }
+          return this.tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : '';
         }
       },
       methods: {
@@ -372,6 +395,21 @@
             return 'badge-inactivo';
           }
         },
+
+        confirmarGuardarUsuario() {
+          if (this.tipoForm === 'crear') {
+            this.crear();
+          } else if (this.tipoForm === 'editar') {
+            this.editar();
+          }
+        },
+        confirmarCambioStatus() {
+          if (this.tipoForm === 'eliminar') {
+            this.eliminar();
+          } else if (this.tipoForm === 'activar') {
+            this.activar();
+          }
+        }
       },
       mounted() {
         this.listarUsuarios();
