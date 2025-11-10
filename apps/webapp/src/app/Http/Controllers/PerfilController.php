@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
 use Throwable;
 
 class PerfilController extends Controller
@@ -19,7 +20,8 @@ class PerfilController extends Controller
     public static function listarRest(Request $request)
     {
         try {
-            $filtros = $request->only(['busqueda']);
+            $filtros = $request->all();
+
             $resultado = PerfilCoordinator::obtenerPerfiles($filtros);
 
             return response()->json([
@@ -28,8 +30,10 @@ class PerfilController extends Controller
                 'permisos' => $resultado['permisos'],
             ]);
         } catch (Throwable $error) {
-            Log::error("Error al listar perfiles: " . $error);
-            return response()->json(['error' => 'Ocurrió un error al listar los perfiles'], 500);
+            Log::error("Error al listar perfiles: " . $error->getMessage());
+            return response()->json([
+                'error' => 'Ocurrió un error al listar los perfiles'
+            ], 500);
         }
     }
 
@@ -45,7 +49,7 @@ class PerfilController extends Controller
 
             $perfil_id = PerfilCoordinator::crearPerfil($datos);
 
-            return Response::json($perfil_id, 201); 
+            return Response::json($perfil_id, 201);
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
@@ -76,14 +80,24 @@ class PerfilController extends Controller
         }
     }
 
-    public static function eliminarRest($perfil_id)
-    {
-        try {
-            PerfilCoordinator::eliminarPerfil($perfil_id);
-            return Response::json(null, 204); 
-        } catch (Throwable $error) {
-            Log::error("Error al eliminar perfil: " . $error);
-            return Response::json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
-        }
+    public static function eliminarRest(Request $request, $perfil_id)
+{
+    try {
+        $validated = Validator::make(
+            ['perfil_id' => $perfil_id],
+            ['perfil_id' => 'required|integer|min:1']
+        )->validate();
+
+        PerfilCoordinator::eliminarPerfil($validated['perfil_id']);
+
+        return Response::json(null, 204);
+
+    } catch (ValidationException $e) {
+        return Response::json(['errors' => $e->errors()], 422);
+
+    } catch (Throwable $error) {
+        Log::error("Error al eliminar perfil: " . $error);
+        return Response::json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
     }
+}
 }

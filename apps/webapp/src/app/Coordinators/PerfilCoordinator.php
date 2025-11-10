@@ -10,24 +10,27 @@ class PerfilCoordinator
 {
     public static function obtenerPerfiles(array $filtros = [])
     {
-        $perfiles = PerfilService::obtenerPerfiles($filtros); 
-        $permisos = PermisoService::obtenerPermisos();
+        $perfiles = PerfilService::obtenerPerfiles($filtros);
+        $perfilIds = $perfiles->pluck('perfil_id')->toArray();
 
-        $perfiles->getCollection()->transform(function ($perfil) use ($permisos) {
-            $permisosAsignados = DB::table('rel_perfiles_permisos')
-                ->where('perfil_id', $perfil->perfil_id)
+        $permisosPorPerfil = PermisoService::obtenerPermisosPerfiles($perfilIds);
+
+        // Se agregan dińámicamente los permisos a cada perfil en base a las consultas hechas por los Repo
+        $perfiles->getCollection()->transform(function ($perfil) use ($permisosPorPerfil) {
+            $perfil->permisos = $permisosPorPerfil
+                ->get($perfil->perfil_id, collect())
                 ->pluck('permiso_id')
                 ->toArray();
-            $perfil->permisos = $permisosAsignados;
             return $perfil;
         });
 
         return [
-            'perfiles' => $perfiles->items(),  
-            'links' => $perfiles->linkCollection(), 
-            'permisos' => $permisos
+            'perfiles' => $perfiles->items(),
+            'links' => $perfiles->linkCollection(),
+            'permisos' => PermisoService::obtenerPermisos(),
         ];
     }
+
 
     public static function crearPerfil(array $datos)
     {
