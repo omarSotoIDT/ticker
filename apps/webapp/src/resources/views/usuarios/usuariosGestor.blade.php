@@ -5,11 +5,13 @@
 @section('contenido')
   <div id="app">
     <div class="modulo-encabezado">
-      <div class="cont-buscador">
-        <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-        <input type="text" name="usuario" id="usuario" class="input-busqueda" v-model="busqueda" @change="buscar()" placeholder="Buscar usuarios..."></input>
-      </div>
-      <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
     </div>
     <table class="tabla">
       <thead>
@@ -34,10 +36,12 @@
           </td>
           <td>@{{ usuario.acceso }}</td>
           <td class="acciones">
-            <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
-            <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
-            <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
-          </td>
+            <div class="acciones-contenedor">
+              <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
+              <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
+              <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
+            </div>
+        </td>
         </tr>
       </tbody>
     </table>
@@ -52,6 +56,7 @@
       :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
       :texto-Confirmacion="tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios'" 
       @limpiar="limpiarErrores"
+      clase-modal="modal-base"
       @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
 
       <form id="form" class="form centrado">
@@ -89,6 +94,7 @@
       :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
       texto-Confirmacion="Confirmar" 
       @limpiar="limpiarErrores"
+      clase-modal="modal-base"
       @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
       <form id="form">
         <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
