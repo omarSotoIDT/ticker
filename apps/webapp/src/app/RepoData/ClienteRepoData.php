@@ -13,7 +13,6 @@ class ClienteRepoData
             ->select('cliente_id', 'nombre', 'descripcion', 'contacto', 'email', 'status', 'registro_fecha')
             ->where('status', '!=', 'ELIMINADO');
         $query = ClienteRepoHelper::aplicarFiltros($query, $filters);
-
         return $query->get();
     }
 

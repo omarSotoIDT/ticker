@@ -25,7 +25,7 @@ class UsuarioRepoData
         return $query->get()->toArray();
     }
 
-    public static function obtener($id = null, $columnas = '')
+    public static function obtener($id, $columnas)
     {
         $query = DB::table('sys_usuarios as su');
         $query->leftJoin('rel_usuarios_perfiles as rup', 'su.usuario_id', '=', 'rup.usuario_id');
@@ -36,5 +36,14 @@ class UsuarioRepoData
         UsuarioRH::agregarColumnas($query, $columnas);
 
         return $query->first();
+    }
+
+    public static function listarPerfiles($usuario_id, $columnas) {
+        $query = DB::table('rel_usuarios_perfiles as rup');
+        $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
+
+        $query->where('rup.usuario_id', $usuario_id);
+
+        return $query->get()->toArray();
     }
 }

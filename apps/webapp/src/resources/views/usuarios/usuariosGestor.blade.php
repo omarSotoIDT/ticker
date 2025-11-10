@@ -28,16 +28,20 @@
         <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
           <td>@{{ usuario.usuario }}</td>
           <td>@{{ usuario.email }}</td>
-          <td>@{{ usuario.nombrePerfil }}</td>
+          <td>
+            <span v-if="!usuario.nombrePerfiles.length">-</span>
+            @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
           <td>
             <span class="badge" :class="badgeStatus(usuario.status)">@{{ usuario.status }}</span>
           </td>
           <td>@{{ usuario.acceso }}</td>
           <td class="acciones">
-            <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
-            <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
-            <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
-          </td>
+            <div class="acciones-contenedor">
+              <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
+              <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
+              <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
+            </div>
+        </td>
         </tr>
       </tbody>
     </table>
@@ -52,6 +56,7 @@
       :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
       :texto-Confirmacion="tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios'" 
       @limpiar="limpiarErrores"
+      clase-modal="modal-base"
       @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
 
       <form id="form" class="form centrado">
@@ -71,10 +76,14 @@
           <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
         </div>
         <div class="campo">
-          <label class="etiqueta" for="perfil">Perfil</label>
-          <select class="input" name="perfil" id="perfil" v-model="formUsuario.perfil"></select>
-            
-          <span class="error" v-if="erroresModal.perfil">@{{ erroresModal.perfil[0] }}</span>
+          <label class="etiqueta" for="perfiles">Perfil</label>
+          <div class="contenedor-checklist">
+            <div class="item-contenedor" v-for="perfil in perfiles" :key="perfil.perfil_id">
+              <input type="checkbox" :id="'perfil-' + perfil.perfil_id" v-model="formUsuario.perfiles" :value="perfil.perfil_id">
+              <label :for="'perfil-' + perfil.perfil_id">@{{ perfil.nombre }}</label>
+            </div>
+          </div>
+          <span class="error" v-if="erroresModal.perfiles">@{{ erroresModal.perfil[0] }}</span>
         </div>
       </form>
     </modal-componente>
@@ -85,6 +94,7 @@
       :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
       texto-Confirmacion="Confirmar" 
       @limpiar="limpiarErrores"
+      clase-modal="modal-base"
       @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
       <form id="form">
         <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
@@ -117,12 +127,13 @@
             nombre: '',
             email: '',
             password: '',
-            perfil: '',
+            perfiles: [],
           },
           formEliminar: {
             motivo: ''
           },
-          token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+          token: '{{ csrf_token() }}',
+          perfiles: {{ Js::from($perfiles) }},
           usuarios: null,
           usuario: null,
           erroresModal: {},
@@ -140,6 +151,7 @@
           this.formUsuario.nombre = '';
           this.formUsuario.email = '';
           this.formUsuario.password = '';
+          this.formUsuario.perfiles = [];
           this.mostrarModal = true;
         },
   
@@ -150,6 +162,7 @@
           this.formUsuario.nombre = this.usuario.usuario;
           this.formUsuario.email = this.usuario.email;
           this.formUsuario.password = ''; 
+          this.formUsuario.perfiles = this.usuario.idPerfiles || [];
           this.mostrarModal = true;
         },
   

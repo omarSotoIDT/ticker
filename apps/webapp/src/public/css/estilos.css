@@ -81,13 +81,14 @@ aside a {
 }
 
 aside a:hover {
-background-color: #b6b6b6;
-color: #333;
+  background-color: #b6b6b6;
+  color: #333;
 }
 
 aside a.active {
-  background-color: #f5f5f5;
-  font-weight: bold;
+  background-color: #f3f4f6;
+  font-weight: 600; 
+  color: #111827;
 }
 
 aside a.active {
@@ -123,7 +124,7 @@ aside .logout button {
 }
 
 aside .logout button:hover {
-background-color: #cfcece;
+  background-color: #cfcece;
 }
 
 /*=== BARRA SUPERIOR ===*/
@@ -154,7 +155,7 @@ header .acciones button {
 }
 
 header .acciones button:hover {
-background-color: #003b8e;
+  background-color: #003b8e;
 }
 
 /*=== CONTENIDO PRINCIPAL ===*/
@@ -248,8 +249,8 @@ main {
 }
 
 textarea.input {
-height: 100px;
-resize: none;
+  height: 100px;
+  resize: none;
 }
 
 input, select{
@@ -397,7 +398,8 @@ input, select{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-top: 24px;
+  margin-bottom: 18px;
 }
 
 .cont-buscador {
@@ -518,6 +520,18 @@ input, select{
 }
 
 /* === BOTONES E ICONOS === */
+  vertical-align: middle;
+}
+
+.acciones-contenedor {
+  display: inline-flex; 
+  justify-content: flex-end;
+  align-items: center; 
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .acciones-contenedor button,
 .acciones-contenedor a {
   background: none;
@@ -704,9 +718,14 @@ input, select{
 }
 
 .nota-campo { 
-    font-size: 13.6px; 
-    color: #6c757d; 
-    margin-top: 4px; 
+  font-size: 13.6px; 
+  color: #6c757d; 
+  margin-top: 4px; 
+  display: grid; 
+  grid-template-columns: 1fr 1fr;     
+  gap: 18px;  
+  width: 100%; 
+  align-items: center; 
 }
 
 /* Clases para contadores y asignados */
@@ -755,8 +774,8 @@ input, select{
 .modal-grande { width: 900px; }
 .modal-base { width: 550px; }
 .modal-vista-detalle .modal-header { 
-    border-bottom: none; 
-    padding-bottom: 8px;
+border-bottom: none; 
+padding-bottom: 8px;
 }
 
 .modal-vista-detalle .modal-body { padding-top: 0; }

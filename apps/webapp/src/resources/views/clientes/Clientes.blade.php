@@ -36,14 +36,16 @@
                     <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ cliente.status }} </span>
                 </td>
                 <td class="acciones">
-                    <button @click.prevent="modalEditar(cliente.cliente_id)" title="Editar"> <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button @click.prevent="modalToggle(cliente.cliente_id, 'activar')" title="Activar / Desactivar">
-                        <i class="fa-solid fa-power-off"></i>
-                    </button>
-                    <button @click.prevent="modalToggle(cliente.cliente_id, 'eliminar')" title="Eliminar">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div class="acciones-contenedor">
+                        <button @click.prevent="modalEditar(cliente.cliente_id)" title="Editar"> <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button @click.prevent="modalToggle(cliente.cliente_id, 'activar')" title="Activar / Desactivar">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                        <button @click.prevent="modalToggle(cliente.cliente_id, 'eliminar')" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
             <tr v-if="clientes.length === 0">
@@ -197,7 +199,7 @@
                     const {
                         res,
                         data
-                    } = await this.fetchJson('/clientes/listar' + params, {
+                    } = await this.fetchJson('/clientes/listado' + params, {
                         headers: {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': this.token
