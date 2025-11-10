@@ -21,6 +21,17 @@ class UsuarioBO
         return $usuario;
     }
 
+    public static function armarPerfilesInsert($usuario_id, $idPerfiles) {
+        $usuarioPerfiles = array_map( fn($perfil_id) => [
+            'perfil_id' => $perfil_id,
+            'usuario_id' => $usuario_id,
+            'registro_autor_id' => Auth::id(),
+            'registro_fecha' => now()
+        ], $idPerfiles);
+        
+        return $usuarioPerfiles;
+    }
+
     public static function armarUpdate($datos) {
         $usuario = [
             'usuario' => $datos['nombre'],

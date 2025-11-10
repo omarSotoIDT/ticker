@@ -199,7 +199,7 @@
                     const {
                         res,
                         data
-                    } = await this.fetchJson('/clientes/listar' + params, {
+                    } = await this.fetchJson('/clientes/listado' + params, {
                         headers: {
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': this.token

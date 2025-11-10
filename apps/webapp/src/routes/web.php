@@ -7,8 +7,8 @@ use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketFeedbackController;
-use App\Http\Controllers\ProyectoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ReportesController;
 
 Route::get('/login', function () { return view('auth.login'); })->name('login');
 Route::post('/login', [AuthController::class, 'iniciarSesion']);
@@ -70,5 +70,14 @@ Route::prefix('tickets')->group(function () {
         Route::patch('/{id}/asignacion-rest', [TicketController::class, 'editarAsignacionRest'])->name('tickets.editarAsignacionRest');
         Route::get('/{ticket_id}/feedback-rest', [TicketFeedbackController::class, 'listarRest'])->name('tickets.listarFeedbackRest');
         Route::post('/{ticket_id}/feedback-rest', [TicketFeedbackController::class,'agregarRest'])->name('tickets.agregarFeedbackRest');
+    });
+});
+
+Route::prefix('reportes')->controller(ReportesController::class)->group(function () {
+    Route::middleware('auth')->group(function () {
+        Route::get('/', 'index')->name('reportes.index');
+        Route::get('/datos', 'obtenerDatos')->name('reportes.datos');
+        Route::get('/reportes/tickets', 'listarTickets')->name('reportes.tickets');
+        Route::get('/filtros', 'obtenerFiltros')->name('reportes.filtros');
     });
 });
