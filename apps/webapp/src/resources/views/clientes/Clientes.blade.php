@@ -110,7 +110,7 @@
     </modal-componente>
 
     <alerta-componente
-        :mostrar="alerta.mostrar"
+        v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje">
@@ -168,9 +168,6 @@
                 this.alerta.titulo = titulo;
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
-                setTimeout(() => {
-                    this.alerta.mostrar = false;
-                }, 3000);
             },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
@@ -187,7 +184,7 @@
                 this.listarClientes()
 
                 if (mensaje) {
-                    this.mostrarAlerta(mensaje, 'exito')
+                    this.mostrarAlerta('exito', 'Éxito', mensaje)
                 }
             },
             async listarClientes() {
@@ -297,13 +294,13 @@
 
                     if (!res.ok) {
                         const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
-                        this.mostrarAlerta(mensaje, 'error')
+                        this.mostrarAlerta('error', 'Error', mensaje)
                         return
                     }
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
                 } catch (e) {
-                    this.mostrarAlerta('error', 'Error', 'Error general al guardar el cliente.')
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al guardar el cliente.')
                 } finally {
                     this.loading = false
                 }
@@ -363,7 +360,7 @@
                         this.erroresModal = data.errores;
                         const primerError = Object.values(data.errores)[0];
                         if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta(primerError[0], 'error');
+                            this.mostrarAlerta('error', 'Error', primerError[0]);
                         }
                         return false;
                     }
@@ -372,7 +369,7 @@
                         const mensaje = data.error || (res.status >= 500 ?
                             'Error del servidor. Intenta más tarde.' :
                             'Error desconocido al confirmar la acción.');
-                        this.mostrarAlerta(mensaje, 'error');
+                        this.mostrarAlerta('error', 'Error', mensaje);
                         return false;
                     }
 

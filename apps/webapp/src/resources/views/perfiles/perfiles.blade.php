@@ -116,7 +116,7 @@
     </modal-componente>
 
     <alerta-componente
-        :mostrar="alerta.mostrar"
+        v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje"
@@ -172,6 +172,12 @@
             }
         },
         methods: {
+            mostrarAlerta(tipo, titulo, mensaje) {
+                this.alerta.tipo = tipo;
+                this.alerta.titulo = titulo;
+                this.alerta.mensaje = mensaje;
+                this.alerta.mostrar = true;
+            },
             validateForm() {
                 this.errors = {};
                 if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
@@ -179,13 +185,7 @@
                 if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
                 
                 if (Object.keys(this.errors).length > 0) {
-                    this.alerta = {
-                        mostrar: true,
-                        tipo: 'error',
-                        titulo: 'Campos incompletos',
-                        mensaje: 'Por favor, revisa los campos marcados en rojo.'
-                    };
-                    setTimeout(() => { this.alerta.mostrar = false }, 3000);
+                    this.mostrarAlerta('error', 'Campos incompletos', 'Por favor, revisa los campos marcados en rojo.');
                 }
 
                 return Object.keys(this.errors).length === 0;
@@ -256,13 +256,6 @@
                 } else {
                     this.mostrarModalEliminar = false;
                 }
-            }
-        },
-        mounted() {
-            if (this.alerta.mostrar) {
-                setTimeout(() => {
-                    this.alerta.mostrar = false;
-                }, 3000);
             }
         }
     });

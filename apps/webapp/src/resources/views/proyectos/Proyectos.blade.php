@@ -116,7 +116,7 @@
         </form>
     </modal-componente>
 
-    <alerta-componente :mostrar="alerta.mostrar" :tipo="alerta.tipo" :mensaje="alerta.mensaje"></alerta-componente>
+    <alerta-componente v-model:mostrar="alerta.mostrar" :tipo="alerta.tipo" :titulo="alerta.titulo" :mensaje="alerta.mensaje"></alerta-componente>
 
     <modal-componente
         v-model:mostrar="mostrarModalHistorial"
@@ -256,9 +256,6 @@
                 this.alerta.titulo = titulo;
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
-                setTimeout(() => {
-                    this.alerta.mostrar = false;
-                }, 3000);
             },
 
             buscar() {
@@ -571,7 +568,7 @@
                 const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
                 const res = await fetch(url, {
                     method: 'PATCH',
-                    headers: {
+                    headers: {  
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': this.token
                     }

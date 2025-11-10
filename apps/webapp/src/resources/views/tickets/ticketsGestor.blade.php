@@ -263,7 +263,7 @@
         </modal-componente>
 
         <alerta-componente
-        :mostrar="alerta.mostrar"
+        v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje"/>
@@ -382,9 +382,6 @@
                     this.alerta.titulo = titulo;
                     this.alerta.mensaje = mensaje;
                     this.alerta.mostrar = true;
-                    setTimeout(() => {
-                        this.alerta.mostrar = false;
-                    }, 3000);
                 },
                 async buscar(){
                     this.loading = true;

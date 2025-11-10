@@ -16,6 +16,16 @@ var alerta = {
     titulo: { type: String, default: "" },
     mensaje: { type: String, default: "" },
   },
+  emits: ['update:mostrar'],
+  watch: {
+    mostrar(newVal) {
+      if (newVal) {
+        setTimeout(() => {
+          this.$emit('update:mostrar', false);
+        }, 3000);
+      }
+    }
+  },
   computed: {
     claseIcono(){
       switch(this.tipo) {
