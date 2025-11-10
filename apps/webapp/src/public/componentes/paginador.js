@@ -1,6 +1,6 @@
 var paginador = {
   template: `
-    <div class="pagination" v-if="links && links.length > 3">
+  <div class="pagination" v-if="links && links.length > 3">
       <button
         v-for="(link, index) in translatedLinks"
         :key="index"
@@ -15,6 +15,7 @@ var paginador = {
     links: { type: Array, default: () => [] }
   },
   computed: {
+    // Conservamos la condición de links.length > 3 ya que Anterior y Siguiente son links
     translatedLinks() {
       return this.links.map(link => {
         let newLabel = link.label
