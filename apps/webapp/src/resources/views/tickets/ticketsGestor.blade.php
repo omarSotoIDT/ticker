@@ -371,9 +371,9 @@
             methods: {
                 accionRegistro() {
                     if (this.modalRegistro.tipo === 'crear') {
-                        return agregar();
+                        return this.agregar();
                     } else {
-                        return editar();
+                        return this.editar();
                     }
                 },
                 limpiarRegistro(){
