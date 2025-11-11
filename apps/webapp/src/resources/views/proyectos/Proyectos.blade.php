@@ -462,9 +462,10 @@ const app = Vue.createApp({
                         'Proyecto eliminado correctamente' :
                         'Estado cambiado correctamente';
 
-                    this.mostrarAlerta('exito', 'Exito', successMsg);
+                    this.mostrarAlerta('exito', 'Éxito', successMsg);
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al procesar la acción.');
+                    const mensaje = err.message || 'Error al procesar la acción.';
+                    this.mostrarAlerta('error', 'Error', mensaje);
                 } finally {
                     this.loading = false;
                 }
@@ -476,7 +477,7 @@ const app = Vue.createApp({
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
                     this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Motivo requerido');
+                    throw new Error('Debes ingresar un motivo');
                 }
 
                 const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
@@ -526,8 +527,10 @@ const app = Vue.createApp({
                 }
 
                 if (!res.ok) {
-                    const msg = data.error || mensajeError;
-                    this.mostrarAlerta('error', 'Eror',msg);
+                   const data = await res.json().catch(() => ({}));
+                    this.erroresModal = data.errores || {};
+                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
+                    this.mostrarAlerta('error', 'Error', msg);
                     throw new Error(msg);
                 }
 

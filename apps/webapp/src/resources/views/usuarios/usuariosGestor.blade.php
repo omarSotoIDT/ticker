@@ -371,6 +371,12 @@
                 this.erroresModal = datosError.errors;
                 return;
               }
+               if (response.status === 409) { 
+                const datosError = await response.json();
+                this.mostrarAlerta('error', 'Acción denegada', datosError.mensaje);
+                this.mostrarCambiarStatus = false;
+                return;
+              }
               throw new Error('Error al eliminar el usuario: ' + response.status);
             }
 
@@ -378,7 +384,7 @@
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario eliminado');
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al eliminar el usuario');
+            this.mostrarAlerta('error', 'Error', error.message);
           } finally {
             this.loading = false;
           }

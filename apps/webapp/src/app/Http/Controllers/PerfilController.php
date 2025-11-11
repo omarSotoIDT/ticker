@@ -67,7 +67,7 @@ class PerfilController extends Controller
             return redirect()->back()->with('exito', 'Perfil eliminado exitosamente');
         } catch (\Exception $e) {
             Log::error('Error en eliminar: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al eliminar perfil: ' . $e->getMessage());
+            return redirect()->back()->with('error', $e->getMessage());
         }
     }
 }

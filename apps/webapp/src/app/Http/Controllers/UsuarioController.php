@@ -85,7 +85,7 @@ class UsuarioController extends Controller
             return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al eliminar el usuario " . $error);
-            return Response::json(['error' => 'Ocurrio un error al eliminar el usuario'], 500);
+            return Response::json(['mensaje' => $error->getMessage()], 409);
         }
     }
 
