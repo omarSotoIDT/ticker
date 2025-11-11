@@ -24,4 +24,25 @@ class PermisoService
     {
         return PermisoRepoData::obtenerPermisos();
     }
+
+    public static function obtenerPermisosPerfiles(array $perfilIds)
+    {
+        return PermisoRepoData::obtenerPermisosPerfiles($perfilIds);
+    }
+
+    public static function tienePermiso(int $usuarioId, string $codigoPermiso): bool
+    {
+        $perfilId = PermisoRepoData::obtenerPerfilUsuario($usuarioId);
+        if (!$perfilId) {
+            return false;
+        }
+
+        if (PermisoRepoData::esSuperUsuario($perfilId)) {
+            return true;
+        }
+
+        $permisos = PermisoRepoData::obtenerPermisosPorPerfil($perfilId);
+
+        return in_array($codigoPermiso, $permisos);
+    }
 }

@@ -4,19 +4,15 @@
 
 @section('contenido')
 
-<div id="app" 
-    class="clientes"
-    data-perfiles='@json($perfilesConPermisos)'
-    data-permisos='@json($permisos)'
-    data-exito='@json(session("exito"))'
-    data-error='@json(session("error"))'>
-    
+<div id="app" class="clientes">
     <div class="modulo-encabezado">
-        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador">
+        <div class="cont-buscador">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
-        </form>
-        <button class="btn action-btn" @click.prevent="modalCrear"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input-busqueda" placeholder="Buscar perfiles...">
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">
+            <i class="fa fa-plus"></i> Nuevo Perfil
+        </button>
     </div>
 
     <table class="tabla">
@@ -36,13 +32,12 @@
                 <td>@{{ perfil.descripcion }}</td>
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
-                    <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    
-                    <form :id="'form-eliminar-' + perfil.perfil_id" :action="routeEliminar(perfil.perfil_id)" method="POST" style="display:inline;">
-                        @csrf
-                        @method('PATCH')
-                        <button type="button" @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                    </form>
+                    <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             </tr>
             <tr v-if="!perfiles.length">
@@ -51,40 +46,38 @@
         </tbody>
     </table>
 
-    <modal-componente 
+    <paginador-componente :links="links" @navigate="fetchPerfiles"></paginador-componente>
+
+    <!-- MODAL CREAR / EDITAR -->
+    <modal-componente
         v-model:mostrar="mostrarModal"
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
         :texto-confirmacion="tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios'"
         @confirmar="guardar">
 
-        <form id="form" class="form centrado" @submit.prevent="guardar" :action="formAction" method="POST" novalidate>
-            @csrf
-            <input v-if="tipoForm === 'editar'" type="hidden" name="_method" value="PUT">
-            <input v-if="tipoForm === 'crear'" type="hidden" name="status" value="ACTIVO">
-            <input type="hidden" name="super_usuario" value="0">
-
+        <form class="form centrado" @submit.prevent="guardar" novalidate>
             <div class="campo">
                 <label class="etiqueta" for="clave">Clave</label>
-                <input class="input" :class="{'input-error': errors.clave}" type="text" name="clave" id="clave" v-model="formPerfil.clave">
+                <input class="input" :class="{'input-error': errors.clave}" id="clave" v-model="formPerfil.clave">
                 <span v-if="errors.clave" class="error-message">@{{ errors.clave }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" :class="{'input-error': errors.nombre}" type="text" name="nombre" id="nombre" v-model="formPerfil.nombre">
+                <input class="input" :class="{'input-error': errors.nombre}" id="nombre" v-model="formPerfil.nombre">
                 <span v-if="errors.nombre" class="error-message">@{{ errors.nombre }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" :class="{'input-error': errors.descripcion}" name="descripcion" id="descripcion" v-model="formPerfil.descripcion" rows="3"></textarea>
+                <textarea class="input" :class="{'input-error': errors.descripcion}" id="descripcion" v-model="formPerfil.descripcion" rows="3"></textarea>
                 <span v-if="errors.descripcion" class="error-message">@{{ errors.descripcion }}</span>
             </div>
-            
+
             <div class="campo" v-if="tipoForm === 'editar'">
                 <label class="etiqueta" for="status">Status</label>
-                <select class="input" name="status" v-model="formPerfil.status">
+                <select class="input" v-model="formPerfil.status">
                     <option value="ACTIVO">ACTIVO</option>
                     <option value="ELIMINADO">ELIMINADO</option>
                 </select>
@@ -93,153 +86,225 @@
             <div class="campo">
                 <label class="etiqueta">Permisos</label>
                 <div class="contenedor-checklist">
-                    <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
-                        <input type="checkbox" name="permisos[]" :id="'permiso-' + permiso.permiso_id" :value="permiso.permiso_id" v-model="formPerfil.permisos">
-                        <label :for="'permiso-' + permiso.permiso_id">
-                            <span class="titulo-item">@{{ permiso.titulo }}</span>
-                            <span class="descripcion-item">@{{ permiso.descripcion }}</span>
-                        </label>
+                    <div v-if="permisos && permisos.length">
+                        <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
+                            <input
+                                type="checkbox"
+                                :id="'permiso-' + permiso.permiso_id"
+                                :value="permiso.permiso_id"
+                                v-model="formPerfil.permisos">
+                            <label :for="'permiso-' + permiso.permiso_id">
+                                <span class="titulo-item">@{{ permiso.titulo }}</span>
+                                <span class="descripcion-item">@{{ permiso.descripcion }}</span>
+                            </label>
+                        </div>
                     </div>
+                    <p v-else class="contenido-vacio">No hay permisos registrados.</p>
                 </div>
             </div>
         </form>
     </modal-componente>
 
-    <modal-componente 
+    <modal-componente
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
         texto-confirmacion="Sí, Eliminar"
-        @confirmar="ejecutarEliminacion">
-        ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
+        @confirmar="eliminarPerfil">
+        ¿Estás seguro de que deseas eliminar este perfil? <strong>Esta acción no se puede deshacer.</strong>
     </modal-componente>
 
     <alerta-componente
         :mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
-        :mensaje="alerta.mensaje"
-    >
+        :mensaje="alerta.mensaje">
     </alerta-componente>
-
 </div>
 
 <script>
     const app = Vue.createApp({
         data() {
-            const appElement = document.getElementById('app');
-            const exito = JSON.parse(appElement.dataset.exito || 'null');
-            const error = JSON.parse(appElement.dataset.error || 'null');
-
             return {
+                perfiles: [],
+                permisos: {{Js::from($permisos ?? [])}},
+                links: [],
+                exito: {{Js::from(session('exito'))}},
+                error: {{Js::from(session('error'))}},
                 mostrarModal: false,
-                tipoForm: 'crear',
-                formPerfil: {
-                    clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null
-                },
-                errors: {},
-
                 mostrarModalEliminar: false,
                 perfilAEliminar: null,
-
-                perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
-                permisos: JSON.parse(appElement.dataset.permisos || '[]'),
-                
-                routeGuardar: "{{ route('perfiles.guardar') }}",
-                routeActualizarBase: "{{ url('/perfiles') }}",
-                routeEliminarBase: "{{ url('/perfiles') }}",
-
+                tipoForm: 'crear',
+                busqueda: '',
+                errors: {},
+                formPerfil: {
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
+                },
                 alerta: {
-                    mostrar: exito || error ? true : false,
-                    tipo: exito ? 'exito' : (error ? 'error' : ''),
-                    titulo: exito ? 'Éxito' : (error ? 'Error' : ''),
-                    mensaje: exito ? exito : (error ? error : '')
+                    mostrar: false,
+                    tipo: '',
+                    titulo: '',
+                    mensaje: ''
                 }
             };
         },
-        computed: {
-            formAction() {
-                return this.tipoForm === 'crear'
-                    ? this.routeGuardar
-                    : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
-            }
-        },
-        methods: {
-            validateForm() {
-                this.errors = {};
-                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
-                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
-                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
-                
-                if (Object.keys(this.errors).length > 0) {
-                    this.alerta = {
-                        mostrar: true,
-                        tipo: 'error',
-                        titulo: 'Campos incompletos',
-                        mensaje: 'Por favor, revisa los campos marcados en rojo.'
-                    };
-                    setTimeout(() => { this.alerta.mostrar = false }, 3000);
-                }
 
-                return Object.keys(this.errors).length === 0;
+        methods: {
+            mostrarAlerta(tipo, mensaje) {
+                this.alerta = {
+                    mostrar: true,
+                    tipo,
+                    titulo: tipo === 'exito' ? 'Éxito' : 'Error',
+                    mensaje
+                };
+                setTimeout(() => (this.alerta.mostrar = false), 3000);
             },
+
+            // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
+            fetchPerfiles(url = null) {
+                const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
+
+                fetch(requestUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.perfiles = data.perfiles?.data || data.perfiles || [];
+                        this.links = data.links || data.perfiles?.links || [];
+                        this.permisos = data.permisos || this.permisos;
+                    })
+                    .catch(() => {
+                        this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
+                    });
+            },
+
             guardar() {
-                if (this.validateForm()) {
-                    document.getElementById('form').submit();
-                }
+                if (!this.validarFormulario()) return;
+
+                const url = this.tipoForm === 'crear' ?
+                    "{{ route('perfiles.agregarRest') }}" :
+                    `/perfiles/editar/${this.formPerfil.perfil_id}`;
+                const method = this.tipoForm === 'crear' ? 'POST' : 'PUT';
+                const body = JSON.stringify(this.formPerfil);
+
+                fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body
+                    })
+                    .then(res => {
+                        switch (res.status) {
+                            case 201:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil creado correctamente');
+                                break;
+                            case 204:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil actualizado correctamente');
+                                break;
+                            case 422:
+                                return res.json().then(data => {
+                                    this.errors = data.errors;
+                                    this.mostrarAlerta('error', 'Revisa los campos del formulario.');
+                                });
+                            default:
+                                return res.json().then(data => {
+                                    this.mostrarAlerta('error', data.mensaje || 'Ocurrió un error al guardar.');
+                                });
+                        }
+                    })
+                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'));
             },
+
+            eliminarPerfil() {
+                if (!this.perfilAEliminar) return;
+
+                fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(res => {
+                        switch (res.status) {
+                            case 204:
+                                this.mostrarModalEliminar = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil eliminado correctamente');
+                                break;
+                            default:
+                                return res.json().then(data => {
+                                    this.mostrarAlerta('error', data.message || 'No se pudo eliminar el perfil.');
+                                });
+                        }
+                    })
+                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al eliminar.'));
+            },
+
+            cargarPagina(url) {
+                if (!url) return;
+                this.fetchPerfiles(url);
+            },
+
             modalCrear() {
-                this.errors = {}; 
                 this.tipoForm = 'crear';
-                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                this.formPerfil = {
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
+                };
+                this.errors = {};
                 this.mostrarModal = true;
             },
-            modalEditar(perfilId) {
-                this.errors = {}; 
-                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
+
+            modalEditar(id) {
+                const perfil = this.perfiles.find(p => p.perfil_id === id);
                 if (!perfil) return;
-                
+
                 this.tipoForm = 'editar';
                 this.formPerfil = {
-                    clave: perfil.clave,
-                    nombre: perfil.nombre,
-                    descripcion: perfil.descripcion,
-                    status: perfil.status,
-                    permisos: perfil.permisos,
-                    perfil_id: perfil.perfil_id
+                    ...perfil,
+                    permisos: [...perfil.permisos]
                 };
+                this.errors = {};
                 this.mostrarModal = true;
             },
-            routeEliminar(perfilId) {
-                return `${this.routeEliminarBase}/eliminar/${perfilId}`;
-            },
-            
-            abrirModalEliminar(perfilId) {
-                this.perfilAEliminar = perfilId; 
-                this.mostrarModalEliminar = true; 
+
+            abrirModalEliminar(id) {
+                this.perfilAEliminar = id;
+                this.mostrarModalEliminar = true;
             },
 
-            ejecutarEliminacion() {
-                if (this.perfilAEliminar) {
-                    const formId = `form-eliminar-${this.perfilAEliminar}`;
-                    const form = document.getElementById(formId);
-                    if (form) {
-                        form.submit();
-                    }
-                }
-                this.mostrarModalEliminar = false; 
+            validarFormulario() {
+                this.errors = {};
+                if (!this.formPerfil.clave) this.errors.clave = 'La clave es obligatoria';
+                if (!this.formPerfil.nombre) this.errors.nombre = 'El nombre es obligatorio';
+                if (!this.formPerfil.descripcion) this.errors.descripcion = 'La descripción es obligatoria';
+                return Object.keys(this.errors).length === 0;
             }
         },
+
         mounted() {
-            if (this.alerta.mostrar) {
-                setTimeout(() => {
-                    this.alerta.mostrar = false;
-                }, 3000);
-            }
+            this.fetchPerfiles();
+            if (this.exito) this.mostrarAlerta('exito', this.exito);
+            if (this.error) this.mostrarAlerta('error', this.error);
         }
     });
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>
+
 @endsection
