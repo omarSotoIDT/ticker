@@ -2,6 +2,8 @@
 
 namespace App\RH;
 
+use Illuminate\Support\Facades\DB;
+
 class UsuarioRH
 {
     private static $columnasDisponibles = [
@@ -16,8 +18,8 @@ class UsuarioRH
         'registroFecha' =>'su.registro_fecha',
         'actualizacionAutorId' => 'su.actualizacion_autor_id',
         'actualizacionFecha' => 'su.actualizacion_fecha',
-        'perfilId' => 'sp.perfil_id',
-        'nombrePerfil' => 'sp.nombre',
+        'idPerfiles' => 'sp.perfil_id',
+        'nombrePerfiles' => 'sp.nombre',
     ];    
 
     public static function agregarColumnas(&$query, $columnasSeleccionadas)
@@ -29,14 +31,23 @@ class UsuarioRH
 
         $arregloColumnas = array_map('trim', explode(',', $columnasSeleccionadas));
         $columnas = [];
+        $agrupables = [];
 
         foreach ($arregloColumnas as $col) {
             if (isset(self::$columnasDisponibles[$col])) {
-                $columnas[] = self::$columnasDisponibles[$col] . ' AS ' . $col;
+                $columna = self::$columnasDisponibles[$col];
+
+                if (str_starts_with($columna, 'sp.')) {
+                    $columnas[] = DB::raw("GROUP_CONCAT(DISTINCT {$columna}) AS {$col}");
+                } else {
+                    $columnas[] = "{$columna} AS {$col}";
+                    $agrupables[] = $columna;
+                }
             }
         }
 
         $query->select($columnas);
+        if(!empty($agrupables)) $query->groupBy($agrupables);
     }
 
     public static function agregarFiltros(&$query, $filtros){

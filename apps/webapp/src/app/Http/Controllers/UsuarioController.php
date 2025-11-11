@@ -14,7 +14,8 @@ class UsuarioController extends Controller
 {
     public function gestor(){
         try {
-            return view('usuarios.usuariosGestor');
+            $datos = UsuarioCoordinator::cargarGestor();
+            return view('usuarios.usuariosGestor', $datos);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al mostrar el gestor " . $error);
             return redirect()->back()->with('error', 'Ocurrio un error al mostrar el gestor');
@@ -57,6 +58,7 @@ class UsuarioController extends Controller
                 'nombre' => 'string|max:70',
                 'email' => 'email:filter|max:80|unique:sys_usuarios,email,' . $id . ',usuario_id',
                 'password' => 'nullable|string|max:50',
+                'perfiles' => 'array',
             ]);
 
             if (UsuarioService::editar($id, $datos) !== 0) {

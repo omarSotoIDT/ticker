@@ -35,8 +35,7 @@ class ClienteController extends Controller
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
-    
-            $clientes = ClienteRepoData::obtenerClientes($filtros);
+            $clientes = ClienteService::listarClientes($filtros);
             return response()->json(['data' => $clientes], 200);
     
         } catch (Throwable $e) {

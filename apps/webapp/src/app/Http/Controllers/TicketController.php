@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\Ticket;
 use Throwable;
 
 class TicketController extends Controller
@@ -25,7 +26,7 @@ class TicketController extends Controller
     public function listarRest(Request $request)
     {
         try {
-            $tickets = TicketService::listar($request->only('titulo', 'cliente', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha');
+            $tickets = TicketService::listar($request->only('titulo', 'cliente_id', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
             return Response::json($tickets, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los tickets " . $error);
@@ -33,7 +34,8 @@ class TicketController extends Controller
         }
     }
 
-    public function obtenerRest($id){
+    public function obtenerRest($id)
+    {
         try {
             $ticket = TicketCoordinator::obtener($id);
             return Response::json($ticket, 200);
@@ -66,22 +68,27 @@ class TicketController extends Controller
             return Response::json(['error' => 'Ocurrio un error al agregar el ticket'], 500);
         }
     }
-
+    
     public function editarRest(Request $request, $id)
     {
         try {
             $datos = $request->validate([
-                'cliente_id' => 'integer',
-                'proyecto_id' => 'integer',
-                'etiqueta_id' => 'integer',
-                'usuario_asignado_id' => 'integer',
                 'titulo' => 'string|max:100',
                 'descripcion' => 'string',
                 'prioridad' => 'string',
                 'status' => 'string',
+                'cliente_id' => 'integer',
+                'cliente' => 'string|nullable',
+                'proyecto_id' => 'integer',
+                'proyecto' => 'string|nullable',
+                'etiqueta_id' => 'integer',
+                'etiqueta' => 'string|nullable',
+                'usuario_asignado_id' => 'integer',
+                'usuario_asignado' => 'string|nullable',
             ]);
-            if (TicketService::editar($id, $datos)) {
-                return Response::json(null, 204);
+
+            if (TicketCoordinator::actualizarProyecto($id, $datos)) {
+                return Response::json($datos, 200); 
             }
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
@@ -94,51 +101,53 @@ class TicketController extends Controller
     public static function editarStatusRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'status' => 'string|required',
-            ]);
-            if (TicketService::editarEstado($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['status' => 'string|required']);
+            TicketCoordinator::editarStatus($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar el estado " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar el estado'], 500);
+            Log::error("Error al editar el estado: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar el estado'], 500);
         }
     }
 
-    public static function editarPrioridadRest(Request $request, $id)
+    public function editarPrioridadRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'prioridad' => 'string|required',
-            ]);
-            if (TicketService::editarPrioridad($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['prioridad' => 'string|required']);
+            TicketCoordinator::editarPrioridad($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar la prioridad " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar la prioridad'], 500);
+            Log::error("Error al editar la prioridad: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar la prioridad'], 500);
         }
     }
 
-    public static function editarAsignacionRest(Request $request, $id)
+    public function editarAsignacionRest(Request $request, $id)
     {
         try {
-            $datos = $request->validate([
-                'usuario_asignado_id' => 'integer|required'
-            ]);
-            if (TicketService::editarAsignacion($id, $datos)) {
-                return Response::json(null, 204);
-            }
+            $datos = $request->validate(['usuario_asignado_id' => 'integer|required']);
+            TicketCoordinator::editarAsignacion($id, $datos);
+            return Response::json(null, 204);
         } catch (ValidationException $e) {
-            return Response::json(['errors'  => $e->errors()], 422);
+            return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Ocurrio un error al editar la asignación " . $error);
-            return Response::json(['error' => 'Ocurrio un error al editar la asignación'], 500);
+            Log::error("Error al editar la asignación: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al editar la asignación'], 500);
+        }
+    }
+
+    public function logsRest($id)
+    {
+        try {
+            $logs = TicketService::obtenerLogs($id);
+            return Response::json($logs, 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al obtener logs " . $error);
+            return Response::json(['error' => 'Ocurrio un error al obtener los logs del ticket'], 500);
         }
     }
 }

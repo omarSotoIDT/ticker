@@ -90,6 +90,12 @@ aside a.active {
   color: #111827;
 }
 
+aside a.active {
+  background-color: #f3f4f6;
+  font-weight: 600; 
+  color: #111827;
+}
+
 /* --- Logout --- */
 aside .logout {
   margin-top: auto;
@@ -390,7 +396,8 @@ input, select{
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-top: 24px;
+  margin-bottom: 18px;
 }
 
 .cont-buscador {
@@ -409,8 +416,10 @@ input, select{
   pointer-events: none;
 }
 
+
+/* === TABLA BASE === */
 .tabla {
-  width: 100%;                      
+  width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background-color: #fff;
@@ -418,53 +427,76 @@ input, select{
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  table-layout: auto;               
+  table-layout: fixed; /* mantiene alineación de columnas */
 }
 
-/* --- Encabezado --- */
+.tabla td {
+  vertical-align: middle;
+}
+
+/* === ENCABEZADO === */
 .tabla thead th {
   background-color: #fff;
   font-weight: 600;
-  font-size: 14.72px;
+  font-size: 14.4px;
   color: #000;
-  padding: 12px 10px;               
-  padding-left: 11px;
+  padding: 12px 10px;
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
   vertical-align: middle;
-  min-width: 80px;                  
-  max-width: 300px;                 
-  word-wrap: break-word;            
+  white-space: nowrap;
 }
 
-/* --- Celdas --- */
-.tabla td {
-  padding: 12px 10px;            
-  padding-left: 11px;
-  font-size: 14.88px;
+.tabla thead th:first-child {
+  border-top-left-radius: 14px;
+}
+
+.tabla thead th:last-child {
+  border-top-right-radius: 14px;
+}
+
+/* === CUERPO === */
+.tabla tbody td {
+  padding: 12px 10px;
+  font-size: 14.8px;
   color: #000;
   border-bottom: 1px solid #e5e7eb;
   vertical-align: middle;
-
-  min-width: 80px;                  
-  max-width: 300px;                 
   word-wrap: break-word;
+  overflow-wrap: break-word;
+  background: #fff;
 }
 
-/* --- Filas --- */
-.tabla tbody tr:last-child td {
-  border-bottom: none;
-}
-
+/* Alternancia de color en filas */
 .tabla tbody tr:nth-child(even) {
   background-color: #fdfdfd;
 }
 
-.tabla thead tr:first-child th:first-child {
-  border-top-left-radius: 14px;
+/* Última fila sin borde inferior */
+.tabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* === COLUMNAS === */
+.tabla th.col-30, 
+.tabla td.col-30 {
+  width: 30%;
+  min-width: 200px;
+}
+
+.tabla th.columna-grande, 
+.tabla td.columna-grande {
+  width: 40%;
+  min-width: 200px;
 }
 .tabla thead tr:first-child th:last-child {
   border-top-right-radius: 14px;
+}
+
+.tabla th.columna-mediana, 
+.tabla td.columna-mediana {
+  width: 20%;
+  min-width: 200px;
 }
 .tabla tbody tr:last-child td:first-child {
   border-bottom-left-radius: 14px;
@@ -473,64 +505,79 @@ input, select{
   border-bottom-right-radius: 14px;
 }
 
-/* --- Columna de acciones --- */
+
+/* === CELDA DE ACCIONES === */
 .tabla td.acciones,
 .tabla th.acciones {
-  text-align: right;               
-  padding: 15px 20px;              
-  padding-left: 50px;
-  padding-right: 11px;
-  padding-bottom: 15px;
-  vertical-align: middle; 
-  min-width: 90px;                 
-  max-width: 100px;                
+  text-align: right;
+  padding: 10px 16px;
+  white-space: nowrap;
+  border-left: none;
+  border-right: none;
+  vertical-align: middle; /* ✅ centra verticalmente los botones */
 }
 
-/* --- Contenedor interno de botones/íconos --- */
-.acciones {
-  display: flex;
-  justify-content: flex-end;       
-  align-items: center;             
-  gap: 32px;                     
-  width: 100%;                      
-  box-sizing: border-box;          
-  margin-left: 0;                  
+/* === CONTENEDOR DE ACCIONES (interior del td) === */
+.acciones-contenedor {
+  display: inline-flex; /* inline para no romper alineación del td */
+  justify-content: flex-end;
+  align-items: center; /* ✅ centra los iconos verticalmente */
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.acciones button,
-.acciones a {
+/* === BOTONES E ICONOS === */
+  vertical-align: middle;
+}
+
+.acciones-contenedor {
+  display: inline-flex; 
+  justify-content: flex-end;
+  align-items: center; 
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.acciones-contenedor button,
+.acciones-contenedor a {
   background: none;
   border: none;
   cursor: pointer;
   color: #111827;
-  font-size: 16px ;                 
-  padding: 0;
+  font-size: 16px;
   transition: color 0.2s ease;
 }
 
-.acciones button:hover,
-.acciones a:hover {
+.acciones-contenedor button:hover,
+.acciones-contenedor a:hover {
   color: #1e40af;
 }
 
-/* --- Badges --- */
+/* === BADGES === */
 .badge {
   display: inline-block;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 12.8px;
+  padding: 4px 10px;
+  border: 1px solid #000;
+  border-radius: 999px; 
+  font-size: 12px;
   font-weight: 600;
   line-height: 1;
+  text-transform: uppercase;
+  background-color: #fff;
+  color: #000000;
 }
 
 .badge-active {
-  background-color: #11111a;
-  color: #fff;
+  background-color: #111827;
+  color: #e5e7eb;
 }
 
 .badge-inactive {
   background-color: #e5e7eb;
-  color: #6b7280;
+  color: #000000;
+  border: 1px solid #e5e7eb;
 }
 
 /*=== ESTILOS GLOBALES PARA USO DE MODALES ===*/
@@ -679,6 +726,11 @@ input, select{
   font-size: 13.6px; 
   color: #6c757d; 
   margin-top: 4px; 
+  display: grid; 
+  grid-template-columns: 1fr 1fr;     
+  gap: 18px;  
+  width: 100%; 
+  align-items: center; 
 }
 
 /* Clases para contadores y asignados */
@@ -914,178 +966,28 @@ input, select{
 
 /* Footer personalizado para modal Ver Ticket*/
 .vista-ticket-footer {
-  margin-top: 24px;
-  text-align: right;
+    margin-top: 24px;
+    text-align: right;
 }
-
-/*=== ESTILOS ESPECÍFICOS DEL DASHBOARD ===*/
-:root {
-  --texto-primario: #1f2937;
-  --texto-secundario: #6b7280;
-  --fondo-blanco: #ffffff;
-  --color-borde: #e5e7eb;
-
-  --icono-total-color: #818cf8;
-  --icono-activos-color: #38bdf8;
-  --icono-cerrados-color: #4ade80;
-  --icono-urgentes-color: #f87171;
-}
-
-/* Estructura General del Dashboard */
-#dashboard-root {
-  padding: 24px;
-  background-color: var(--fondo-blanco);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  color: var(--texto-primario);
-  overflow-x: hidden;
-}
-
-/* Fila de Tarjetas de Estadísticas */
-#dashboard-root .fila-tarjetas {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 24px;
-}
-
-#dashboard-root .tarjeta-estadistica {
-  background-color: var(--fondo-blanco);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  border: 1px solid var(--color-borde);
-  min-height: 130px; 
-  display: flex;
-}
-
-#dashboard-root .tarjeta-contenido {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-#dashboard-root .tarjeta-encabezado {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px; 
-}
-
-#dashboard-root .tarjeta-titulo {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--texto-secundario);
-}
-
-#dashboard-root .tarjeta-valor {
-  font-size: 34px;
-  font-weight: 700;
-  line-height: 1;
-  margin-bottom: 6px;
-}
-
-#dashboard-root .tarjeta-descripcion {
-  font-size: 13px;
-  color: var(--texto-secundario);
-}
-
-#dashboard-root .tarjeta-icono {
-  font-size: 22px;
-}
-#dashboard-root .tarjeta-icono.icono-total { color: var(--icono-total-color); }
-#dashboard-root .tarjeta-icono.icono-activos { color: var(--icono-activos-color); }
-#dashboard-root .tarjeta-icono.icono-cerrados { color: var(--icono-cerrados-color); }
-#dashboard-root .tarjeta-icono.icono-urgentes { color: var(--icono-urgentes-color); }
-
-#dashboard-root .cuadricula-graficas {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  margin-top: 24px;
-}
-
-@media (min-width: 768px) {
-    #dashboard-root .cuadricula-graficas {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-#dashboard-root .tarjeta-grafica {
-  background-color: var(--fondo-blanco);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  border: 1px solid var(--color-borde);
-}
-
-#dashboard-root .tarjeta-grafica h3 {
-  font-size: 18px; font-weight: 600; margin: 0 0 16px 0;
-}
-
-#dashboard-root .lienzo-grafica {
-  width: 100%; height: 300px;
-}
-
-#dashboard-root .grafica-ancho-completo {
-  grid-column: 1 / -1;
-}
-
-body:has(#dashboard-root) header,
-body:has(#dashboard-root) aside {
-  position: relative;
-  z-index: 10;
-}
-
-body:has(#dashboard-root) main {
+.contenedor-scroll-modal {
+  max-height: 250px;
   overflow-y: auto;
+  padding-right: 8px;
 }
-
-/*=== ESTILOS PARA LA PAGINACIÓN ===*/
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 1.5rem;
-  gap: 0.5rem;
+.contenedor-scroll-modal::-webkit-scrollbar {
+  width: 8px;
+  background: #FAFAFA;
+  border-radius: 4px;
 }
-
-.page-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ddd;
-  background-color: white;
-  color: #333;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  padding: 0;
-  font-weight: bold;
-  white-space: nowrap; 
+.contenedor-scroll-modal::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
 }
-
-.page-btn:hover:not(.active):not(:disabled) {
-  background-color: #f5f5f5;
-  border-color: #bbb;
+.contenedor-scroll-modal::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
-
-.page-btn.active {
-  background-color: black;
-  color: white;
-  border-color: black;
-  cursor: default;
-}
-
-.page-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.page-btn:first-child,
-.page-btn:last-child {
-  width: auto;
-  border-radius: 18px;
-  padding: 0 16px;
+/* Firefox */
+.contenedor-scroll-modal {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #FAFAFA;
 }

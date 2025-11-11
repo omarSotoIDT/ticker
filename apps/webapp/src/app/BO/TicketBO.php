@@ -29,23 +29,32 @@ class TicketBO
 
     public static function armarUpdate($datos)
     {
-        $ticket = [
-            'cliente_id' => $datos['cliente_id'],
-            'proyecto_id' => $datos['proyecto_id'],
-            'etiqueta_id' => $datos['etiqueta_id'],
-            'usuario_asignado_id' => $datos['usuario_asignado_id'],
-            'titulo' => $datos['titulo'],
-            'descripcion' => $datos['descripcion'],
-            'prioridad' => $datos['prioridad'],
-            'status' => $datos['status'],
-            'actualizacion_autor_id' => Auth::id(),
-            'actualizacion_fecha' => now()
+        $permitidos = [
+            'cliente_id',
+            'proyecto_id',
+            'etiqueta_id',
+            'usuario_asignado_id',
+            'titulo',
+            'descripcion',
+            'prioridad',
+            'status'
         ];
-
+    
+        $ticket = [];
+        foreach ($permitidos as $campo) {
+            if (array_key_exists($campo, $datos)) {
+                $ticket[$campo] = $datos[$campo];
+            }
+        }
+    
+        $ticket['actualizacion_autor_id'] = Auth::id();
+        $ticket['actualizacion_fecha'] = now();
+    
         return $ticket;
     }
+    
 
-    public static function armarUpdateEstado($datos)
+    public static function armarUpdateStatus($datos)
     {
         $ticket = [
             'status' => $datos['status'],
@@ -76,5 +85,16 @@ class TicketBO
         ];
 
         return $ticket;
+    }
+
+    public static function armarInsertLog(array $datos): array
+    {
+        return [
+            'ticket_id' => $datos['ticket_id'],
+            'usuario_id' => Auth::id(),
+            'folio' => $datos['folio'],
+            'descripcion' => $datos['descripcion'],
+            'registro_fecha' => now()
+        ];
     }
 }
