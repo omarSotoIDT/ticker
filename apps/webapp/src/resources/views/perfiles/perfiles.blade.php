@@ -164,6 +164,7 @@
                 setTimeout(() => (this.alerta.mostrar = false), 3000);
             },
 
+            // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
             fetchPerfiles(url = null) {
                 const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
 
