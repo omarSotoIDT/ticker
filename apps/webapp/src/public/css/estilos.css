@@ -1150,3 +1150,6 @@ padding-bottom: 8px;
 #app.scrollable-reportes::-webkit-scrollbar-track {
   background: #f3f4f6;
 }
+.etiqueta-gris {
+  color: #6b7280;
+} 

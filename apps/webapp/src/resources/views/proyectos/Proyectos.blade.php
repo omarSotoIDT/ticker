@@ -136,9 +136,9 @@
             <div class="contenedor-scroll-modal">
                 <ul v-if="logsProyecto.length > 0" class="">
                     <li v-for="log in logsProyecto" :key="log.id">
-                        <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                        <small>@{{ log.fecha }} — @{{ log.usuario }}</small>
                         <br>
-                        <small class="">@{{ log.accion }}</small>
+                        <small>@{{ log.accion }}</small>
                         <hr>
                     </li>
                 </ul>
