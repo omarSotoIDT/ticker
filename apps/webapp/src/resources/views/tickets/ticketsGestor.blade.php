@@ -40,8 +40,9 @@
                 <tr v-for="ticket in tickets" :key="ticket.ticketId">
                     <td>@{{ ticket.serieFolio }}</td>
                     <td>
-                        @{{ ticket.titulo }} - 
-                        @{{ ticket.etiqueta }}
+                        @{{ ticket.titulo }} 
+                        <br>
+                        <small class="etiqueta-gris">@{{ ticket.etiqueta }}</small>
                     </td>
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
