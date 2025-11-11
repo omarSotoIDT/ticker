@@ -418,11 +418,7 @@
                 },
                 async obtenerTicket(id){
                     try {
-<<<<<<< HEAD
                         const response = await fetch(`/tickets/${id}/detalle-rest`, {
-=======
-                        const response = await fetch('/tickets/${id}/detalle-rest/' + id, {
->>>>>>> bebe68e (style: implementa cambios en la vista de ticketsGestor y en la hoja de estilos)
                             method: 'GET', headers: this.headers
                         })
 
