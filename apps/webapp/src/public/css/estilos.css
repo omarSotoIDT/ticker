@@ -528,6 +528,7 @@ input, select{
 }
 
 /* === BOTONES E ICONOS === */
+.acciones-contenedor {
   vertical-align: middle;
 }
 
@@ -1031,8 +1032,8 @@ input, select{
 .grafica-pie-wrapper,
 .lienzo-grafica-wrapper {
   flex: 1;
-  background: #fafbfc;
-  border: 1px solid #f1f5f9;
+  background: #ffffff;
+  border: none;
   border-radius: 10px;
   padding: 10px 14px;
   display: flex;
@@ -1040,7 +1041,7 @@ input, select{
   justify-content: center;
   min-width: 0;
   min-height: 0;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+  box-shadow: none;
 }
 
 .lienzo-grafica,
@@ -1074,7 +1075,7 @@ input, select{
 .contenedor-filtros {
   background: #fff;
   border-radius: 14px;
-  padding: 28px 36px;
+  padding: 28px 20px;
   margin-bottom: 40px;
   border: 1px solid #d1d5db;
   box-sizing: border-box;

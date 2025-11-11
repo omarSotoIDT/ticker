@@ -6,7 +6,7 @@
         <h2 class="titulo-seccion">Filtros de Reporte</h2>
         <div class="flex-filtros">
             <div class="item-filtro">
-                <label for="tipoReporte">Tipo de Reporte</label>
+                <h3 for="tipoReporte">Tipo de Reporte</h3>
                 <select id="tipoReporte" class="input select-busqueda" v-model="tipoReporte" @change="onTipoReporteChange">
                     <option value="status">Estado</option>
                     <option value="usuario_asignado_id">Usuario Asignado</option>
@@ -16,7 +16,7 @@
                 </select>
             </div>
             <div class="item-filtro">
-                <label id="filtrosExtra" for="filtroExtra">Filtrar por</label>
+                <h3 id="filtrosExtra" for="filtroExtra">Filtrar por</h3>
                 <select id="filtroExtra" class="input select-busqueda"
                     v-model="filtroExtra"
                     @change="onFiltroExtraChange"
@@ -92,8 +92,8 @@
                 pieChart: null,
                 datosGraficas: [],
                 coloresGraficas: [
-                    '#3b82f6', '#22c55e', '#facc15', '#f97316', '#a855f7',
-                    '#ef4444', '#64748b', '#0e7490', '#d946ef', '#16a34a'
+                    '#3a86f2', '#8962f1', '#ee4347', '#f2a63a', '#f37842',
+                    '#497a60', '#8c899f', '#865e3c', '#dcda90', '#64748b'
                 ],
             }
         },
@@ -196,6 +196,7 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         aspectRatio: 1,
+                        radius: '80%',
                         layout: {
                             padding: 30
                         },
@@ -221,7 +222,7 @@
                             color: (ctx) => ctx.chart.data.datasets[0].backgroundColor[ctx.dataIndex],
                             font: {
                                 weight: '600',
-                                size: 13
+                                size: 17
                             },
                             anchor: 'end',
                             align: 'end',
@@ -229,7 +230,6 @@
                             clamp: false,
                             clip: false,
                             textAlign: 'left',
-                            backgroundColor: 'rgba(255,255,255,0.85)',
                             borderRadius: 4,
                             padding: 4,
                             display: true

@@ -32,12 +32,14 @@
                 <td>@{{ perfil.descripcion }}</td>
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
-                    <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
+                    <div class="acciones-contenedor">
+                        <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
             <tr v-if="!perfiles.length">
