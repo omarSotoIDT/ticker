@@ -62,6 +62,9 @@ class UsuarioRH
             if (isset($filtros['email'])) {
                 $query->where('su.email', $filtros['email']);
             };
+            if (isset($filtros['perfil_id'])) {
+                $query->where('rup.perfil_id', $filtros['perfil_id']);
+            }
         }
     }
 

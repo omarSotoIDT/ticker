@@ -78,7 +78,7 @@ class UsuarioController extends Controller
                 'motivo' => 'string|required'
             ]);
 
-            if (UsuarioService::eliminar($id, $datos)) {
+            if (UsuarioCoordinator::eliminar($id, $datos)) {
                 return Response::json(null, 204);
             }
         } catch (ValidationException $e) {

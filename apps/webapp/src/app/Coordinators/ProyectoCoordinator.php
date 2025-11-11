@@ -3,6 +3,8 @@
 namespace App\Coordinators;
 
 use App\Services\ProyectoService;
+use App\Services\TicketService;
+use App\Consts\TicketConsts;
 use App\Services\ClienteService;
 use Illuminate\Support\Facades\DB;
 use App\Services\FolioService;
@@ -57,6 +59,19 @@ class ProyectoCoordinator
 
     public static function eliminarProyecto(int $id, string $motivo)
     {
+        $ticketsActivos = TicketService::listar(
+            [
+                'proyecto_id' => $id,
+                'status_excluidos' => [TicketConsts::CERRADO, TicketConsts::CANCELADO]
+            ],
+            'ticketId' 
+        );
+
+        if (count($ticketsActivos) > 0) {
+            throw new \Exception(
+                "No se puede eliminar el proyecto porque tiene " . count($ticketsActivos) . " ticket(s) que no están cerrados o cancelados."
+            );
+        }
         return DB::transaction(function () use ($id, $motivo) {
             $folio = FolioService::obtener('log_proyectos');
 
