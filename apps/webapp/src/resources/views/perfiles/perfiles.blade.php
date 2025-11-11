@@ -8,7 +8,7 @@
     <div class="modulo-encabezado">
         <div class="cont-buscador">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" v-model="busqueda" @input="buscarPerfiles" class="input-busqueda" placeholder="Buscar perfiles...">
+            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input-busqueda" placeholder="Buscar perfiles...">
         </div>
         <button class="btn primary-btn" @click.prevent="modalCrear()">
             <i class="fa fa-plus"></i> Nuevo Perfil
@@ -46,7 +46,7 @@
         </tbody>
     </table>
 
-    <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
+    <paginador-componente :links="links" @navigate="fetchPerfiles"></paginador-componente>
 
     <!-- MODAL CREAR / EDITAR -->
     <modal-componente
@@ -164,8 +164,10 @@
                 setTimeout(() => (this.alerta.mostrar = false), 3000);
             },
 
-            fetchPerfiles() {
-                fetch("{{ route('perfiles.listarRest') }}")
+            fetchPerfiles(url = null) {
+                const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
+
+                fetch(requestUrl)
                     .then(res => res.json())
                     .then(data => {
                         this.perfiles = data.perfiles?.data || data.perfiles || [];
@@ -247,24 +249,7 @@
 
             cargarPagina(url) {
                 if (!url) return;
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.perfiles = data.perfiles?.data || data.perfiles || [];
-                        this.links = data.links || data.perfiles?.links || [];
-                    })
-                    .catch(() => this.mostrarAlerta('error', 'Error al cambiar de página.'));
-            },
-
-            buscarPerfiles() {
-                const url = `{{ route('perfiles.listarRest') }}?busqueda=${encodeURIComponent(this.busqueda)}`;
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.perfiles = data.perfiles?.data || data.perfiles || [];
-                        this.links = data.links || data.perfiles?.links || [];
-                    })
-                    .catch(() => this.mostrarAlerta('error', 'Error al buscar perfiles.'));
+                this.fetchPerfiles(url);
             },
 
             modalCrear() {
