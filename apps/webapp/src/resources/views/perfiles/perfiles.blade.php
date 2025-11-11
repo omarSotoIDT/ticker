@@ -126,10 +126,10 @@
         data() {
             return {
                 perfiles: [],
-                permisos: @json($permisos ?? []),
+                permisos: {{Js::from($permisos ?? [])}},
                 links: [],
-                exito: @json(session('exito')),
-                error: @json(session('error')),
+                exito: {{Js::from(session('exito'))}},
+                error: {{Js::from(session('error'))}},
                 mostrarModal: false,
                 mostrarModalEliminar: false,
                 perfilAEliminar: null,
