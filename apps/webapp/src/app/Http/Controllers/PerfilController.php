@@ -81,23 +81,22 @@ class PerfilController extends Controller
     }
 
     public static function eliminarRest(Request $request, $perfil_id)
-{
-    try {
-        $validated = Validator::make(
-            ['perfil_id' => $perfil_id],
-            ['perfil_id' => 'required|integer|min:1']
-        )->validate();
+    {
+        try {
+            $request->merge(['perfil_id' => $perfil_id]);
 
-        PerfilCoordinator::eliminarPerfil($validated['perfil_id']);
+            $request->validate([
+                'perfil_id' => 'required|integer|min:1',
+            ]);
 
-        return Response::json(null, 204);
+            PerfilCoordinator::eliminarPerfil($perfil_id);
 
-    } catch (ValidationException $e) {
-        return Response::json(['errors' => $e->errors()], 422);
-
-    } catch (Throwable $error) {
-        Log::error("Error al eliminar perfil: " . $error);
-        return Response::json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
+            return response()->json(null, 204);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Error al eliminar perfil: " . $error);
+            return response()->json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
+        }
     }
-}
 }
