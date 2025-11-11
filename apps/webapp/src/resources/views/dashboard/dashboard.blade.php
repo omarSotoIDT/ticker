@@ -42,20 +42,20 @@
     </div>
 </div>
 
-<script type="module">
+<script>
 const { createApp, ref, onMounted } = Vue;
 
 createApp({
     setup() {
-        const estado = ref(@json($ticketsPorEstado));
-        const prioridad = ref(@json($ticketsPorPrioridad));
-        const topClientes = ref(@json($topClientes));
+        const estado = ref({{ Js::from($ticketsPorEstado) }});
+        const prioridad = ref({{ Js::from($ticketsPorPrioridad) }});
+        const topClientes = ref({{ Js::from($topClientes) }});
 
         const cards = ref([
-            { titulo: "Total Tickets", valor: "{{ $cards['total']}}", descripcion: "Todos los tickets del sistema", icono: "fas fa-chart-line", color: "#3b82f6" },
-            { titulo: "Tickets Activos", valor: "{{ $cards['activos']}}", descripcion: "En proceso o pendientes", icono: "far fa-clock", color: "#f59e0b" },
-            { titulo: "Tickets Cerrados", valor: "{{ $cards['cerrados']}}", descripcion: "Finalizados exitosamente", icono: "far fa-check-circle", color: "#10b981" },
-            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes']}}", descripcion: "Requieren atención inmediata", icono: "fas fa-exclamation-circle", color: "#ef4444" }
+            { titulo: "Total Tickets", valor: "{{ $cards['total'] }}", descripcion: "Todos los tickets del sistema", icono: "fas fa-chart-line", color: "#3b82f6" },
+            { titulo: "Tickets Activos", valor: "{{ $cards['activos'] }}", descripcion: "En proceso o pendientes", icono: "far fa-clock", color: "#f59e0b" },
+            { titulo: "Tickets Cerrados", valor: "{{ $cards['cerrados'] }}", descripcion: "Finalizados exitosamente", icono: "far fa-check-circle", color: "#10b981" },
+            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes'] }}", descripcion: "Requieren atención inmediata", icono: "fas fa-exclamation-circle", color: "#ef4444" }
         ]);
 
         const chartEstado = ref(null);
