@@ -63,12 +63,12 @@
     {{-- ======= MODALES ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
-        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
+        :titulo="tituloModalPrincipal"
+        :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
-        @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
+        @confirmar="accion">
 
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -153,10 +153,10 @@
 
     <modal-componente
         v-model:mostrar="mostrarModalStatus"
-        :titulo="tipoForm === 'eliminar' ? 'Eliminar proyecto' : 'Cambiar estado del proyecto'"
+        :titulo="tituloModalStatus"
         :subtitulo="subtituloModalStatus"
         texto-confirmacion="Confirmar"
-        :texto-confirmacion="loading ? 'Procesando...' : 'Confirmar'"
+        :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="cambiarEstado">
@@ -182,11 +182,7 @@
 </div>
 
 <script>
-    const {
-        createApp
-    } = Vue;
-
-    const app = createApp({
+const app = Vue.createApp({
         data() {
             return {
                 loading: false, 
@@ -222,22 +218,51 @@
             }
         },
 
+        computed: {
+            tituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Nuevo proyecto';
+                } else {
+                    return 'Editar proyecto';
+                }
+            },
+            subtituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Completa los datos del nuevo proyecto';
+                } else {
+                    return 'Modifica los datos del proyecto';
+                }
+            },
+            tituloModalStatus() {
+                if (this.tipoForm === 'eliminar') {
+                    return 'Eliminar proyecto';
+                } else {
+                    return 'Cambiar estado del proyecto';
+                }
+            },
+            textoConfirmacionPrincipal() {
+                if (this.loading) {
+                    return 'Procesando...';
+                }
+                if (this.tipoForm === 'crear') {
+                    return 'Guardar proyecto';
+                } else {
+                    return 'Guardar Cambios';
+                }
+            },
+            subtituloModalStatus() {
+                if (this.tipoForm === 'eliminar') {
+                    return '¿Estás seguro de eliminar este proyecto?';
+                } else {
+                    return '¿Deseas activar/desactivar este proyecto?';
+                }
+            },
+        },
         mounted() {
             this.listarProyectos();
         },
-         computed: {
-            textoConfirmacionPrincipal() {
-                if (this.loading) return 'Guardando...';
-                return this.tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios';
-            },
-            subtituloModalStatus() {
-                return this.tipoForm === 'eliminar'
-                    ? '¿Estás seguro de eliminar este proyecto?'
-                    : '¿Deseas activar/desactivar este proyecto?';
-            },
-        },
-
         methods: {
+            
             async listarProyectos() {
                 this.loading = true;
                 try {
@@ -379,7 +404,13 @@
                     this.loading = false;
                 }
             },
-
+            accion(){
+                if (this.tipoForm === 'crear') {
+                    return this.crearProyecto();
+                } else {
+                    return this.actualizarProyecto();    
+                }
+            },
             async mostrarHistorial(proyecto_id) {
                 this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
                 if (!this.proyectoSeleccionado) return;
@@ -444,7 +475,7 @@
                     this.erroresModal = {
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
-                    this.mostrarAlerta('succes', '','Debes ingresar un motivo');
+                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
                     throw new Error('Motivo requerido');
                 }
 

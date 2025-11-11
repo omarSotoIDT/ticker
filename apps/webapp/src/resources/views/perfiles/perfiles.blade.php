@@ -55,8 +55,8 @@
 
     <modal-componente 
         v-model:mostrar="mostrarModal"
-        :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
-        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
+        :titulo="tituloModalPrincipal"
+        :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionPrincipal"
         @confirmar="guardar">
 
@@ -110,7 +110,7 @@
     <modal-componente 
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
-        :texto-confirmacion="loading ? 'Procesando...' : 'Sí, Eliminar'"        
+        :texto-confirmacion="textoConfirmacionPrincipal"        
         @confirmar="ejecutarEliminacion">
         ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
     </modal-componente>
@@ -160,16 +160,41 @@
             };
         },
         computed: {
+            tituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Nuevo Perfil';
+                } else {
+                    return 'Editar Perfil';
+                }
+            },
+            subtituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Completa los datos del nuevo perfil';
+                } else {
+                    return 'Modifica los datos del perfil';
+                }
+            },
             formAction() {
-                return this.tipoForm === 'crear'
-                    ? this.routeGuardar
-                    : `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
+                if (this.tipoForm === 'crear') {
+                    return this.routeGuardar;
+                } else {
+                    return `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
+                }
             },
             textoConfirmacionPrincipal() {
-                if (this.loading) return 'Procesando...';
-                if (this.tipoForm === 'crear') return 'Crear Perfil';
+                if (this.loading) {
+                    return 'Procesando...';
+                }
+                if (this.tipoForm === 'crear') {
+                    return 'Crear Perfil';
+                }
+                if (this.tipoForm === 'eliminar') {
+                    return 'Sí, Eliminar';
+                }
+                else {
                 return 'Guardar Cambios';
-            }
+                }
+            },
         },
         methods: {
             mostrarAlerta(tipo, titulo, mensaje) {

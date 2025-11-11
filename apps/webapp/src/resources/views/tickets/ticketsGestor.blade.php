@@ -67,11 +67,11 @@
 
         <modal-componente
         v-model:mostrar="modalRegistro.mostrar"
-        :titulo="modalRegistro.tipo === 'crear' ? 'Nuevo Ticket' : 'Editar Ticket'"
-        :subtitulo="modalRegistro.tipo === 'crear' ? 'Completa los datos del nuevo Ticket' : 'Modifica los datos del Ticket'"
+        :titulo="tituloModalRegistro"
+        :subtitulo="subtituloModalRegistro"
         :texto-confirmacion="textoConfirmacionRegistro"
         clase-modal="modal-base"        
-        @confirmar="modalRegistro.tipo === 'crear' ? agregar() : editar()">
+        @confirmar="accionRegistro">
 
             <form id="form" class="form centrado">
                 <div class="campo">
@@ -341,10 +341,38 @@
                 }
             },
             computed: {
+                tituloModalRegistro() {
+                    if (this.modalRegistro.tipo === 'crear') {
+                        return 'Nuevo Ticket';
+                    } else {
+                        return 'Editar Ticket';
+                    }
+                },
+                subtituloModalRegistro() {
+                    if (this.modalRegistro.tipo === 'crear') {
+                        return 'Completa los datos del nuevo Ticket';
+                    } else {
+                        return 'Modifica los datos del Ticket';
+                    }
+                },
                 textoConfirmacionRegistro() {
-                    if (this.loading) return 'Procesando...';
-                    return this.modalRegistro.tipo === 'crear' ? 'Crear Ticket' : 'Guardar Cambios';
-                }
+                    if (this.loading) {
+                        return 'Procesando...';
+                    } else {
+                        if (this.modalRegistro.tipo === 'crear') {
+                            return 'Crear Ticket';
+                        } else {
+                            return 'Guardar Cambios';
+                        }                    
+                    }
+                },
+                accionRegistro() {
+                    if (this.modalRegistro.tipo === 'crear') {
+                        return agregar();
+                    } else {
+                        return editar();
+                    }
+                },
             },
             methods: {
                 limpiarRegistro(){

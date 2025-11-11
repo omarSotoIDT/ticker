@@ -53,7 +53,7 @@
     @endif
     <modal-componente 
       v-model:mostrar="mostrarModal" 
-      :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
+      :titulo="tituloModalPrincipal"
       :subtitulo="subtituloModalPrincipal"
       :texto-Confirmacion="textoConfirmacionPrincipal"
       @limpiar="limpiarErrores"
@@ -94,7 +94,7 @@
       v-model:mostrar="mostrarCambiarStatus" 
       :titulo="tituloModalStatus"
       :subtitulo="subtituloModalStatus"
-      :texto-Confirmacion="loading ? 'Procesando...' : 'Confirmar'"
+      :texto-Confirmacion="textoConfirmacionPrincipal"
       @limpiar="limpiarErrores"
       clase-modal="modal-base"
       :deshabilitar-confirmacion="loading"
@@ -150,26 +150,47 @@
         }
       },
       computed: {
+        tituloModalPrincipal() {
+            if (this.tipoForm === 'crear') {
+            return 'Nuevo Usuario';
+          }
+          return 'Editar Usuario';
+        },
+
         subtituloModalPrincipal() {
-          return this.tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario';
+            if (this.tipoForm === 'crear') {
+                return 'Completa los datos del nuevo usuario';
+            }
+            return 'Modifica los datos del usuario';
         },
         textoConfirmacionPrincipal() {
           if (this.loading) {
             return 'Procesando...';
           }
-          return this.tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios';
+          if (this.tipoForm === 'crear') {
+            return 'Crear usuario';
+          }
+          if (this.tipoForm === 'eliminar') {
+            return 'Confirmar';
+          }
+          return 'Guardar Cambios';
         },
         tituloModalStatus() {
           if (this.tipoForm === 'eliminar') {
             return 'Eliminar Usuario';
+          } else if (this.tipoForm === 'activar') {
+            return 'Activar Usuario';
           }
-          return this.tipoForm === 'activar' ? 'Activar Usuario' : '';
+          return '';
         },
         subtituloModalStatus() {
           if (this.tipoForm === 'eliminar') {
             return '¿Deseas eliminar al siguiente usuario?';
           }
-          return this.tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : '';
+          if (this.tipoForm === 'activar') {
+            return '¿Deseas activar al siguiente usuario?';
+          }
+          return '';
         }
       },
       methods: {
@@ -396,9 +417,11 @@
         badgeStatus(status) {
           if (status === 'ACTIVO') {
             return 'badge-activo';
-          } else if (status === 'INACTIVO') {
+          }
+          if (status === 'INACTIVO') {
             return 'badge-inactivo';
           }
+          return '';
         },
         
         confirmarGuardarUsuario() {

@@ -60,8 +60,8 @@
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tipoForm === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente'"
-        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo cliente' : 'Modifica los datos del cliente'"
+        :titulo="tituloModalPrincipal"
+        :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
@@ -94,8 +94,8 @@
     {{-- ======= MODAL ELIMINAR / CAMBIAR ESTADO ======= --}}
     <modal-componente
         v-model:mostrar="mostrarToggle"
-        :titulo="accion === 'eliminar' ? 'Eliminar Cliente' : 'Cambiar Estado'"
-        :subtitulo="accion === 'eliminar' ? 'Confirma la eliminación del cliente' : '¿Deseas cambiar el estado del cliente?'"
+        :titulo="tituloModalToggle"
+        :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
@@ -153,13 +153,52 @@
             this.listarClientes()
         },
         computed: {
+            tituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Nuevo Cliente';
+                } else {
+                    return 'Editar Cliente';
+                }
+                return  '';
+            },
+            subtituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Completa los datos del nuevo cliente';
+                } else {
+                    return 'Modifica los datos del cliente';
+                }
+                if (this.tipoForm === 'eliminar') {
+                    return 'Confirma la eliminación del cliente';
+                } else {
+                    return '¿Deseas cambiar el estado del cliente?';
+                }
+            },
+            tituloModalToggle() {
+                if (this.accion === 'eliminar') {
+                    return 'Eliminar Cliente';
+                } else {
+                    return 'Cambiar Estado';
+                }
+                return  '';
+            },
             textoConfirmacionPrincipal() {
-                if (this.loading) return 'Procesando...';
-                return this.tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios';
+                if (this.loading) {
+                    return 'Procesando...';
+                } else if (this.tipoForm === 'crear') {
+                    return 'Guardar Cliente';
+                } else {
+                    return 'Guardar Cambios';
+                }
             },
             textoConfirmacionToggle() {
-                if (this.loading) return 'Procesando...';
-                return this.accion === 'eliminar' ? 'Eliminar' : 'Confirmar';
+                if (this.loading) {
+                    return 'Procesando...';
+                }
+                if (this.accion === 'eliminar') {
+                    return 'Eliminar';
+                } else {
+                    return 'Confirmar';
+                }
             }
         },
         methods: {
@@ -366,9 +405,10 @@
                     }
 
                     if (!res.ok) {
-                        const mensaje = data.error || (res.status >= 500 ?
-                            'Error del servidor. Intenta más tarde.' :
-                            'Error desconocido al confirmar la acción.');
+                        let mensaje = data.error || 'Error desconocido al confirmar la acción.';
+                        if (res.status >= 500) {
+                            mensaje = 'Error del servidor. Intenta más tarde.';
+                        }
                         this.mostrarAlerta('error', 'Error', mensaje);
                         return false;
                     }
