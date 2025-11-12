@@ -393,7 +393,9 @@ input, select{
 .cont-buscador {
   position: relative;
   display: inline-block;
-  width: 320px; 
+  min-width: 380px;
+  max-width: 420px;
+  flex-grow: 1;
 }
 
 .buscador-icono {
