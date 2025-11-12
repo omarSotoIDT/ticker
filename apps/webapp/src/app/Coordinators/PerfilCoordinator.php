@@ -2,9 +2,8 @@
 
 namespace App\Coordinators;
 
-use App\Services\UsuarioService;
-use App\Services\PermisoService;
 use App\Services\PerfilService;
+use App\Services\PermisoService;
 use Illuminate\Support\Facades\DB;
 
 class PerfilCoordinator
@@ -56,15 +55,6 @@ class PerfilCoordinator
 
     public static function eliminarPerfil($perfil_id)
     {
-        $usuariosConPerfil = UsuarioService::listar(
-            ['perfil_id' => $perfil_id],
-            'usuarioId'
-        );
-
-        if (count($usuariosConPerfil) > 0) {
-            throw new \Exception("No se puede eliminar el perfil porque está asignado a " . count($usuariosConPerfil) . " usuario(s).");
-        }
-
         return PerfilService::eliminarPerfil($perfil_id);
     }
 }

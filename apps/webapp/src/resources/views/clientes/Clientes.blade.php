@@ -57,6 +57,7 @@
             </tr>
         </tbody>
     </table>
+    <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -224,7 +225,6 @@
                 }
             },
             async listarClientes() {
-                this.loading = true;
                 try {
                     const {
                         res,
@@ -236,13 +236,33 @@
                     })
                     if (res.ok && data.data) {
                         this.clientes = data.data
+                        this.links = data.links || [];
                     } else {
                         this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.')
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
-                } finally {
-                    this.loading = false;
+                }
+            },
+            async cargarPagina(url) {
+                if (!url) return; 
+                try {
+                    const {
+                        res,
+                        data
+                    } = await this.fetchJson(url, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (res.ok && data.data) {
+                        this.clientes = data.data;
+                        this.links = data.links || [];
+                    } else {
+                        this.mostrarAlerta('error', 'Error', 'No se pudieron cargar los clientes.');
+                    }
+                } catch (e) {
+                    this.mostrarAlerta('error', 'Error', 'Error al cambiar de página.');
                 }
             },
             async buscar() {
@@ -439,6 +459,7 @@
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-componente', loader);
+    app.component('paginador-componente', paginador);
 
     app.mount('#app')
 </script>

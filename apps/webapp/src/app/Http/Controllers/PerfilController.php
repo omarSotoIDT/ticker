@@ -90,10 +90,13 @@ class PerfilController extends Controller
             ]);
 
             PerfilCoordinator::eliminarPerfil($perfil_id);
-            return redirect()->back()->with('exito', 'Perfil eliminado exitosamente');
-        } catch (\Exception $e) {
-            Log::error('Error en eliminar: ' . $e->getMessage());
-            return redirect()->back()->with('error', $e->getMessage());
+
+            return response()->json(null, 204);
+        } catch (ValidationException $e) {
+            return response()->json(['errors' => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Error al eliminar perfil: " . $error);
+            return response()->json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
         }
     }
 }
