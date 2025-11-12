@@ -38,13 +38,12 @@
                 <td>@{{ perfil.descripcion }}</td>
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
-                    <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    
-                    <form :id="'form-eliminar-' + perfil.perfil_id" :action="routeEliminar(perfil.perfil_id)" method="POST" style="display:inline;">
-                        @csrf
-                        @method('PATCH')
-                        <button type="button" @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
-                    </form>
+                    <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </td>
             </tr>
             <tr v-if="!perfiles.length">
@@ -53,40 +52,38 @@
         </tbody>
     </table>
 
-    <modal-componente 
+    <paginador-componente :links="links" @navigate="fetchPerfiles"></paginador-componente>
+
+    <!-- MODAL CREAR / EDITAR -->
+    <modal-componente
         v-model:mostrar="mostrarModal"
         :titulo="tituloModalPrincipal"
         :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionPrincipal"
         @confirmar="guardar">
 
-        <form id="form" class="form centrado" @submit.prevent="guardar" :action="formAction" method="POST" novalidate>
-            @csrf
-            <input v-if="tipoForm === 'editar'" type="hidden" name="_method" value="PUT">
-            <input v-if="tipoForm === 'crear'" type="hidden" name="status" value="ACTIVO">
-            <input type="hidden" name="super_usuario" value="0">
-
+        <form class="form centrado" @submit.prevent="guardar" novalidate>
             <div class="campo">
                 <label class="etiqueta" for="clave">Clave</label>
-                <input class="input" :class="{'input-error': errors.clave}" type="text" name="clave" id="clave" v-model="formPerfil.clave">
+                <input class="input" :class="{'input-error': errors.clave}" id="clave" v-model="formPerfil.clave">
                 <span v-if="errors.clave" class="error-message">@{{ errors.clave }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" :class="{'input-error': errors.nombre}" type="text" name="nombre" id="nombre" v-model="formPerfil.nombre">
+                <input class="input" :class="{'input-error': errors.nombre}" id="nombre" v-model="formPerfil.nombre">
                 <span v-if="errors.nombre" class="error-message">@{{ errors.nombre }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" :class="{'input-error': errors.descripcion}" name="descripcion" id="descripcion" v-model="formPerfil.descripcion" rows="3"></textarea>
+                <textarea class="input" :class="{'input-error': errors.descripcion}" id="descripcion" v-model="formPerfil.descripcion" rows="3"></textarea>
                 <span v-if="errors.descripcion" class="error-message">@{{ errors.descripcion }}</span>
             </div>
-            
+
             <div class="campo" v-if="tipoForm === 'editar'">
                 <label class="etiqueta" for="status">Status</label>
-                <select class="input" name="status" v-model="formPerfil.status">
+                <select class="input" v-model="formPerfil.status">
                     <option value="ACTIVO">ACTIVO</option>
                     <option value="ELIMINADO">ELIMINADO</option>
                 </select>
@@ -95,19 +92,26 @@
             <div class="campo">
                 <label class="etiqueta">Permisos</label>
                 <div class="contenedor-checklist">
-                    <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
-                        <input type="checkbox" name="permisos[]" :id="'permiso-' + permiso.permiso_id" :value="permiso.permiso_id" v-model="formPerfil.permisos">
-                        <label :for="'permiso-' + permiso.permiso_id">
-                            <span class="titulo-item">@{{ permiso.titulo }}</span>
-                            <span class="descripcion-item">@{{ permiso.descripcion }}</span>
-                        </label>
+                    <div v-if="permisos && permisos.length">
+                        <div v-for="permiso in permisos" :key="permiso.permiso_id" class="item-contenedor">
+                            <input
+                                type="checkbox"
+                                :id="'permiso-' + permiso.permiso_id"
+                                :value="permiso.permiso_id"
+                                v-model="formPerfil.permisos">
+                            <label :for="'permiso-' + permiso.permiso_id">
+                                <span class="titulo-item">@{{ permiso.titulo }}</span>
+                                <span class="descripcion-item">@{{ permiso.descripcion }}</span>
+                            </label>
+                        </div>
                     </div>
+                    <p v-else class="contenido-vacio">No hay permisos registrados.</p>
                 </div>
             </div>
         </form>
     </modal-componente>
 
-    <modal-componente 
+    <modal-componente
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
         :texto-confirmacion="textoConfirmacionPrincipal"        
@@ -119,43 +123,39 @@
         v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
-        :mensaje="alerta.mensaje"
-    >
+        :mensaje="alerta.mensaje">
     </alerta-componente>
-
 </div>
 
 <script>
     const app = Vue.createApp({
         data() {
-            const appElement = document.getElementById('app');
-            const exito = JSON.parse(appElement.dataset.exito || 'null');
-            const error = JSON.parse(appElement.dataset.error || 'null');
-
             return {
                 loading: false,
+                perfiles: [],
+                permisos: {{Js::from($permisos ?? [])}},
+                links: [],
+                exito: {{Js::from(session('exito'))}},
+                error: {{Js::from(session('error'))}},
                 mostrarModal: false,
-                tipoForm: 'crear',
-                formPerfil: {
-                    clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null
-                },
-                errors: {},
-
                 mostrarModalEliminar: false,
                 perfilAEliminar: null,
-
-                perfiles: JSON.parse(appElement.dataset.perfiles || '[]'),
-                permisos: JSON.parse(appElement.dataset.permisos || '[]'),
-                
-                routeGuardar: "{{ route('perfiles.guardar') }}",
-                routeActualizarBase: "{{ url('/perfiles') }}",
-                routeEliminarBase: "{{ url('/perfiles') }}",
-
+                tipoForm: 'crear',
+                busqueda: '',
+                errors: {},
+                formPerfil: {
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
+                },
                 alerta: {
-                    mostrar: exito || error ? true : false,
-                    tipo: exito ? 'exito' : (error ? 'error' : ''),
-                    titulo: exito ? 'Éxito' : (error ? 'Error' : ''),
-                    mensaje: exito ? exito : (error ? error : '')
+                    mostrar: false,
+                    tipo: '',
+                    titulo: '',
+                    mensaje: ''
                 }
             };
         },
@@ -213,8 +213,22 @@
                     this.mostrarAlerta('error', 'Campos incompletos', 'Por favor, revisa los campos marcados en rojo.');
                 }
 
-                return Object.keys(this.errors).length === 0;
+            // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
+            fetchPerfiles(url = null) {
+                const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
+
+                fetch(requestUrl)
+                    .then(res => res.json())
+                    .then(data => {
+                        this.perfiles = data.perfiles?.data || data.perfiles || [];
+                        this.links = data.links || data.perfiles?.links || [];
+                        this.permisos = data.permisos || this.permisos;
+                    })
+                    .catch(() => {
+                        this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
+                    });
             },
+
             guardar() {
                 if (this.validateForm()) {
                     this.loading = true; 
@@ -228,7 +242,15 @@
                 await this.$nextTick();
                 this.errors = {}; 
                 this.tipoForm = 'crear';
-                this.formPerfil = { clave: '', nombre: '', descripcion: '', status: 'ACTIVO', permisos: [], perfil_id: null };
+                this.formPerfil = {
+                    clave: '',
+                    nombre: '',
+                    descripcion: '',
+                    status: 'ACTIVO',
+                    permisos: [],
+                    perfil_id: null
+                };
+                this.errors = {};
                 this.mostrarModal = true;
                 this.loading = false;
             },
@@ -244,13 +266,10 @@
                 
                 this.tipoForm = 'editar';
                 this.formPerfil = {
-                    clave: perfil.clave,
-                    nombre: perfil.nombre,
-                    descripcion: perfil.descripcion,
-                    status: perfil.status,
-                    permisos: perfil.permisos,
-                    perfil_id: perfil.perfil_id
+                    ...perfil,
+                    permisos: [...perfil.permisos]
                 };
+                this.errors = {};
                 this.mostrarModal = true;
                 this.loading = false;
             },
@@ -282,12 +301,28 @@
                     this.mostrarModalEliminar = false;
                 }
             }
+
+            validarFormulario() {
+                this.errors = {};
+                if (!this.formPerfil.clave) this.errors.clave = 'La clave es obligatoria';
+                if (!this.formPerfil.nombre) this.errors.nombre = 'El nombre es obligatorio';
+                if (!this.formPerfil.descripcion) this.errors.descripcion = 'La descripción es obligatoria';
+                return Object.keys(this.errors).length === 0;
+            }
+        },
+
+        mounted() {
+            this.fetchPerfiles();
+            if (this.exito) this.mostrarAlerta('exito', this.exito);
+            if (this.error) this.mostrarAlerta('error', this.error);
         }
     });
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-global', loader);
+    app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>
+
 @endsection

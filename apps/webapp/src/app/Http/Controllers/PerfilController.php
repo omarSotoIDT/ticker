@@ -2,67 +2,93 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Coordinators\PerfilCoordinator;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class PerfilController extends Controller
 {
-    public function index()
+    public function gestor()
+    {
+        return view('perfiles.perfiles');
+    }
+
+    public static function listarRest(Request $request)
     {
         try {
-            $busqueda = request('busqueda', '');
+            $filtros = $request->all();
 
-            ['perfiles' => $perfilesConPermisos, 'permisos' => $permisos] = PerfilCoordinator::obtenerPerfiles(['busqueda' => $busqueda]);
+            $resultado = PerfilCoordinator::obtenerPerfiles($filtros);
 
-            return view('perfiles.perfiles', compact('perfilesConPermisos', 'permisos', 'busqueda'));
-        } catch (\Exception $e) {
-            Log::error('Error en index: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al cargar perfiles: ' . $e->getMessage());
+            return response()->json([
+                'perfiles' => $resultado['perfiles'],
+                'links' => $resultado['links'],
+                'permisos' => $resultado['permisos'],
+            ]);
+        } catch (Throwable $error) {
+            Log::error("Error al listar perfiles: " . $error->getMessage());
+            return response()->json([
+                'error' => 'Ocurrió un error al listar los perfiles'
+            ], 500);
         }
     }
 
-    public function guardar(Request $request)
+    public static function agregarRest(Request $request)
     {
         try {
-            $data = $request->validate([
-                'clave' => 'required|string|max:50',
-                'nombre' => 'required|string|max:70',
-                'descripcion' => 'required|string|max:100',
+            $datos = $request->validate([
+                'clave' => 'string|required|max:100|',
+                'nombre' => 'string|required|max:100',
+                'descripcion' => 'string|required|max:200',
+                'permisos' => 'array',
             ]);
 
-            $data['permisos'] = $request->input('permisos', []);
-            PerfilCoordinator::crearPerfil($data);
-            return redirect()->back()->with('exito', 'Perfil creado exitosamente');
-        } catch (\Exception $e) {
-            Log::error('Error en guardar: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al crear perfil: ' . $e->getMessage());
+            $perfil_id = PerfilCoordinator::crearPerfil($datos);
+
+            return Response::json($perfil_id, 201);
+        } catch (ValidationException $e) {
+            return Response::json(['errors' => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Error al crear perfil: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al crear el perfil'], 500);
         }
     }
 
-    public function actualizar(Request $request, $perfil_id)
+    public static function editarRest(Request $request, $perfil_id)
     {
         try {
-            $data = $request->validate([
-                'clave' => 'required|string|max:50',
-                'nombre' => 'required|string|max:70',
-                'descripcion' => 'required|string|max:100',
+            $datos = $request->validate([
+                'clave' => 'string|required|max:100|',
+                'nombre' => 'string|required|max:100',
+                'descripcion' => 'string|required|max:200',
                 'status' => 'in:ACTIVO,ELIMINADO',
+                'permisos' => 'array',
             ]);
-            
-            $data['permisos'] = $request->input('permisos', []);
-            PerfilCoordinator::actualizarPerfil($perfil_id, $data);
-            return redirect()->back()->with('exito', 'Perfil actualizado exitosamente');
-        } catch (\Exception $e) {
-            Log::error('Error en actualizar: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error al actualizar perfil: ' . $e->getMessage());
+
+            PerfilCoordinator::actualizarPerfil($perfil_id, $datos);
+
+            return Response::json(null, 204);
+        } catch (ValidationException $e) {
+            return Response::json(['errors' => $e->errors()], 422);
+        } catch (Throwable $error) {
+            Log::error("Error al editar perfil: " . $error);
+            return Response::json(['error' => 'Ocurrió un error al actualizar el perfil'], 500);
         }
     }
 
-    public function eliminar($perfil_id)
+    public static function eliminarRest(Request $request, $perfil_id)
     {
         try {
+            $request->merge(['perfil_id' => $perfil_id]);
+
+            $request->validate([
+                'perfil_id' => 'required|integer|min:1',
+            ]);
+
             PerfilCoordinator::eliminarPerfil($perfil_id);
             return redirect()->back()->with('exito', 'Perfil eliminado exitosamente');
         } catch (\Exception $e) {
@@ -71,4 +97,3 @@ class PerfilController extends Controller
         }
     }
 }
-

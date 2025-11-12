@@ -12,8 +12,8 @@ class UsuarioService
     public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
         $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
         foreach ($usuarios as &$u) {
-            $u->idPerfiles = $u->idPerfiles ? array_map('intval', explode(',', $u->idPerfiles)) : [];
-            $u->nombrePerfiles = $u->nombrePerfiles ? explode(',', $u->nombrePerfiles) : [];
+            $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
+            $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];
         }
         return $usuarios;
     }
