@@ -95,7 +95,7 @@
     <modal-componente
         v-model:mostrar="mostrarToggle"
         :titulo="tituloModalToggle"
-        :subtitulo="subtituloModalPrincipal"
+        :subtitulo="tituloModalToggle"
         :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
@@ -166,11 +166,6 @@
                     return 'Completa los datos del nuevo cliente';
                 } else {
                     return 'Modifica los datos del cliente';
-                }
-                if (this.tipoForm === 'eliminar') {
-                    return 'Confirma la eliminación del cliente';
-                } else {
-                    return '¿Deseas cambiar el estado del cliente?';
                 }
             },
             tituloModalToggle() {
