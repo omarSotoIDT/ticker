@@ -5,14 +5,18 @@
 @section('contenido')
 
 <div id="app">
-<div class="modulo-encabezado">
+
+    {{-- ======= LOADER ======= --}}
+    <loader-componente :visible="loading"></loader-componente>
+
+    <div class="modulo-encabezado">
         <div class="items-busqueda">
             <div class="cont-buscador">
                 <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
                 <input type="text" name="cliente" id="cliente" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Clientes..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Cliente</button>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Cliente</button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
     <table class="tabla">
@@ -56,10 +60,11 @@
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tipoForm === 'crear' ? 'Nuevo Cliente' : 'Editar Cliente'"
-        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo cliente' : 'Modifica los datos del cliente'"
-        :texto-confirmacion="tipoForm === 'crear' ? 'Guardar Cliente' : 'Guardar Cambios'"
+        :titulo="tituloModalPrincipal"
+        :subtitulo="subtituloModalPrincipal"
+        :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="guardarCliente">
         <form id="formCliente" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -89,10 +94,11 @@
     {{-- ======= MODAL ELIMINAR / CAMBIAR ESTADO ======= --}}
     <modal-componente
         v-model:mostrar="mostrarToggle"
-        :titulo="accion === 'eliminar' ? 'Eliminar Cliente' : 'Cambiar Estado'"
-        :subtitulo="accion === 'eliminar' ? 'Confirma la eliminación del cliente' : '¿Deseas cambiar el estado del cliente?'"
-        :texto-confirmacion="accion === 'eliminar' ? 'Eliminar' : 'Confirmar'"
+        :titulo="tituloModalToggle"
+        :subtitulo="tituloModalToggle"
+        :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
         <form id="formToggle" @submit.prevent>
             <div class="campo" v-if="accion === 'eliminar'">
@@ -104,7 +110,7 @@
     </modal-componente>
 
     <alerta-componente
-        :mostrar="alerta.mostrar"
+        v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje">
@@ -146,15 +152,56 @@
         mounted() {
             this.listarClientes()
         },
+        computed: {
+            tituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Nuevo Cliente';
+                } else {
+                    return 'Editar Cliente';
+                }
+                return  '';
+            },
+            subtituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Completa los datos del nuevo cliente';
+                } else {
+                    return 'Modifica los datos del cliente';
+                }
+            },
+            tituloModalToggle() {
+                if (this.accion === 'eliminar') {
+                    return 'Eliminar Cliente';
+                } else {
+                    return 'Cambiar Estado';
+                }
+                return  '';
+            },
+            textoConfirmacionPrincipal() {
+                if (this.loading) {
+                    return 'Procesando...';
+                } else if (this.tipoForm === 'crear') {
+                    return 'Guardar Cliente';
+                } else {
+                    return 'Guardar Cambios';
+                }
+            },
+            textoConfirmacionToggle() {
+                if (this.loading) {
+                    return 'Procesando...';
+                }
+                if (this.accion === 'eliminar') {
+                    return 'Eliminar';
+                } else {
+                    return 'Confirmar';
+                }
+            }
+        },
         methods: {
-            mostrarAlerta(tipo, titulo, mensaje) {
+             mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
                 this.alerta.titulo = titulo;
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
-                setTimeout(() => {
-                    this.alerta.mostrar = false;
-                }, 3000);
             },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
@@ -171,10 +218,11 @@
                 this.listarClientes()
 
                 if (mensaje) {
-                    this.mostrarAlerta(mensaje, 'exito')
+                    this.mostrarAlerta('exito', 'Éxito', mensaje)
                 }
             },
             async listarClientes() {
+                this.loading = true;
                 try {
                     const {
                         res,
@@ -191,9 +239,12 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
+                } finally {
+                    this.loading = false;
                 }
             },
             async buscar() {
+                this.loading = true;
                 try {
                     const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''
                     const {
@@ -212,10 +263,13 @@
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
+                } finally {
+                    this.loading = false;
                 }
             },
 
             modalCrear() {
+                if (this.loading) return;
                 this.tipoForm = 'crear'
                 this.formCliente = {
                     nombre: '',
@@ -224,10 +278,12 @@
                     email: ''
                 }
                 this.erroresModal = {}
-                this.mostrarModal = true
+                this.mostrarModal = true;
             },
 
             modalEditar(id) {
+                if (this.loading) return;
+
                 const cliente = this.clientes.find(c => c.cliente_id === id)
                 if (!cliente) return
                 this.tipoForm = 'editar'
@@ -237,6 +293,7 @@
                 }
                 this.erroresModal = {}
                 this.mostrarModal = true
+
             },
 
             async guardarCliente() {
@@ -271,19 +328,20 @@
 
                     if (!res.ok) {
                         const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
-                        this.mostrarAlerta(mensaje, 'error')
+                        this.mostrarAlerta('error', 'Error', mensaje)
                         return
                     }
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
                 } catch (e) {
-                    this.mostrarAlerta('error', 'Error', 'Error general al guardar el cliente.')
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al guardar el cliente.')
                 } finally {
                     this.loading = false
                 }
             },
 
             modalToggle(id, tipo) {
+                if (this.loading) return;
                 const cliente = this.clientes.find(c => c.cliente_id === id)
                 if (!cliente) return
                 this.cliente = cliente
@@ -294,7 +352,7 @@
             },
 
             async eliminarCliente() {
-                if (!this.formToggle.motivo || !this.formToggle.motivo.trim()) {
+                if (this.loading || !this.formToggle.motivo || !this.formToggle.motivo.trim()) {
                     this.erroresModal = {
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
@@ -311,11 +369,13 @@
             },
 
             async cambiarStatusCliente() {
+                if (this.loading) return;
                 const url = `/clientes/${this.cliente.cliente_id}/status`;
                 return this.realizarPeticion(url, 'PATCH');
             },
 
             async realizarPeticion(url, metodo, body) {
+                this.loading = true;
                 try {
                     const {
                         res,
@@ -334,16 +394,17 @@
                         this.erroresModal = data.errores;
                         const primerError = Object.values(data.errores)[0];
                         if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta(primerError[0], 'error');
+                            this.mostrarAlerta('error', 'Error', primerError[0]);
                         }
                         return false;
                     }
 
                     if (!res.ok) {
-                        const mensaje = data.error || (res.status >= 500 ?
-                            'Error del servidor. Intenta más tarde.' :
-                            'Error desconocido al confirmar la acción.');
-                        this.mostrarAlerta(mensaje, 'error');
+                        let mensaje = data.error || 'Error desconocido al confirmar la acción.';
+                        if (res.status >= 500) {
+                            mensaje = 'Error del servidor. Intenta más tarde.';
+                        }
+                        this.mostrarAlerta('error', 'Error', mensaje);
                         return false;
                     }
 
@@ -353,12 +414,15 @@
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error general al confirmar la acción.');
                     return false;
+                } finally {
+                    this.loading = false;
                 }
             },
 
 
             async confirmarToggle() {
-                this.loading = true;
+                if (this.loading) return; 
+
                 this.erroresModal = {};
 
                 if (this.accion === 'eliminar') {
@@ -366,18 +430,15 @@
                 } else if (this.accion === 'activar') {
                     await this.cambiarStatusCliente();
                 }
-
-                this.loading = false;
             }
         }
     })
 
-
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('loader-componente', loader);
 
     app.mount('#app')
 </script>
-
 
 @endsection

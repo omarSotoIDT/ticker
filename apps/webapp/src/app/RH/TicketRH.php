@@ -69,6 +69,9 @@ class TicketRH
             if (isset($filtros['usuario_asignado_id'])) {
                 $query->where('su.usuario_id', $filtros['usuario_asignado_id']);
             };
+            if (isset($filtros['status_excluidos']) && is_array($filtros['status_excluidos'])) {
+                $query->whereNotIn('t.status', $filtros['status_excluidos']);
+            }
         }
     }
 

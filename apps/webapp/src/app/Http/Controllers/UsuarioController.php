@@ -78,14 +78,14 @@ class UsuarioController extends Controller
                 'motivo' => 'string|required'
             ]);
 
-            if (UsuarioService::eliminar($id, $datos)) {
+            if (UsuarioCoordinator::eliminar($id, $datos)) {
                 return Response::json(null, 204);
             }
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al eliminar el usuario " . $error);
-            return Response::json(['error' => 'Ocurrio un error al eliminar el usuario'], 500);
+            return Response::json(['mensaje' => $error->getMessage()], 409);
         }
     }
 

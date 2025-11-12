@@ -127,6 +127,9 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
+             if ($e instanceof \Exception) {
+                return response()->json(['mensaje' => $e->getMessage()], 409);
+            }
             return $this->handleException($e, 'Error al eliminar el proyecto', __FUNCTION__);
         }
     }

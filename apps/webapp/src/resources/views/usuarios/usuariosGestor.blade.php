@@ -4,6 +4,7 @@
 
 @section('contenido')
   <div id="app">
+    <loading-global :visible="loading"></loading-global>
     <div class="modulo-encabezado">
         <div class="items-busqueda">
             <div class="cont-buscador">
@@ -11,7 +12,7 @@
                 <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()">+ Nuevo Usuario</button>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
     </div>
     <table class="tabla">
       <thead>
@@ -52,12 +53,13 @@
     @endif
     <modal-componente 
       v-model:mostrar="mostrarModal" 
-      :titulo="tipoForm === 'crear' ? 'Nuevo Usuario' : 'Editar Usuario'"
-      :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo usuario' : 'Modifica los datos del usuario'" 
-      :texto-Confirmacion="tipoForm === 'crear' ? 'Crear usuario' : 'Guardar Cambios'" 
+      :titulo="tituloModalPrincipal"
+      :subtitulo="subtituloModalPrincipal"
+      :texto-Confirmacion="textoConfirmacionPrincipal"
       @limpiar="limpiarErrores"
       clase-modal="modal-base"
-      @confirmar="tipoForm === 'crear' ? crear() : tipoForm === 'editar' ? editar() : ''">
+      :deshabilitar-confirmacion="loading"
+      @confirmar="confirmarGuardarUsuario">
 
       <form id="form" class="form centrado">
         <div class="campo">
@@ -90,12 +92,13 @@
 
     <modal-componente 
       v-model:mostrar="mostrarCambiarStatus" 
-      :titulo="tipoForm === 'eliminar' ? 'Eliminar Usuario' : tipoForm === 'activar' ? 'Activar Usuario' : ''" 
-      :subtitulo="tipoForm === 'eliminar' ? '¿Deseas eliminar al siguiente usuario?' : tipoForm === 'activar' ? '¿Deseas activar al siguiente usuario?' : ''" 
-      texto-Confirmacion="Confirmar" 
+      :titulo="tituloModalStatus"
+      :subtitulo="subtituloModalStatus"
+      :texto-Confirmacion="textoConfirmacionPrincipal"
       @limpiar="limpiarErrores"
       clase-modal="modal-base"
-      @confirmar="tipoForm === 'eliminar' ? eliminar() : tipoForm === 'activar' ? activar() : ''">
+      :deshabilitar-confirmacion="loading"
+      @confirmar="confirmarCambioStatus">
       <form id="form">
         <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
         <div class="campo" v-if="tipoForm === 'eliminar'">
@@ -107,7 +110,7 @@
     </modal-componente>
 
     <alerta-componente
-    :mostrar="alerta.mostrar"
+    v-model:mostrar="alerta.mostrar"
     :tipo="alerta.tipo"
     :titulo="alerta.titulo"
     :mensaje="alerta.mensaje"
@@ -142,7 +145,52 @@
             tipo: '',
             titulo: '',
             mensaje: ''
+          },
+          loading: false
+        }
+      },
+      computed: {
+        tituloModalPrincipal() {
+            if (this.tipoForm === 'crear') {
+            return 'Nuevo Usuario';
           }
+          return 'Editar Usuario';
+        },
+
+        subtituloModalPrincipal() {
+            if (this.tipoForm === 'crear') {
+                return 'Completa los datos del nuevo usuario';
+            }
+            return 'Modifica los datos del usuario';
+        },
+        textoConfirmacionPrincipal() {
+          if (this.loading) {
+            return 'Procesando...';
+          }
+          if (this.tipoForm === 'crear') {
+            return 'Crear usuario';
+          }
+          if (this.tipoForm === 'eliminar') {
+            return 'Confirmar';
+          }
+          return 'Guardar Cambios';
+        },
+        tituloModalStatus() {
+          if (this.tipoForm === 'eliminar') {
+            return 'Eliminar Usuario';
+          } else if (this.tipoForm === 'activar') {
+            return 'Activar Usuario';
+          }
+          return '';
+        },
+        subtituloModalStatus() {
+          if (this.tipoForm === 'eliminar') {
+            return '¿Deseas eliminar al siguiente usuario?';
+          }
+          if (this.tipoForm === 'activar') {
+            return '¿Deseas activar al siguiente usuario?';
+          }
+          return '';
         }
       },
       methods: {
@@ -186,9 +234,6 @@
           this.alerta.titulo = titulo;
           this.alerta.mensaje = mensaje;
           this.alerta.mostrar = true;
-          setTimeout(() => {
-            this.alerta.mostrar = false;
-          }, 3000);
         },
 
         limpiarErrores(){
@@ -196,8 +241,9 @@
         },
 
         async listarUsuarios() {
-          try{
-            const response = await fetch('/usuarios/listarRest' , {
+          this.loading = true;
+          try {
+            const response = await fetch('/usuarios/listarRest', {
               method: 'GET',  
               headers: {
                 'Content-Type': 'application/json',
@@ -211,13 +257,15 @@
 
             const data = await response.json();
             this.usuarios = data;
-            this.busqueda = '';
           }catch(error){
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
+          } finally {
+            this.loading = false;
           }
         },
 
         async buscar(){
+          this.loading = true;
           try {
             const params = new URLSearchParams();
             if (this.busqueda) params.append('usuario', this.busqueda);
@@ -237,10 +285,13 @@
             this.usuarios = data;
           }catch(error) {
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar');
+          } finally {
+            this.loading = false;
           }
         },
 
         async crear() {
+          this.loading = true;
           try {
             const response = await fetch('/usuarios/agregarRest', {
               method: 'POST',
@@ -260,16 +311,18 @@
               throw new Error('Error al crear el usuario: ' + response.status);
             }
 
-            const data = await response.json();
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario creado');
           }catch(error) {
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el usuario');
+          } finally {
+            this.loading = false;
           }
         },
 
         async editar(){
+          this.loading = true;
           try {
             const response = await fetch('/usuarios/editarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
@@ -289,16 +342,19 @@
               throw new Error('Error al editar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario actalizado');
+            this.mostrarAlerta('exito', 'Exito', 'Usuario actualizado');
 
           }catch(error) {
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el usuario');
+          } finally {
+            this.loading = false;
           }
         },
 
         async eliminar(){
+          this.loading = true;
           try {
             const response = await fetch('/usuarios/eliminarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
@@ -315,18 +371,27 @@
                 this.erroresModal = datosError.errors;
                 return;
               }
+               if (response.status === 409) { 
+                const datosError = await response.json();
+                this.mostrarAlerta('error', 'Acción denegada', datosError.mensaje);
+                this.mostrarCambiarStatus = false;
+                return;
+              }
               throw new Error('Error al eliminar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario eliminado');
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al eliminar el usuario');
+            this.mostrarAlerta('error', 'Error', error.message);
+          } finally {
+            this.loading = false;
           }
         },
 
         async activar(){
+          this.loading = true;
           try {
             const response = await fetch('/usuarios/activarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
@@ -345,19 +410,38 @@
               throw new Error('Error al activar el usuario: ' + response.status);
             }
 
-            this.listarUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', 'Usuario Activado');
           }catch(error) {
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al activar el usuario');
+          } finally {
+            this.loading = false;
           }
         },
 
         badgeStatus(status) {
           if (status === 'ACTIVO') {
             return 'badge-activo';
-          } else if (status === 'INACTIVO') {
+          }
+          if (status === 'INACTIVO') {
             return 'badge-inactivo';
+          }
+          return '';
+        },
+        
+        confirmarGuardarUsuario() {
+          if (this.tipoForm === 'crear') {
+            this.crear();
+          } else if (this.tipoForm === 'editar') {
+            this.editar();
+          }
+        },
+        confirmarCambioStatus() {
+          if (this.tipoForm === 'eliminar') {
+            this.eliminar();
+          } else if (this.tipoForm === 'activar') {
+            this.activar();
           }
         },
       },
@@ -368,6 +452,7 @@
 
     app.component('modal-componente', modal)
     app.component('alerta-componente', alerta)
+    app.component('loading-global', loader)
     app.mount('#app')
   </script>
 @endsection
