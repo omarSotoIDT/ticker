@@ -198,7 +198,9 @@ const app = Vue.createApp({
                 proyectos: [],
                 clientes: [],
                 usuariosDisponibles: [],
-                busqueda: '',
+                busqueda: {
+                    titulo: ''
+                },
                 mostrarModal: false,
                 tipoForm: 'crear',
                 formproyecto: {
@@ -266,7 +268,7 @@ const app = Vue.createApp({
             async listarProyectos() {
                 this.loading = true;
                 try {
-                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda)}`);
+                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`);
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {

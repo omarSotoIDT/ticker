@@ -140,7 +140,9 @@
                 formToggle: {
                     motivo: ''
                 },
-                busqueda: '',
+                busqueda: {
+                    titulo: ''
+                },
                 alerta: {
                     mostrar: false,
                     tipo: '',
@@ -246,7 +248,7 @@
             async buscar() {
                 this.loading = true;
                 try {
-                    const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''
+                    const params = this.busqueda.titulo ? '?busqueda=' + encodeURIComponent(this.busqueda.titulo) : ''
                     const {
                         res,
                         data
