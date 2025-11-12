@@ -51,6 +51,11 @@ class PermisoMiddleware
         'tickets.editarAsignacionRest'=> 'asignar_tickets',
         'tickets.listarFeedbackRest' => 'ver_feedback_tickets',
         'tickets.agregarFeedbackRest'=> 'agregar_feedback_tickets',
+
+        'reportes.index' => 'ver_reportes',
+        'reportes.datos' => 'ver_reportes',
+        'reportes.tickets' => 'ver_reportes',
+        'reportes.filtros' => 'ver_reportes',
     ];
 
     public function handle(Request $request, Closure $next)

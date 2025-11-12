@@ -2,7 +2,7 @@
 @section('titulo', 'Dashboard')
 
 @section('contenido')
-<div id="dashboard-app">
+<div id="dashboard-root">
     <div class="fila-tarjetas">
         <div class="tarjeta-estadistica" v-for="(card, index) in cards" :key="index">
             <div class="tarjeta-contenido">
@@ -145,6 +145,6 @@ createApp({
 
         return { cards, chartEstado, chartPrioridad, chartTopClientes };
     }
-}).mount('#dashboard-app');
+}).mount('#dashboard-root');
 </script>
 @endsection

@@ -4,21 +4,15 @@
 
 @section('contenido')
 
-<div id="app" 
-    class="clientes"
-    data-perfiles='@json($perfilesConPermisos)'
-    data-permisos='@json($permisos)'
-    data-exito='@json(session("exito"))'
-    data-error='@json(session("error"))'>
-    
-    <loader-global :visible="loading"></loader-global>
-
+<div id="app" class="clientes">
     <div class="modulo-encabezado">
-        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador" @submit="loading = true">
+        <div class="cont-buscador">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
-        </form>
-        <button class="btn action-btn" @click.prevent="modalCrear" :disabled="loading"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input-busqueda" placeholder="Buscar perfiles...">
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()">
+            <i class="fa fa-plus"></i> Nuevo Perfil
+        </button>
     </div>
 
     <table class="tabla">
@@ -57,9 +51,9 @@
     <!-- MODAL CREAR / EDITAR -->
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tituloModalPrincipal"
-        :subtitulo="subtituloModalPrincipal"
-        :texto-confirmacion="textoConfirmacionPrincipal"
+        :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
+        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
+        :texto-confirmacion="tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios'"
         @confirmar="guardar">
 
         <form class="form centrado" @submit.prevent="guardar" novalidate>
@@ -114,13 +108,13 @@
     <modal-componente
         v-model:mostrar="mostrarModalEliminar"
         titulo="Confirmar Eliminación"
-        :texto-confirmacion="textoConfirmacionPrincipal"        
-        @confirmar="ejecutarEliminacion">
-        ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
+        texto-confirmacion="Sí, Eliminar"
+        @confirmar="eliminarPerfil">
+        ¿Estás seguro de que deseas eliminar este perfil? <strong>Esta acción no se puede deshacer.</strong>
     </modal-componente>
 
     <alerta-componente
-        v-model:mostrar="alerta.mostrar"
+        :mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje">
@@ -131,7 +125,6 @@
     const app = Vue.createApp({
         data() {
             return {
-                loading: false,
                 perfiles: [],
                 permisos: {{Js::from($permisos ?? [])}},
                 links: [],
@@ -159,59 +152,17 @@
                 }
             };
         },
-        computed: {
-            tituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Nuevo Perfil';
-                } else {
-                    return 'Editar Perfil';
-                }
-            },
-            subtituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Completa los datos del nuevo perfil';
-                } else {
-                    return 'Modifica los datos del perfil';
-                }
-            },
-            formAction() {
-                if (this.tipoForm === 'crear') {
-                    return this.routeGuardar;
-                } else {
-                    return `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
-                }
-            },
-            textoConfirmacionPrincipal() {
-                if (this.loading) {
-                    return 'Procesando...';
-                }
-                if (this.tipoForm === 'crear') {
-                    return 'Crear Perfil';
-                }
-                if (this.tipoForm === 'eliminar') {
-                    return 'Sí, Eliminar';
-                }
-                else {
-                return 'Guardar Cambios';
-                }
-            },
-        },
+
         methods: {
-            mostrarAlerta(tipo, titulo, mensaje) {
-                this.alerta.tipo = tipo;
-                this.alerta.titulo = titulo;
-                this.alerta.mensaje = mensaje;
-                this.alerta.mostrar = true;
+            mostrarAlerta(tipo, mensaje) {
+                this.alerta = {
+                    mostrar: true,
+                    tipo,
+                    titulo: tipo === 'exito' ? 'Éxito' : 'Error',
+                    mensaje
+                };
+                setTimeout(() => (this.alerta.mostrar = false), 3000);
             },
-            validateForm() {
-                this.errors = {};
-                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
-                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
-                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
-                
-                if (Object.keys(this.errors).length > 0) {
-                    this.mostrarAlerta('error', 'Campos incompletos', 'Por favor, revisa los campos marcados en rojo.');
-                }
 
             // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
             fetchPerfiles(url = null) {
@@ -230,17 +181,79 @@
             },
 
             guardar() {
-                if (this.validateForm()) {
-                    this.loading = true; 
-                    this.$nextTick(() => {
-                        document.getElementById('form').submit();
-                    });
-                }
+                if (!this.validarFormulario()) return;
+
+                const url = this.tipoForm === 'crear' ?
+                    "{{ route('perfiles.agregarRest') }}" :
+                    `/perfiles/editar/${this.formPerfil.perfil_id}`;
+                const method = this.tipoForm === 'crear' ? 'POST' : 'PUT';
+                const body = JSON.stringify(this.formPerfil);
+
+                fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body
+                    })
+                    .then(res => {
+                        switch (res.status) {
+                            case 201:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil creado correctamente');
+                                break;
+                            case 204:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil actualizado correctamente');
+                                break;
+                            case 422:
+                                return res.json().then(data => {
+                                    this.errors = data.errors;
+                                    this.mostrarAlerta('error', 'Revisa los campos del formulario.');
+                                });
+                            default:
+                                return res.json().then(data => {
+                                    this.mostrarAlerta('error', data.mensaje || 'Ocurrió un error al guardar.');
+                                });
+                        }
+                    })
+                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'));
             },
-            async modalCrear() {
-                this.loading = true;
-                await this.$nextTick();
-                this.errors = {}; 
+
+            eliminarPerfil() {
+                if (!this.perfilAEliminar) return;
+
+                fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(res => {
+                        switch (res.status) {
+                            case 204:
+                                this.mostrarModalEliminar = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Perfil eliminado correctamente');
+                                break;
+                            default:
+                                return res.json().then(data => {
+                                    this.mostrarAlerta('error', data.message || 'No se pudo eliminar el perfil.');
+                                });
+                        }
+                    })
+                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al eliminar.'));
+            },
+
+            cargarPagina(url) {
+                if (!url) return;
+                this.fetchPerfiles(url);
+            },
+
+            modalCrear() {
                 this.tipoForm = 'crear';
                 this.formPerfil = {
                     clave: '',
@@ -252,18 +265,12 @@
                 };
                 this.errors = {};
                 this.mostrarModal = true;
-                this.loading = false;
             },
-            async modalEditar(perfilId) {
-                this.loading = true;
-                await this.$nextTick();
-                this.errors = {}; 
-                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
-                if (!perfil) {
-                    this.loading = false;
-                    return;
-                }
-                
+
+            modalEditar(id) {
+                const perfil = this.perfiles.find(p => p.perfil_id === id);
+                if (!perfil) return;
+
                 this.tipoForm = 'editar';
                 this.formPerfil = {
                     ...perfil,
@@ -271,36 +278,12 @@
                 };
                 this.errors = {};
                 this.mostrarModal = true;
-                this.loading = false;
-            },
-            routeEliminar(perfilId) {
-                return `${this.routeEliminarBase}/eliminar/${perfilId}`;
-            },
-            
-            async abrirModalEliminar(perfilId) {
-                this.loading = true;
-                await this.$nextTick();
-                this.perfilAEliminar = perfilId; 
-                this.mostrarModalEliminar = true; 
-                this.loading = false;
             },
 
-            ejecutarEliminacion() {
-                if (this.perfilAEliminar) {
-                    this.loading = true;
-                    this.$nextTick(() => {
-                        const formId = `form-eliminar-${this.perfilAEliminar}`;
-                        const form = document.getElementById(formId);
-                        if (form) {
-                            form.submit();
-                        }
-                        this.loading = false;
-                        this.mostrarModalEliminar = false; 
-                    });
-                } else {
-                    this.mostrarModalEliminar = false;
-                }
-            }
+            abrirModalEliminar(id) {
+                this.perfilAEliminar = id;
+                this.mostrarModalEliminar = true;
+            },
 
             validarFormulario() {
                 this.errors = {};
@@ -320,7 +303,6 @@
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
-    app.component('loader-global', loader);
     app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>

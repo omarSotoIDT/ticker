@@ -366,15 +366,16 @@
                         }                    
                     }
                 },
-                accionRegistro() {
+                
+            },
+            methods: 
+            {accionRegistro() {
                     if (this.modalRegistro.tipo === 'crear') {
                         return agregar();
                     } else {
                         return editar();
                     }
                 },
-            },
-            methods: {
                 limpiarRegistro(){
                     this.formTicket.cliente_id = null,
                     this.formTicket.proyecto_id = null,

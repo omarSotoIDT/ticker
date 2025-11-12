@@ -43,7 +43,7 @@
             <a href="{{ route('perfiles.gestor') }}" class="{{ Route::currentRouteName() == 'perfiles.gestor' ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i>Perfiles</a>
             <a href="{{ route('clientes.gestor') }}" class="{{ Route::currentRouteName() == 'clientes.gestor' ? 'active' : '' }}"><i class="fa-solid fa-file-lines"></i>Clientes</a>
             <a href="{{ route('proyectos.gestor') }}" class="{{ Route::currentRouteName() == 'proyectos.gestor' ? 'active' : '' }}"><i class="fa-solid fa-clipboard-list"></i>Proyectos</a>
-            <a href=""><i class="fa-solid fa-chart-simple"></i>Reportes</a>
+            <a href="{{ route('reportes.index') }}" class="{{ Route::currentRouteName() == 'reportes.index' ? 'active' : '' }}"><i class="fa-solid fa-chart-simple"></i>Reportes</a>
 
             <div class="logout">
                 <p>{{ Auth::user()->usuario }}</p>
