@@ -92,7 +92,7 @@
                 pieChart: null,
                 datosGraficas: [],
                 coloresGraficas: [
-                   '#3a86f2', '#8962f1', '#ee4347', '#f2a63a', '#f37842',
+                    '#3a86f2', '#8962f1', '#ee4347', '#f2a63a', '#1fb884', '#f37842',
                     '#497a60', '#8c899f', '#865e3c', '#dcda90', '#64748b'
                 ],
             }

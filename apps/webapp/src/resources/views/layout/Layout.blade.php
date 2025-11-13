@@ -46,8 +46,8 @@
             <a href="{{ route('reportes.index') }}" class="{{ Route::currentRouteName() == 'reportes.index' ? 'active' : '' }}"><i class="fa-solid fa-chart-simple"></i>Reportes</a>
 
             <div class="logout">
-                <p>{{ Auth::user()->usuario }}</p>
-                <P>{{ Auth::user()->email }}</P>
+                <p class="logout-usuario">{{ Auth::user()->usuario }}</p>
+                <p class="logout-email">{{ Auth::user()->email }}</p>
                 <form action="/logout" method="post">
                     @csrf
                     <button type="submit"><i class="fa-solid fa-right-from-bracket"></i>Cerrar Sesión</button>

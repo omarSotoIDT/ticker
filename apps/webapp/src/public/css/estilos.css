@@ -46,23 +46,32 @@ aside a i{
 
 aside .titulo {
   border-bottom: 1px solid #dcdcdc;
-  padding: 16px;
-  text-align: center;
+  padding: 16px 16px 16px 16px; /* Ajuste de padding para el espaciado izquierdo */
+  text-align: left; /* Alineación a la izquierda */
   font-weight: bold;
-  background-color: #fafafa;
+  background-color: #fafafa; /* Fondo negro */
   font-size: 17.6px;
   height: 48px;
+  display: flex; /* Para alinear verticalmente el contenido */
+  align-items: center; /* Centrado vertical */
 }
 
 aside .titulo-enlaces{
+  margin-left: 16px;
   font-size: 14px;
+  color: #52525b;
 }
 
+aside .titulo p i { margin-right: 12px; }
+
 aside p {
-  margin: 16px;
+  margin-left: 0px;
+  margin-right: 16px;
+  margin-top: 16px;
+  margin-bottom: 16px;
   font-size: 17.6px;
   font-weight: bold;
-  color: #666;
+  color: #000000;
 }
 
 aside a {
@@ -105,16 +114,37 @@ aside .logout p {
   font-size: 13.6px;
 }
 
+aside .logout .logout-usuario {
+  font-weight: 500; /* Aumenta el peso de la fuente para el nombre de usuario */
+  color: #333;
+}
+
+aside .logout .logout-email {
+  font-weight: 400; /* Mantiene el peso normal para el email */
+  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Añade "..." al final del texto cortado */
+  color: #555;
+}
+
 aside .logout button {
   margin-top: 8px;
   background-color: #ffffff;
   color: #333;
-  border: 1px #dcdcdc solid;
+  border: 1px solid #dcdcdc;
   border-radius: 8px;
-  padding: 8px 16px;
+  padding: 8px 12px; /* Ajuste de padding izquierdo a 12px */
   cursor: pointer;
   transition: background 0.2s;
   width: 100%;
+  display: flex; /* Habilitar flexbox */
+  align-items: center; /* Centrar verticalmente */
+  justify-content: flex-start; /* Alinear a la izquierda */
+  text-align: left; /* Alinear texto a la izquierda */
+}
+
+aside .logout button i {
+  margin-right: 15px; /* Espacio de 15px entre el icono y el texto */
 }
 
 aside .logout button:hover {
@@ -158,14 +188,14 @@ main {
 }
 
 .login{
-  background: #f8fafc;
+  background: #f2f6f9;
 }
 
 .card {
   background: #fff;
   border-radius: 16px;
-  box-shadow: 0 2px 16px 0 rgba(34, 35, 58, 0.06);
-  padding: 40px 32px 24px 32px;
+  border: 1px solid #dcdcdc;
+  padding: 25px 32px 80px 32px;
 }
 
 .card-login{
@@ -192,7 +222,7 @@ main {
   font-weight: 700;
   margin: 0 0 5px 0;
   color: #18181b;
-  text-align: center;
+  text-align: left;
 }
 
 .subtitulo {
@@ -235,7 +265,7 @@ main {
 }
 
 .input::placeholder {
-  color: #a1a1aa;
+  color: #f3f3f5;
 }
 
 textarea.input {
@@ -245,12 +275,13 @@ textarea.input {
 
 input, select{
   height: 40px;
-  background-color: #a1a1aa;
+  background-color: #f3f3f5;
 }
 
 .select-busqueda{
   width: 170px;
   padding: 0 10px;
+  border: none;
 }
 
 .items-busqueda{
@@ -272,20 +303,58 @@ input, select{
   transition: background 0.18s;
   margin: 0px 2px;
 }
-
-.primary-btn {
-  background: #11111a;
+.btn-login {
+  width: 100%; /* Toma el ancho d, igual que el label del form */
+  background: #111; /* Negro */
   color: #fff;
+  font-size: 16px; /* Mismo tamaño que el label, puedes ajustar según .etiqueta */
+  padding: 12px 0;  /* Ajusta el alto acorde al label y hazlo visualmente balanceado */
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+.btn-login:hover {
+  background: #232333;
 }
 
-.primary-btn:hover {
-  background: #232333;
+.primary-btn {
+    /* Fondo y bordes */
+    background-color: #000000; /* Un color oscuro similar al de la imagen, ajusta si es necesario */
+    color: #ffffff; /* Color del texto (blanco) */
+    border: none;
+    border-radius: 10px; /* Esquinas redondeadas, ajusta el radio */
+
+    /* Espaciado interno (padding) */
+    padding-right: 13px;
+    padding-left: 10px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+
+    /* Tipografía y alineación */
+    font-size: 15px; /* Tamaño de la fuente, ajusta si es necesario */
+    font-weight: 800; /* Hace que el texto sea semi-negrita */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición para el hover */
+    
+    /* Para centrar y alinear el ícono y el texto */
+    display: flex;
+    align-items: center;
+    gap: 18px; /* Espacio entre el ícono y el texto */
+}
+
+/* Estilos para el ícono */
+.primary-btn .fa-solid {
+    font-size: 13px; /* Un poco más pequeño que el texto */
+}
+
+/* Estilo al pasar el ratón (hover) */
+.primary-btn:hover:not(:disabled) {
+    background-color: #000000; /* Un poco más claro para el efecto hover */
 }
 
 .secondary-btn {
   background: #fff;
-  color: #11111a;
-  border: #000 solid 1px;
+  color: #000000;
+  border: #e5e5e5 solid 1px;
 }
 
 .edit-btn{
@@ -296,6 +365,12 @@ input, select{
 
 .secondary-btn:hover {
   background: #fefefe;
+}
+
+/* Estilo para el estado deshabilitado (disabled) */
+.primary-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .alerta {
@@ -309,6 +384,8 @@ input, select{
   overflow: hidden;
   transform: translateX(calc(100% + 30px));
   transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+  z-index: 1010;
+
 }
 
 .alerta.activo {
@@ -396,6 +473,12 @@ input, select{
   min-width: 380px;
   max-width: 420px;
   flex-grow: 1;
+}
+
+.contenedor-icono-boton {
+  display: flex;
+  align-items: center;
+  gap: 14px; /* separación mediana */
 }
 
 .buscador-icono {
@@ -539,8 +622,8 @@ input, select{
 .badge {
   display: inline-block;
   padding: 4px 10px;
-  border: 1px solid #000;
-  border-radius: 999px; 
+  border: 1px solid #e6ecef;
+  border-radius: 8px; 
   font-size: 12px;
   font-weight: 600;
   line-height: 1;
@@ -551,7 +634,7 @@ input, select{
 
 .badge-active {
   background-color: #111827;
-  color: #e5e7eb;
+  color: #fff;
 }
 
 .badge-inactive {
@@ -565,6 +648,7 @@ input, select{
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0,0,0,0.3);
   display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
 }
 
 .modal {
@@ -592,9 +676,9 @@ input, select{
 }
 
 .acciones-modal {
-  margin-top: 15px;
-  text-align: right;
-  gap: 10px;
+  display: flex; /* Habilita Flexbox para alinear los botones */
+  justify-content: flex-end; /* Alinea los botones a la derecha */
+  gap: 10px; /* Crea una separación de 10px entre los botones */
 }
 
 .animation-fade-enter-active, .animation-fade-leave-active {
@@ -737,16 +821,16 @@ input, select{
 }
 
 .badge.status-abierto { background-color: #11111a; color: #fff; }
-.badge.status-progreso { background-color: #e5e7eb;  } 
-.badge.status-requerida { background-color: #eceef2; } 
+.badge.status-progreso { background-color: #e5e7eb;  border: 1px solid #e5e7eb;} 
+.badge.status-requerida { background-color: #eceef2; border: 1px solid #eceef2;} 
 .badge.status-atendido { background-color: #fff; border: 1px solid #d1d5db; }
-.badge.status-cancelado { background-color: #d3163e; color: #fff; } 
+.badge.status-cancelado { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
 .badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;} 
 
 .badge.prioridad-baja { background-color: #fff; border: 1px solid #d1d5db; }
-.badge.prioridad-media { background-color: #eceef2;  }
+.badge.prioridad-media { background-color: #eceef2; border: 1px solid #eceef2;}
 .badge.prioridad-alta { background-color: #11111a; color: #fff; } 
-.badge.prioridad-urgente { background-color: #d3163e; color: #fff; } 
+.badge.prioridad-urgente { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
 
 .modal-grande { width: 900px; }
 .modal-base { width: 550px; }
@@ -961,8 +1045,8 @@ input, select{
 .loader-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.35); 
-  z-index: 99999;
+  background: rgba(0,0,0,0.35);
+  z-index: 1020;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1101,17 +1185,28 @@ input, select{
 
 .input.select-busqueda,
 .input.select-busqueda {
-  border: 1px solid #d1d5db;
+  border: 1px solid #ffffff;
   border-radius: 8px;
   background-color: #f3f3f5;
   padding: 10px 36px 10px 14px;
   font-size: 15px;
-  color: #111827;
+  color: #000000; /* Color de texto negro para la opción seleccionada */
   box-sizing: border-box;
   width: 100%;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 16px center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 40px;
+}
+
+/* Estilos para las opciones del desplegable */
+.input.select-busqueda option {
+  background-color: #f3f3f5; /* Mismo fondo que el select */
+  color: #9797a2; /* Mismo color de texto que el select */
 }
 
 .input.select-busqueda:focus {

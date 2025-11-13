@@ -18,7 +18,10 @@
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
             <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
         </form>
-        <button class="btn action-btn" @click.prevent="modalCrear" :disabled="loading"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Perfil
+        </button>
     </div>
 
     <table class="tabla">

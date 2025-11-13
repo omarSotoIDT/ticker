@@ -15,6 +15,6 @@ class PerfilRepoData
 
         $consulta = PerfilRH::aplicarFiltros($consulta, $filtros);
 
-        return $consulta->paginate($limit);
+        return $consulta->get()->toArray();
     }
 }

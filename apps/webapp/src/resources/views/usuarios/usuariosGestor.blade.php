@@ -12,7 +12,10 @@
                 <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Usuario
+        </button>
     </div>
     <table class="tabla">
       <thead>
@@ -33,7 +36,7 @@
             <span v-if="!usuario.nombrePerfiles.length">-</span>
             @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
           <td>
-            <span class="badge" :class="badgeStatus(usuario.status)">@{{ usuario.status }}</span>
+            <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ usuario.status }}</span>
           </td>
           <td>@{{ usuario.acceso }}</td>
           <td class="acciones">
@@ -194,6 +197,7 @@
         }
       },
       methods: {
+        
         modalCrear(){
           this.tipoForm = 'crear';
           this.formUsuario.nombre = '';
@@ -202,7 +206,6 @@
           this.formUsuario.perfiles = [];
           this.mostrarModal = true;
         },
-  
         modalEditar(id){
           this.usuario = this.usuarios.find(u => u.usuarioId === id);
           if (!this.usuario) return;

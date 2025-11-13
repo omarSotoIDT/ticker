@@ -20,7 +20,11 @@
                     <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
                 </select>
             </div>
-            <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Ticket</button>
+
+            <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Ticket
+        </button>
 
         </div>
 
@@ -90,7 +94,7 @@
                 <div class="grid-2-col">
                     <div class="campo">
                         <label class="etiqueta" for="cliente">Cliente</label>
-                        <select class="input" name="cliente" id="cliente" v-model="formTicket.cliente_id" @change="seleccionarCliente()">
+                        <select class="input select-busqueda" name="cliente" id="cliente" v-model="formTicket.cliente_id" @change="seleccionarCliente()">
                             <option :value="null" disabled>Selecciona cliente</option>
                             <option v-for="cliente in clientes" :key="cliente.cliente_id" :value="cliente.cliente_id">
                                 @{{ cliente.nombre }}    
@@ -100,7 +104,7 @@
                     </div>
                     <div class="campo">
                         <label class="etiqueta" for="proyecto">Proyecto</label>
-                        <select class="input" name="proyecto" id="proyecto" v-model="formTicket.proyecto_id" :disabled="!formTicket.cliente_id">
+                        <select class="input select-busqueda" name="proyecto" id="proyecto" v-model="formTicket.proyecto_id" :disabled="!formTicket.cliente_id">
                             <option :value="null" disabled>Selecciona proyecto</option>
                             <option v-for="proyecto in proyectosCliente" :key="proyecto.proyecto_id" :value="proyecto.proyecto_id">
                                 @{{ proyecto.nombre }}
@@ -112,7 +116,7 @@
 
                 <div class="campo"> 
                     <label class="etiqueta" for="etiqueta">Categoría</label> 
-                    <select class="input" name="etiqueta" id="etiqueta" v-model="formTicket.etiqueta_id">
+                    <select class="input select-busqueda" name="etiqueta" id="etiqueta" v-model="formTicket.etiqueta_id">
                         <option :value="null" disabled>Selecciona categoría</option> 
                         <option v-for="etiqueta in etiquetas" :key="etiqueta.etiquetaId" :value="etiqueta.etiquetaId">
                             @{{ etiqueta.titulo }}
@@ -125,7 +129,7 @@
 
                     <div class="campo">
                         <label class="etiqueta" for="prioridad">Prioridad</label>
-                        <select class="input" name="prioridad" id="prioridad" v-model="formTicket.prioridad">
+                        <select class="input select-busqueda" name="prioridad" id="prioridad" v-model="formTicket.prioridad">
                             <option value="" disabled>Selecciona prioridad</option>
                             <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
                         </select>
@@ -134,9 +138,9 @@
 
                     <div class="campo" v-if="modalRegistro.tipo === 'crear' && formTicket.titulo && formTicket.descripcion && formTicket.cliente_id && formTicket.proyecto_id && formTicket.etiqueta_id && formTicket.prioridad">
                          <label class="etiqueta" for="usuario">Usuario Asignado</label>
-                         <select class="input" name="usuario" id="usuario" v-model="formTicket.usuario_asignado_id">
+                         <select class="input select-busqueda" name="usuario" id="usuario" v-model="formTicket.usuario_asignado_id">
                             <option :value="null" disabled>Selecciona un usuario</option>
-                            <option v-for="usuario in usuarios" :value="usuario.usuarioId">@{{ usuario.usuario }}</option>
+                            <option v-for="usuario in usuarios" :value="usuario.usuarioId" class="input select-busqueda option">@{{ usuario.usuario }}</option>
                          </select>
                          <span class="error" v-if="erroresRegistro.usuario_asignado_id">@{{ erroresRegistro.usuario_asignado_id[0] }}</span>
                     </div>

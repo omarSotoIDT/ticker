@@ -1,6 +1,6 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Gestor de Proyectos')
+@section('titulo', 'Proyectos')
 
 @section('contenido')
 <div id="app">
@@ -13,7 +13,11 @@
                 <input type="text" name="proyecto" id="proyecto" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Proyectos..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Proyecto</button>
+
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Proyecto
+        </button>
     </div>
     <table class="tabla">
         <thead>
@@ -85,7 +89,7 @@
 
             <div class="campo">
                 <label class="etiqueta" for="cliente">Cliente</label>
-                <select class="input" v-model="formproyecto.cliente_id" id="cliente">
+                <select class="input select-busqueda" v-model="formproyecto.cliente_id" id="cliente">
                     <option value="" disabled>Selecciona un cliente</option>
                     <option v-for="cliente in clientes" :key="cliente.cliente_id" :value="cliente.cliente_id">
                         @{{ cliente.nombre }}
@@ -182,10 +186,10 @@
 </div>
 
 <script>
-const app = Vue.createApp({
+    const app = Vue.createApp({
         data() {
             return {
-                loading: false, 
+                loading: false,
                 mostrarModalStatus: false,
                 mostrarModalHistorial: false,
                 formEliminar: {
@@ -247,7 +251,7 @@ const app = Vue.createApp({
                     return 'Procesando...';
                 }
                 if (this.tipoForm === 'crear') {
-                    return 'Guardar proyecto';
+                    return 'Crear proyecto';
                 } else {
                     return 'Guardar Cambios';
                 }
@@ -264,7 +268,7 @@ const app = Vue.createApp({
             this.listarProyectos();
         },
         methods: {
-            
+
             async listarProyectos() {
                 this.loading = true;
                 try {
@@ -314,7 +318,7 @@ const app = Vue.createApp({
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar clientes:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar clientes:');
                 }
             },
 
@@ -330,7 +334,7 @@ const app = Vue.createApp({
                         ...u
                     }));
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios:');
                 }
             },
 
@@ -364,7 +368,7 @@ const app = Vue.createApp({
                     this.erroresModal = {};
                     this.mostrarAlerta('exito', 'Exito', 'Proyecto creado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al crear proyecto');
+                    this.mostrarAlerta('error', 'Error', 'Error al crear proyecto');
                 } finally {
                     this.loading = false;
                 }
@@ -406,11 +410,11 @@ const app = Vue.createApp({
                     this.loading = false;
                 }
             },
-            accion(){
+            accion() {
                 if (this.tipoForm === 'crear') {
                     return this.crearProyecto();
                 } else {
-                    return this.actualizarProyecto();    
+                    return this.actualizarProyecto();
                 }
             },
             async mostrarHistorial(proyecto_id) {
@@ -426,7 +430,7 @@ const app = Vue.createApp({
                     this.usuariosProyecto = data.usuarios || [];
                     this.mostrarModalHistorial = true;
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al obtener historial:');
+                    this.mostrarAlerta('error', 'Error', 'Error al obtener historial:');
                 } finally {
                     this.loading = false;
                 }
@@ -442,7 +446,7 @@ const app = Vue.createApp({
             },
 
             async cambiarEstado() {
-                if (!this.proyectoSeleccionado || this.loading) return; 
+                if (!this.proyectoSeleccionado || this.loading) return;
 
                 this.erroresModal = {};
                 this.loading = true;
@@ -453,7 +457,7 @@ const app = Vue.createApp({
                     } else if (this.tipoForm === 'activar') {
                         await this.activarProyecto();
                     } else {
-                        this.mostrarAlerta('error', 'Error','Acción no reconocida');
+                        this.mostrarAlerta('error', 'Error', 'Acción no reconocida');
                         return;
                     }
 
@@ -524,12 +528,12 @@ const app = Vue.createApp({
                 if (res.status === 422) {
                     this.erroresModal = data.errores || {};
                     const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
-                    this.mostrarAlerta('error','Error' ,msg);
+                    this.mostrarAlerta('error', 'Error', msg);
                     throw new Error(msg);
                 }
 
                 if (!res.ok) {
-                   const data = await res.json().catch(() => ({}));
+                    const data = await res.json().catch(() => ({}));
                     this.erroresModal = data.errores || {};
                     const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
                     this.mostrarAlerta('error', 'Error', msg);
@@ -574,7 +578,7 @@ const app = Vue.createApp({
                     const usuarios = data.data || [];
                     this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios asignados:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios asignados:');
                 }
             },
 
@@ -604,7 +608,7 @@ const app = Vue.createApp({
                 const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
                 const res = await fetch(url, {
                     method: 'PATCH',
-                    headers: {  
+                    headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': this.token
                     }
