@@ -55,7 +55,7 @@
                     <td>@{{ ticket.usuarioAsignado }}</td>
                     <td><span class="badge" :class="this.STATUS_BADGES[ticket.status]">@{{ formatBadgeText(ticket.status) }}</span></td>
                     <td><span class="badge" :class="this.PRIORIDAD_BADGES[ticket.prioridad]">@{{ formatBadgeText(ticket.prioridad) }}</span></td>
-                    <td>@{{ ticket.registroFecha }}</td>
+                    <td>@{{ formatFecha(ticket.registroFecha) }}</td>
                     <td class="acciones">
                         <div class="acciones-contenedor">
                             <button @click.prevent="mostrarTicketConLoader(ticket.ticketId)" title="Ver Ticket">
@@ -213,8 +213,8 @@
                     <div v-if="modalVer.seccion === 'descripcion'" class="seccion-descripcion">
                         <div class="descripcion-contenido" v-text="ticket.descripcion"></div>
                         <div class="descripcion-fechas">
-                            <span><strong>Creado:</strong> @{{ ticket.registroFecha }}</span>
-                            <span v-if="ticket.actualizacionFecha"><strong>Actualizado:</strong> @{{ ticket.actualizacionFecha }}</span>
+                            <span><strong>Creado:</strong> @{{ formatFecha(ticket.registroFecha) }}</span>
+                            <span v-if="ticket.actualizacionFecha"><strong>Actualizado:</strong> @{{ formatFecha(ticket.actualizacionFecha) }}</span>
                         </div>
                     </div>
 
@@ -228,7 +228,7 @@
                                 <div class="comentario-cuerpo">
                                     <div class="comentario-header">
                                         <strong>@{{ comentario.usuario }}</strong>
-                                        <span class="comentario-fecha">@{{ comentario.registroFecha }}</span>
+                                        <span class="comentario-fecha">@{{ formatFecha(comentario.registroFecha) }}</span>
                                     </div>
                                     <div class="comentario-texto" v-text="comentario.comentario"></div>
                                 </div>
@@ -250,7 +250,7 @@
                         </p>
                         <ul class="lista-historial">
                             <li v-for="item in ticketHistorial" :key="item.logTicketId">
-                                <span class="historial-fecha-usuario">@{{ item.registroFecha }}</span>
+                                <span class="historial-fecha-usuario">@{{ formatFecha(item.registroFecha) }}</span>
                                 <span class="historial-cambio">
                                     @{{ item.descripcion }}:
                                 </span>
@@ -373,6 +373,19 @@
                 },
             },
             methods: {
+                formatFecha(fecha) {
+                    if (!fecha) return '';
+                    const d = new Date(fecha);
+                    if (isNaN(d.getTime())) return fecha;
+
+                    const dia = String(d.getDate()).padStart(2, '0');
+                    const mes = String(d.getMonth() + 1).padStart(2, '0');
+                    const anio = d.getFullYear();
+                    const horas = String(d.getHours()).padStart(2, '0');
+                    const minutos = String(d.getMinutes()).padStart(2, '0');
+
+                    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+                },
                 formatBadgeText(text) {
                     if (!text) return '';
                     return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());

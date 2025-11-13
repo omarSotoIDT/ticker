@@ -46,14 +46,14 @@ aside a i{
 
 aside .titulo {
   border-bottom: 1px solid #dcdcdc;
-  padding: 16px 16px 16px 16px; /* Ajuste de padding para el espaciado izquierdo */
-  text-align: left; /* Alineación a la izquierda */
+  padding: 16px 16px 16px 16px;
+  text-align: left;
   font-weight: bold;
-  background-color: #fafafa; /* Fondo negro */
+  background-color: #fafafa;
   font-size: 17.6px;
   height: 48px;
-  display: flex; /* Para alinear verticalmente el contenido */
-  align-items: center; /* Centrado vertical */
+  display: flex;
+  align-items: center;
 }
 
 aside .titulo-enlaces{
@@ -115,15 +115,15 @@ aside .logout p {
 }
 
 aside .logout .logout-usuario {
-  font-weight: 500; /* Aumenta el peso de la fuente para el nombre de usuario */
+  font-weight: 500;
   color: #333;
 }
 
 aside .logout .logout-email {
-  font-weight: 400; /* Mantiene el peso normal para el email */
-  white-space: nowrap; /* Evita que el texto se divida en varias líneas */
-  overflow: hidden; /* Oculta el texto que se desborda */
-  text-overflow: ellipsis; /* Añade "..." al final del texto cortado */
+  font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #555;
 }
 
@@ -133,18 +133,18 @@ aside .logout button {
   color: #333;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
-  padding: 8px 12px; /* Ajuste de padding izquierdo a 12px */
+  padding: 8px 12px;
   cursor: pointer;
   transition: background 0.2s;
   width: 100%;
-  display: flex; /* Habilitar flexbox */
-  align-items: center; /* Centrar verticalmente */
-  justify-content: flex-start; /* Alinear a la izquierda */
-  text-align: left; /* Alinear texto a la izquierda */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
 }
 
 aside .logout button i {
-  margin-right: 15px; /* Espacio de 15px entre el icono y el texto */
+  margin-right: 15px;
 }
 
 aside .logout button:hover {
@@ -265,7 +265,7 @@ main {
 }
 
 .input::placeholder {
-  color: #f3f3f5;
+  color: #9ca3af;
 }
 
 textarea.input {
@@ -304,11 +304,11 @@ input, select{
   margin: 0px 2px;
 }
 .btn-login {
-  width: 100%; /* Toma el ancho d, igual que el label del form */
-  background: #111; /* Negro */
+  width: 100%;
+  background: #111;
   color: #fff;
-  font-size: 16px; /* Mismo tamaño que el label, puedes ajustar según .etiqueta */
-  padding: 12px 0;  /* Ajusta el alto acorde al label y hazlo visualmente balanceado */
+  font-size: 16px;
+  padding: 12px 0;
   margin-top: 16px;
   margin-bottom: 0;
 }
@@ -317,38 +317,29 @@ input, select{
 }
 
 .primary-btn {
-    /* Fondo y bordes */
-    background-color: #000000; /* Un color oscuro similar al de la imagen, ajusta si es necesario */
-    color: #ffffff; /* Color del texto (blanco) */
+    background-color: #000000;
+    color: #ffffff;
     border: none;
-    border-radius: 10px; /* Esquinas redondeadas, ajusta el radio */
-
-    /* Espaciado interno (padding) */
+    border-radius: 10px;
     padding-right: 13px;
     padding-left: 10px;
     padding-top: 11px;
     padding-bottom: 11px;
-
-    /* Tipografía y alineación */
-    font-size: 15px; /* Tamaño de la fuente, ajusta si es necesario */
-    font-weight: 800; /* Hace que el texto sea semi-negrita */
+    font-size: 15px;
+    font-weight: 800;
     cursor: pointer;
-    transition: background-color 0.3s ease; /* Transición para el hover */
-    
-    /* Para centrar y alinear el ícono y el texto */
+    transition: background-color 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 18px; /* Espacio entre el ícono y el texto */
+    gap: 18px;
 }
 
-/* Estilos para el ícono */
 .primary-btn .fa-solid {
-    font-size: 13px; /* Un poco más pequeño que el texto */
+    font-size: 13px;
 }
 
-/* Estilo al pasar el ratón (hover) */
 .primary-btn:hover:not(:disabled) {
-    background-color: #000000; /* Un poco más claro para el efecto hover */
+    background-color: #000000;
 }
 
 .secondary-btn {
@@ -367,7 +358,6 @@ input, select{
   background: #fefefe;
 }
 
-/* Estilo para el estado deshabilitado (disabled) */
 .primary-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -478,7 +468,7 @@ input, select{
 .contenedor-icono-boton {
   display: flex;
   align-items: center;
-  gap: 14px; /* separación mediana */
+  gap: 14px;
 }
 
 .buscador-icono {
@@ -627,7 +617,7 @@ input, select{
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  text-transform: none; /* Se elimina la transformación a mayúsculas */
+  text-transform: none;
   background-color: #fff;
   color: #000000;
 }
@@ -676,9 +666,9 @@ input, select{
 }
 
 .acciones-modal {
-  display: flex; /* Habilita Flexbox para alinear los botones */
-  justify-content: flex-end; /* Alinea los botones a la derecha */
-  gap: 10px; /* Crea una separación de 10px entre los botones */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .animation-fade-enter-active, .animation-fade-leave-active {
@@ -821,16 +811,16 @@ input, select{
 }
 
 .badge.status-abierto { background-color: #11111a; color: #fff; }
-.badge.status-progreso { background-color: #e5e7eb;  border: 1px solid #e5e7eb;} 
-.badge.status-requerida { background-color: #eceef2; border: 1px solid #eceef2;} 
+.badge.status-progreso { background-color: #e5e7eb;  border: 1px solid #e5e7eb;}
+.badge.status-requerida { background-color: #eceef2; border: 1px solid #eceef2;}
 .badge.status-atendido { background-color: #fff; border: 1px solid #d1d5db; }
-.badge.status-cancelado { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
-.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;} 
+.badge.status-cancelado { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;}
+.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;}
 
 .badge.prioridad-baja { background-color: #fff; border: 1px solid #d1d5db; }
 .badge.prioridad-media { background-color: #eceef2; border: 1px solid #eceef2;}
-.badge.prioridad-alta { background-color: #11111a; color: #fff; } 
-.badge.prioridad-urgente { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
+.badge.prioridad-alta { background-color: #11111a; color: #fff; }
+.badge.prioridad-urgente { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;}
 
 .modal-grande { width: 900px; }
 .modal-base { width: 550px; }
@@ -1154,7 +1144,7 @@ input, select{
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 28px;  
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   border: 1px solid #d1d5db;
   box-sizing: border-box;
   margin-top: 24px;
@@ -1190,7 +1180,7 @@ input, select{
   background-color: #f3f3f5;
   padding: 10px 36px 10px 14px;
   font-size: 15px;
-  color: #000000; /* Color de texto negro para la opción seleccionada */
+  color: #000000;
   box-sizing: border-box;
   width: 100%;
   -webkit-appearance: none;
@@ -1203,10 +1193,11 @@ input, select{
   padding-right: 40px;
 }
 
-/* Estilos para las opciones del desplegable */
 .input.select-busqueda option {
-  background-color: #f3f3f5; /* Mismo fondo que el select */
-  color: #9797a2; /* Mismo color de texto que el select */
+  background-color: #f3f3f5;
+  color: #18181b;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
 }
 
 .input.select-busqueda:focus {
@@ -1229,6 +1220,21 @@ input, select{
 #app.scrollable-reportes::-webkit-scrollbar-track {
   background: #f3f4f6;
 }
+
+.tabla-container {
+  background: #fff;
+  border-radius: 14px;
+  padding-top: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  margin-top: 24px;
+  margin-bottom: 40px;
+  overflow: auto;
+}
+
 .etiqueta-gris {
   color: #6b7280;
 } 

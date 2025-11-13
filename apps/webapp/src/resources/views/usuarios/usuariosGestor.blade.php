@@ -38,7 +38,7 @@
           <td>
             <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
           </td>
-          <td>@{{ usuario.acceso }}</td>
+          <td>@{{ formatFecha(usuario.acceso) }}</td>
           <td class="acciones">
             <div class="acciones-contenedor">
               <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
@@ -197,6 +197,19 @@
         }
       },
       methods: {
+        formatFecha(fecha) {
+            if (!fecha) return '';
+            const d = new Date(fecha);
+            if (isNaN(d.getTime())) return fecha;
+
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const anio = d.getFullYear();
+            const horas = String(d.getHours()).padStart(2, '0');
+            const minutos = String(d.getMinutes()).padStart(2, '0');
+
+            return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+        },
         formatBadgeText(text) {
             if (!text) return '';
             return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
