@@ -36,7 +36,7 @@
                 <td class="columna-grande">@{{ proyecto.descripcion }}</td>
                 <td>
                     <span class="badge" :class="proyecto.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                        @{{ proyecto.status }}
+                        @{{ formatBadgeText(proyecto.status) }}
                     </span>
                 </td>
 
@@ -77,13 +77,13 @@
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre">
+                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre" maxlength="150">
                 <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion"></textarea>
+                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion" maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.descripcion">@{{ erroresModal.descripcion[0] }}</span>
             </div>
 
@@ -169,14 +169,14 @@
             <p>
                 <strong>@{{ proyectoSeleccionado?.nombre }}</strong> — Estado actual:
                 <span class="badge" :class="proyectoSeleccionado?.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                    @{{ proyectoSeleccionado?.status }}
+                    @{{ formatBadgeText(proyectoSeleccionado?.status) }}
                 </span>
             </p>
 
             <div class="campo" v-if="tipoForm === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
 
-                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..."></textarea>
+                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..." maxlength="250"></textarea>
 
                 <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
             </div>
@@ -268,7 +268,10 @@
             this.listarProyectos();
         },
         methods: {
-
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
             async listarProyectos() {
                 this.loading = true;
                 try {

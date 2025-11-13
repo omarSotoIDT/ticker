@@ -40,7 +40,7 @@
                 <td>@{{ cliente.contacto }}</td>
                 <td>@{{ cliente.email }}</td>
                 <td>
-                    <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ cliente.status }} </span>
+                    <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ formatBadgeText(cliente.status) }} </span>
                 </td>
                 <td class="acciones">
                     <div class="acciones-contenedor">
@@ -72,22 +72,22 @@
         <form id="formCliente" class="form centrado" @submit.prevent>
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" type="text" id="nombre" v-model="formCliente.nombre">
+                <input class="input" type="text" id="nombre" v-model="formCliente.nombre" maxlength="150">
                 <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" id="descripcion" v-model="formCliente.descripcion"></textarea>
+                <textarea class="input" id="descripcion" v-model="formCliente.descripcion" maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.descripcion">@{{ erroresModal.descripcion[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="contacto">Contacto</label>
-                <input class="input" type="text" id="contacto" v-model="formCliente.contacto">
+                <input class="input" type="text" id="contacto" v-model="formCliente.contacto" maxlength="150">
                 <span class="error" v-if="erroresModal.contacto">@{{ erroresModal.contacto[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="email">Email</label>
-                <input class="input" type="email" id="email" v-model="formCliente.email">
+                <input class="input" type="email" id="email" v-model="formCliente.email" maxlength="150">
                 <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
             </div>
         </form>
@@ -106,7 +106,7 @@
         <form id="formToggle" @submit.prevent>
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
-                <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required></textarea>
+                <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.motivo || erroresModal.motivo_eliminacion">@{{ erroresModal.motivo ? erroresModal.motivo[0] : erroresModal.motivo_eliminacion[0] }}</span>
             </div>
         </form>
@@ -202,6 +202,10 @@
             }
         },
         methods: {
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
              mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
                 this.alerta.titulo = titulo;

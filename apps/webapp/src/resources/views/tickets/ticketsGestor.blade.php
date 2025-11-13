@@ -53,8 +53,8 @@
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
                     <td>@{{ ticket.usuarioAsignado }}</td>
-                    <td><span class="badge" :class="this.STATUS_BADGES[ticket.status]">@{{ ticket.status }}</span></td>
-                    <td><span class="badge" :class="this.PRIORIDAD_BADGES[ticket.prioridad]">@{{ ticket.prioridad }}</span></td>
+                    <td><span class="badge" :class="this.STATUS_BADGES[ticket.status]">@{{ formatBadgeText(ticket.status) }}</span></td>
+                    <td><span class="badge" :class="this.PRIORIDAD_BADGES[ticket.prioridad]">@{{ formatBadgeText(ticket.prioridad) }}</span></td>
                     <td>@{{ ticket.registroFecha }}</td>
                     <td class="acciones">
                         <div class="acciones-contenedor">
@@ -81,13 +81,13 @@
             <form id="form" class="form centrado">
                 <div class="campo">
                     <label class="etiqueta" for="titulo">Título</label>
-                    <input class="input" type="text" name="titulo" id="titulo" v-model="formTicket.titulo">
+                    <input class="input" type="text" name="titulo" id="titulo" v-model="formTicket.titulo" maxlength="100">
                     <span class="error" v-if="erroresRegistro.titulo">@{{ erroresRegistro.titulo[0] }}</span>
                 </div>
 
                 <div class="campo">
                     <label class="etiqueta" for="descripcion">Descripción</label>
-                    <textarea class="input" name="descripcion" id="descripcion" v-model="formTicket.descripcion"></textarea>
+                    <textarea class="input" name="descripcion" id="descripcion" v-model="formTicket.descripcion" maxlength="250"></textarea>
                     <span class="error" v-if="erroresRegistro.descripcion">@{{ erroresRegistro.descripcion[0] }}</span>
                 </div>
 
@@ -140,7 +140,7 @@
                          <label class="etiqueta" for="usuario">Usuario Asignado</label>
                          <select class="input select-busqueda" name="usuario" id="usuario" v-model="formTicket.usuario_asignado_id">
                             <option :value="null" disabled>Selecciona un usuario</option>
-                            <option v-for="usuario in usuarios" :value="usuario.usuarioId" class="input select-busqueda option">@{{ usuario.usuario }}</option>
+                            <option v-for="usuario in usuarios" :value="usuario.usuarioId">@{{ usuario.usuario }}</option>
                          </select>
                          <span class="error" v-if="erroresRegistro.usuario_asignado_id">@{{ erroresRegistro.usuario_asignado_id[0] }}</span>
                     </div>
@@ -236,7 +236,7 @@
                         </div>
 
                         <div class="nuevo-comentario-form">
-                            <textarea class="input" v-model="formFeedback.comentario" placeholder="Escribe un comentario..."></textarea>
+                            <textarea class="input" v-model="formFeedback.comentario" placeholder="Escribe un comentario..." maxlength="250"></textarea>
                             <span class="error" v-if="erroresRegistroFeedback.comentario">@{{ erroresRegistroFeedback.comentario[0] }}</span>
                             <button class="btn primary-btn btn-enviar-comentario" @click.prevent="agregarFeedback" title="Enviar Comentario">
                                 <i class="fa-solid fa-paper-plane"></i>
@@ -373,6 +373,10 @@
                 },
             },
             methods: {
+                formatBadgeText(text) {
+                    if (!text) return '';
+                    return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+                },
                 accionRegistro() {
                     if (this.modalRegistro.tipo === 'crear') {
                         return this.agregar();

@@ -68,8 +68,8 @@
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
                     <td>@{{ ticket.usuarioAsignado }}</td>
-                    <td><span class="badge">@{{ ticket.status }}</span></td>
-                    <td><span class="badge">@{{ ticket.prioridad }}</span></td>
+                    <td><span class="badge">@{{ formatBadgeText(ticket.status) }}</span></td>
+                    <td><span class="badge">@{{ formatBadgeText(ticket.prioridad) }}</span></td>
                     <td>@{{ ticket.etiqueta }}</td>
                 </tr>
             </tbody>
@@ -98,6 +98,10 @@
             }
         },
         methods: {
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
             safeDestroyChart(chartInstance) {
                 if (chartInstance && typeof chartInstance.destroy === 'function') {
                     chartInstance.destroy();

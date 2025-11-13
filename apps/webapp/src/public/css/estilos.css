@@ -623,11 +623,11 @@ input, select{
   display: inline-block;
   padding: 4px 10px;
   border: 1px solid #e6ecef;
-  border-radius: 8px; 
-  font-size: 12px;
+  border-radius: 8px;   
+  font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none; /* Se elimina la transformación a mayúsculas */
   background-color: #fff;
   color: #000000;
 }
