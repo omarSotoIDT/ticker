@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class PerfilRepoData
 {
-    public static function obtenerPerfiles(array $filtros = [], $limit = 10)
+    public static function obtenerPerfiles(array $filtros = [], $limit = 10, $paginate)
     {
         $consulta = DB::table('sys_perfiles')
             ->where('status', 'ACTIVO')
@@ -15,6 +15,12 @@ class PerfilRepoData
 
         $consulta = PerfilRH::aplicarFiltros($consulta, $filtros);
 
-        return $consulta->paginate($limit);
+        if ($paginate){
+            $resultado = $consulta->paginate($limit);
+        }
+        else{
+            $resultado = $consulta->get()->toArray();
+        }
+        return $resultado;
     }
 }

@@ -20,8 +20,7 @@ class PerfilController extends Controller
     public static function listarRest(Request $request)
     {
         try {
-            $filtros = $request->all();
-
+            $filtros = $request->only(['busqueda']);
             $resultado = PerfilCoordinator::obtenerPerfiles($filtros);
 
             return response()->json([
@@ -30,10 +29,8 @@ class PerfilController extends Controller
                 'permisos' => $resultado['permisos'],
             ]);
         } catch (Throwable $error) {
-            Log::error("Error al listar perfiles: " . $error->getMessage());
-            return response()->json([
-                'error' => 'Ocurrió un error al listar los perfiles'
-            ], 500);
+            Log::error("Error al listar perfiles: " . $error);
+            return response()->json(['error' => 'Ocurrió un error al listar los perfiles'], 500);
         }
     }
 

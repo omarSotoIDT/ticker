@@ -49,13 +49,9 @@ class PermisoMiddleware
         'tickets.editarStatusRest'   => 'cambiar_status_tickets',
         'tickets.editarPrioridadRest'=> 'cambiar_prioridad_tickets',
         'tickets.editarAsignacionRest'=> 'asignar_tickets',
-        'tickets.listarFeedbackRest' => 'ver_feedback_tickets',
         'tickets.agregarFeedbackRest'=> 'agregar_feedback_tickets',
 
         'reportes.index' => 'ver_reportes',
-        'reportes.datos' => 'ver_reportes',
-        'reportes.tickets' => 'ver_reportes',
-        'reportes.filtros' => 'ver_reportes',
     ];
 
     public function handle(Request $request, Closure $next)
@@ -87,22 +83,22 @@ class PermisoMiddleware
 
     private function denegar(Request $request, ?string $permiso = null)
     {
-        $message = $permiso
+        $mensaje = $permiso
             ? "No tienes permisos para realizar la acción: $permiso."
             : "No tienes permisos para realizar esta acción.";
 
         if ($request->wantsJson() || $request->ajax() || $request->is('api/*')) {
             return response()->json([
                 'error' => true,
-                'mensaje' => $message,
+                'mensaje' => $mensaje,
                 'permiso_requerido' => $permiso,
             ], 403);
         }
 
         if (url()->previous() && url()->previous() !== url()->current()) {
-            return redirect()->back()->with('error', $message);
+            return redirect()->back()->with('error', $mensaje);
         }
 
-        return redirect()->route('dashboard')->with('error', $message);
+        return redirect()->route('dashboard')->with('error', $mensaje);
     }
 }

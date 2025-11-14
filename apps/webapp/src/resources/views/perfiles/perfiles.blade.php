@@ -4,13 +4,14 @@
 
 @section('contenido')
 
-<div id="app" class="clientes">
+<div id="app">
+    <loading-global :visible="loading"></loading-global>
     <div class="modulo-encabezado">
         <div class="cont-buscador">
             <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input-busqueda" placeholder="Buscar perfiles...">
+            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input input-busqueda" placeholder="Buscar Perfiles..."></input>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()">
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">
             <i class="fa fa-plus"></i> Nuevo Perfil
         </button>
     </div>
@@ -32,12 +33,14 @@
                 <td>@{{ perfil.descripcion }}</td>
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
+                    <div class="acciones-contenedor">
                     <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    </div>
                 </td>
             </tr>
             <tr v-if="!perfiles.length">
@@ -54,7 +57,9 @@
         :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
         :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
         :texto-confirmacion="tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios'"
+        clase-modal="modal-base"
         @confirmar="guardar">
+        
 
         <form class="form centrado" @submit.prevent="guardar" novalidate>
             <div class="campo">
@@ -166,6 +171,7 @@
 
             // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
             fetchPerfiles(url = null) {
+                this.loading = true;
                 const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
 
                 fetch(requestUrl)
@@ -178,9 +184,12 @@
                     .catch(() => {
                         this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
                     });
+                this.loading = false;
+
             },
 
             guardar() {
+                this.loading = true;
                 if (!this.validarFormulario()) return;
 
                 const url = this.tipoForm === 'crear' ?
@@ -221,9 +230,11 @@
                         }
                     })
                     .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'));
-            },
+                    this.loading = false;
+                },
 
             eliminarPerfil() {
+                this.loading = true;
                 if (!this.perfilAEliminar) return;
 
                 fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
@@ -246,6 +257,7 @@
                         }
                     })
                     .catch(() => this.mostrarAlerta('error', 'Error de conexión al eliminar.'));
+                    this.loading = false;
             },
 
             cargarPagina(url) {
@@ -303,6 +315,7 @@
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
+    app.component('loading-global', loader)
     app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>
