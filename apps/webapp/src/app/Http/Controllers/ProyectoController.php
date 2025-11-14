@@ -28,7 +28,6 @@ class ProyectoController extends Controller
         }
     }
 
-
     private function validarProyecto(Request $request, bool $esEditar = false): array
     {
         $reglas = [
@@ -54,9 +53,10 @@ class ProyectoController extends Controller
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
+
             $proyectos = ProyectoService::listar($filtros);
-            
-            $proyectos = $proyectos->map(function ($p) {
+
+            $data = collect($proyectos->items())->map(function ($p) {
                 $p->cliente = [
                     'cliente_id' => $p->cliente_id,
                     'nombre' => $p->cliente_nombre
@@ -64,7 +64,13 @@ class ProyectoController extends Controller
                 unset($p->cliente_nombre);
                 return $p;
             });
-            return response()->json(['data' => $proyectos], 200);
+
+            return response()->json([
+                'data' => $data,
+                'links' => $proyectos->toArray()['links'] ?? [],
+                'total' => $proyectos->total(),
+                'current_page' => $proyectos->currentPage()
+            ], 200);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener la lista de proyectos', __FUNCTION__);
         }

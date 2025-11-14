@@ -59,16 +59,17 @@
             </tr>
         </tbody>
     </table>
+    <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
 
     {{-- ======= MODALES ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tituloModalPrincipal"
-        :subtitulo="subtituloModalPrincipal"
+        :titulo="tipoForm === 'crear' ? 'Nuevo proyecto' : 'Editar proyecto'"
+        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo proyecto' : 'Modifica los datos del proyecto'"
         :texto-confirmacion="textoConfirmacionPrincipal"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
-        @confirmar="accion">
+        @confirmar="tipoForm === 'crear' ? crearProyecto() : actualizarProyecto()">
 
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
@@ -116,7 +117,7 @@
         </form>
     </modal-componente>
 
-    <alerta-componente v-model:mostrar="alerta.mostrar" :tipo="alerta.tipo" :titulo="alerta.titulo" :mensaje="alerta.mensaje"></alerta-componente>
+    <alerta-componente :mostrar="alerta.mostrar" :tipo="alerta.tipo" :titulo="alerta.titulo" :mensaje="alerta.mensaje"></alerta-componente>
 
     <modal-componente
         v-model:mostrar="mostrarModalHistorial"
@@ -153,10 +154,10 @@
 
     <modal-componente
         v-model:mostrar="mostrarModalStatus"
-        :titulo="tituloModalStatus"
+        :titulo="tipoForm === 'eliminar' ? 'Eliminar proyecto' : 'Cambiar estado del proyecto'"
         :subtitulo="subtituloModalStatus"
         texto-confirmacion="Confirmar"
-        :texto-confirmacion="textoConfirmacionPrincipal"
+        :texto-confirmacion="loading ? 'Procesando...' : 'Confirmar'"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="cambiarEstado">
@@ -181,10 +182,35 @@
 
 </div>
 
+{{-- ===== TEMPLATE DEL MODAL ===== --}}
+<script type="text/x-template" id="modal-template">
+    <div v-if="mostrar" class="modal-overlay">
+        <div class="modal">
+            <h3>@{{ titulo }}</h3>
+            <p>@{{ subtitulo }}</p>
+            <div class="modal-body">
+                <slot></slot>
+            </div>
+            <div v-if="mostrarBotones !== false" class="modal-footer">
+                <button class="btn-secondary" @click="$emit('update:mostrar', false)">Cancelar</button>
+                <button class="btn-primary" @click="$emit('confirmar')">@{{ textoConfirmacion }}</button>
+            </div>
+        </div>
+    </div>
+    
+</script>
+
+
+
 <script>
-const app = Vue.createApp({
+    const {
+        createApp
+    } = Vue;
+
+    const app = createApp({
         data() {
             return {
+                links: [],
                 loading: false, 
                 mostrarModalStatus: false,
                 mostrarModalHistorial: false,
@@ -198,9 +224,7 @@ const app = Vue.createApp({
                 proyectos: [],
                 clientes: [],
                 usuariosDisponibles: [],
-                busqueda: {
-                    titulo: ''
-                },
+                busqueda: '',
                 mostrarModal: false,
                 tipoForm: 'crear',
                 formproyecto: {
@@ -220,61 +244,70 @@ const app = Vue.createApp({
             }
         },
 
-        computed: {
-            tituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Nuevo proyecto';
-                } else {
-                    return 'Editar proyecto';
-                }
-            },
-            subtituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Completa los datos del nuevo proyecto';
-                } else {
-                    return 'Modifica los datos del proyecto';
-                }
-            },
-            tituloModalStatus() {
-                if (this.tipoForm === 'eliminar') {
-                    return 'Eliminar proyecto';
-                } else {
-                    return 'Cambiar estado del proyecto';
-                }
-            },
-            textoConfirmacionPrincipal() {
-                if (this.loading) {
-                    return 'Procesando...';
-                }
-                if (this.tipoForm === 'crear') {
-                    return 'Guardar proyecto';
-                } else {
-                    return 'Guardar Cambios';
-                }
-            },
-            subtituloModalStatus() {
-                if (this.tipoForm === 'eliminar') {
-                    return '¿Estás seguro de eliminar este proyecto?';
-                } else {
-                    return '¿Deseas activar/desactivar este proyecto?';
-                }
-            },
-        },
         mounted() {
             this.listarProyectos();
         },
+
+         computed: {
+            textoConfirmacionPrincipal() {
+                if (this.loading) return 'Guardando...';
+                return this.tipoForm === 'crear' ? 'Guardar proyecto' : 'Guardar Cambios';
+            },
+            subtituloModalStatus() {
+                return this.tipoForm === 'eliminar'
+                    ? '¿Estás seguro de eliminar este proyecto?'
+                    : '¿Deseas activar/desactivar este proyecto?';
+            },
+        },
+
         methods: {
-            
-            async listarProyectos() {
-                this.loading = true;
+            async fetchJson(url, opciones = {}) {
+                const res = await fetch(url, opciones)
+                const data = await res.json().catch(() => ({}))
+                return {
+                    res,
+                    data
+                }
+            },
+            async listarProyectos(url = null) {
                 try {
-                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`);
+                    this.loading = true;
+
+                    const endpoint = url ?
+                        url :
+                        `/proyectos/listado?per_page=${this.per_page}`;
+
+                    const res = await fetch(endpoint, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (!res.ok) {
+                        throw new Error('Error al obtener los proyectos');
+                    }
+
                     const data = await res.json();
+
                     this.proyectos = data.data || [];
+                    this.links = data.links || [];
+                    this.total = data.total || 0;
+                    this.current_page = data.current_page || 1;
                 } catch (err) {
-                    this.mostrarAlerta('error', 'error', 'Error al listar proyectos:');
+                    console.error(err);
+                    this.mostrarAlerta('error', 'Error', 'No se pudieron listar los proyectos.');
                 } finally {
                     this.loading = false;
+                }
+            },
+
+            async cargarPagina(url) {
+                if (!url) return;
+                try {
+                    await this.listarProyectos(url);
+                } catch (e) {
+                    console.error(e);
+                    this.mostrarAlerta('error', 'Error', 'Error al cambiar de página.');
                 }
             },
 
@@ -320,7 +353,12 @@ const app = Vue.createApp({
 
             async cargarUsuarios() {
                 try {
-                    const res = await fetch('/usuarios/listarRest');
+                    const res = await fetch('/usuarios/listadoUsuarios', { 
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) throw new Error('Error al obtener los usuarios');
+
                     const data = await res.json();
 
                     this.usuariosDisponibles = (data || []).map(u => ({
@@ -330,7 +368,8 @@ const app = Vue.createApp({
                         ...u
                     }));
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios:');
+                    console.error(err);
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios.');
                 }
             },
 
@@ -406,13 +445,7 @@ const app = Vue.createApp({
                     this.loading = false;
                 }
             },
-            accion(){
-                if (this.tipoForm === 'crear') {
-                    return this.crearProyecto();
-                } else {
-                    return this.actualizarProyecto();    
-                }
-            },
+
             async mostrarHistorial(proyecto_id) {
                 this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
                 if (!this.proyectoSeleccionado) return;
@@ -464,117 +497,11 @@ const app = Vue.createApp({
                         'Proyecto eliminado correctamente' :
                         'Estado cambiado correctamente';
 
-                    this.mostrarAlerta('exito', 'Éxito', successMsg);
+                    this.mostrarAlerta('exito', 'Exito', successMsg);
                 } catch (err) {
-                    const mensaje = err.message || 'Error al procesar la acción.';
-                    this.mostrarAlerta('error', 'Error', mensaje);
+                    this.mostrarAlerta('error', 'Error','Error al procesar la acción.');
                 } finally {
                     this.loading = false;
-                }
-            },
-
-            async eliminarProyecto() {
-                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
-                    this.erroresModal = {
-                        motivo_eliminacion: ['Debes ingresar un motivo']
-                    };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Debes ingresar un motivo');
-                }
-
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
-                        body: JSON.stringify(this.formEliminar)
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        }
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async procesarRespuesta(res, mensajeError) {
-                const data = await res.json();
-
-                if (res.status === 422) {
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
-                    this.mostrarAlerta('error','Error' ,msg);
-                    throw new Error(msg);
-                }
-
-                if (!res.ok) {
-                   const data = await res.json().catch(() => ({}));
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
-                }
-
-                return data;
-            },
-
-            async modalEditar(proyecto_id) {
-                this.tipoForm = 'editar';
-                this.erroresModal = {};
-                this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
-
-                if (!this.proyectoSeleccionado) return;
-
-                this.formproyecto = {
-                    proyecto_id: this.proyectoSeleccionado.proyecto_id,
-                    nombre: this.proyectoSeleccionado.nombre,
-                    descripcion: this.proyectoSeleccionado.descripcion,
-                    cliente_id: this.proyectoSeleccionado.cliente_id,
-                    usuarios: []
-                };
-
-                this.loading = true;
-                try {
-                    await Promise.all([
-                        this.cargarClientes(),
-                        this.cargarUsuarios(),
-                        this.cargarUsuariosAsignados(proyecto_id)
-                    ]);
-                    this.mostrarModal = true;
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async cargarUsuariosAsignados(proyecto_id) {
-                try {
-                    const res = await fetch(`/proyectos/${proyecto_id}/usuarios`);
-                    const data = await res.json();
-                    const usuarios = data.data || [];
-                    this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
-                } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios asignados:');
                 }
             },
 
@@ -604,7 +531,7 @@ const app = Vue.createApp({
                 const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
                 const res = await fetch(url, {
                     method: 'PATCH',
-                    headers: {  
+                    headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': this.token
                     }
@@ -624,14 +551,55 @@ const app = Vue.createApp({
                 }
             },
 
+            async modalEditar(proyecto_id) {
+                this.tipoForm = 'editar';
+                this.erroresModal = {};
+                this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
+                
+                if (!this.proyectoSeleccionado) return;
+
+                this.formproyecto = {
+                    proyecto_id: this.proyectoSeleccionado.proyecto_id,
+                    nombre: this.proyectoSeleccionado.nombre,
+                    descripcion: this.proyectoSeleccionado.descripcion,
+                    cliente_id: this.proyectoSeleccionado.cliente_id,
+                    usuarios: [] // Se cargará desde el servidor
+                };
+
+                this.loading = true;
+                try {
+                    await Promise.all([
+                        this.cargarClientes(),
+                        this.cargarUsuarios(),
+                        this.cargarUsuariosAsignados(proyecto_id)
+                    ]);
+                    this.mostrarModal = true;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async cargarUsuariosAsignados(proyecto_id) {
+                try {
+                    const res = await fetch(`/proyectos/${proyecto_id}/usuarios`);
+                    const data = await res.json();
+                    const usuarios = data.data || [];
+                    this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
+                } catch (err) {
+                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios asignados:');
+                }
+            },
+
+
         }
     });
+
 
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-global', loader);
+    app.component('paginador-componente', paginador);
     app.mount('#app');
 </script>
-
 
 @endsection

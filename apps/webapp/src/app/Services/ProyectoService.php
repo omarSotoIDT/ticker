@@ -9,9 +9,9 @@ use App\Consts\StatusConsts;
 
 class ProyectoService
 {
-    public static function listar(array $filtros = [])
+    public static function listar(array $filtros = [], $limit = 10, $paginate = true)
     {
-        return ProyectoRepoData::obtenerProyectos($filtros);
+        return ProyectoRepoData::obtenerProyectos($filtros, $limit, $paginate);
     }
 
     public static function registrarProyecto(array $data, string $clienteNombre, int $folio)
@@ -158,7 +158,6 @@ class ProyectoService
         }
     }
     
-
     public static function listarUsuariosAsignados(int $proyectoId)
     {
         return ProyectoRepoData::listarUsuariosAsignados($proyectoId);

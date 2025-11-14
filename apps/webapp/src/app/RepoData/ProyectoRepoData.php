@@ -7,7 +7,7 @@ use App\RepoHelper\ProyectoRepoHelper;
 
 class ProyectoRepoData
 {
-    public static function obtenerProyectos(array $filters = [])
+    public static function obtenerProyectos(array $filters = [], $limit = 10, $paginate)
     {
         $query = DB::table('proyectos as p')
             ->select(
@@ -24,7 +24,13 @@ class ProyectoRepoData
 
         $query = ProyectoRepoHelper::aplicarFiltros($query, $filters);
 
-        return $query->get();
+        if ($paginate){
+            $resultado = $query->paginate($limit);
+        }
+        else{
+            $resultado = $query->get()->toArray();
+        }
+        return $resultado;
     }
 
     public static function obtenerPorId(int $id): ?object
