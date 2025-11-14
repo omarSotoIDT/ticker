@@ -19,25 +19,31 @@
     </div>
 
     <div class="cuadricula-graficas">
+        <!-- Tickets por Estado -->
         <div class="tarjeta-grafica">
             <h3>Tickets por Estado</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="estado.labels && estado.labels.length">
                 <canvas ref="chartEstado"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
 
+        <!-- Tickets por Prioridad -->
         <div class="tarjeta-grafica">
             <h3>Tickets por Prioridad</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="prioridad.labels && prioridad.labels.length">
                 <canvas ref="chartPrioridad"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
 
+        <!-- Top 5 Clientes -->
         <div class="tarjeta-grafica grafica-ancho-completo">
             <h3>Top 5 Clientes por Tickets</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="topClientes.labels && topClientes.labels.length">
                 <canvas ref="chartTopClientes"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
     </div>
 </div>
@@ -62,8 +68,8 @@ createApp({
         const chartPrioridad = ref(null);
         const chartTopClientes = ref(null);
 
-        const colorsEstado = ['#3b82f6', '#69404a', '#fdac17', '#8b5cf6', '#ec5a5a', '#56df83'];
-        const colorsPrioridad = ['#f59e0b', '#ef4444', '#ec0e0e', '#37af63'];
+        const colorsEstado = ['#3b82f6', '#fdac17ff', '#56df83ff', '#69404aff', '#8b5cf6', '#ec5a5aff'];
+        const colorsPrioridad = ['#37af63', '#f59e0b', '#ef4444','#ec0e0e'];
         const colorTopClientes = '#5695fa';
         const yAxisOptions = {
             beginAtZero: true,
@@ -88,6 +94,8 @@ createApp({
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: 60 },
                         plugins: {
                             legend: { display: false },
                             datalabels: {
@@ -99,7 +107,8 @@ createApp({
                                 color: (ctx) => colorsEstado[ctx.dataIndex],
                                 font: { weight: '600', size: 13 },
                                 anchor: 'end',
-                                align: 'end'
+                                align: 'end',
+                                offset: 8
                             }
                         }
                     }
@@ -143,7 +152,7 @@ createApp({
             }
         });
 
-        return { cards, chartEstado, chartPrioridad, chartTopClientes };
+        return { cards, estado, prioridad, topClientes, chartEstado, chartPrioridad, chartTopClientes };
     }
 }).mount('#dashboard-root');
 </script>

@@ -22,7 +22,6 @@ class DashboardBO
         ];
     }
 
-
     public static function armarDataset(array $rows, string $labelKey, string $valueKey): array
     {
         $labels = [];

@@ -37,7 +37,7 @@
                 <p><i class="fa-solid fa-ticket"></i>Sistema de Tickets</p>
             </div>
             <p class="titulo-enlaces">Menú Principal</p>
-            <a href="/dashboard"><i class="fa fa-pie-chart"></i>Dashboard</a>
+            <a href="/dashboard" class="{{ Route::currentRouteName() == 'dashboard' ? 'active' : '' }}"><i class="fa fa-pie-chart"></i>Dashboard</a>
             <a href="{{ route('tickets.gestor') }}" class="{{ Route::currentRouteName() == 'tickets.gestor' ? 'active' : '' }}"><i class="fa-solid fa-ticket"></i>Tickets</a>
             <a href="{{ route('usuarios.gestor') }}" class="{{ Route::currentRouteName() == 'usuarios.gestor' ? 'active' : '' }}"><i class="fa-solid fa-users"></i>Usuarios</a>
             <a href="{{ route('perfiles.gestor') }}" class="{{ Route::currentRouteName() == 'perfiles.gestor' ? 'active' : '' }}"><i class="fa-solid fa-shield-halved"></i>Perfiles</a>

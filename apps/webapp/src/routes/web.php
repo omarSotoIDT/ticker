@@ -11,6 +11,11 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportesController;
 
+// Ruta de Inicio
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
 // Vista de login
 Route::get('/login', function () {
     return view('auth.login');
@@ -39,6 +44,7 @@ Route::middleware(['auth', 'permiso'])->group(function () {
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuarioController::class, 'gestor'])->name('usuarios.gestor');
         Route::get('/listarRest', [UsuarioController::class, 'listarRest'])->name('usuarios.listarRest');
+        Route::get('/listadoUsuarios', [UsuarioController::class,'listarUsuarios'])->name('usuarios.listadoUsuarios');
         Route::post('/agregarRest', [UsuarioController::class, 'agregarRest'])->name('usuarios.agregarRest');
         Route::patch('/editarRest/{id}', [UsuarioController::class, 'editarRest'])->name('usuarios.editarRest');
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
