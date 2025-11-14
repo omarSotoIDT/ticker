@@ -9,15 +9,15 @@ use App\Services\UsuarioService;
 
 class UsuarioCoordinator
 {
-    public static function cargarGestor()
-    {
-        $perfiles = PerfilService::obtenerPerfiles();
-        return ['perfiles' => $perfiles];
-    }
-
     public static function listar($filtros)
     {
         $usuarios = UsuarioService::listar($filtros, 'usuarioId,usuario,email,status,acceso,idPerfiles,nombrePerfiles');
+        return $usuarios;
+    }
+
+    public static function listarUsuarios($filtros)
+    {
+        $usuarios = UsuarioService::listarUsuarios($filtros, 'usuarioId,usuario,email,status,acceso,idPerfiles,nombrePerfiles');
         return $usuarios;
     }
 

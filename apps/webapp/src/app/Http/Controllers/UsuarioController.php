@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Coordinators\UsuarioCoordinator;
 use App\Services\UsuarioService;
+use App\Services\PerfilService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -12,19 +13,33 @@ use Throwable;
 
 class UsuarioController extends Controller
 {
-    public function gestor(){
+    public function gestor()
+    {
         try {
-            $datos = UsuarioCoordinator::cargarGestor();
-            return view('usuarios.usuariosGestor', $datos);
+            $perfiles = PerfilService::obtenerPerfiles([], 0, false);
+            return view('usuarios.usuariosGestor', ['perfiles' => $perfiles]);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al mostrar el gestor " . $error);
             return redirect()->back()->with('error', 'Ocurrio un error al mostrar el gestor');
         }
     }
 
-    public static function listarRest(Request $request) {
+    public static function listarRest(Request $request)
+    {
         try {
-            $usuarios = UsuarioCoordinator::listar($request->only(['usuario']));
+            $paginate = $request->query('paginate', true); 
+            $usuarios = UsuarioService::listar($request->only(['usuario']), 'usuarioId,usuario,email,status,acceso,idPerfiles,nombrePerfiles', [], 10, filter_var($paginate, FILTER_VALIDATE_BOOLEAN));
+
+            return response()->json($usuarios, 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrió un error al listar los usuarios: " . $error->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al listar los usuarios'], 500);
+        }
+    }
+
+    public static function listarUsuarios(Request $request) {
+        try {
+            $usuarios = UsuarioCoordinator::listarUsuarios($request->only(['usuario']));
             return Response::json($usuarios, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los usuarios " . $error);
@@ -32,7 +47,8 @@ class UsuarioController extends Controller
         }
     }
 
-    public function agregarRest(Request $request){
+    public function agregarRest(Request $request)
+    {
         try {
             $datos = $request->validate([
                 'nombre' => 'string|required|max:70',
@@ -43,7 +59,6 @@ class UsuarioController extends Controller
             $id = UsuarioCoordinator::agregar($datos);
 
             return Response::json($id, 201);
-            
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
@@ -52,7 +67,8 @@ class UsuarioController extends Controller
         }
     }
 
-    public static function editarRest(Request $request, $id) {
+    public static function editarRest(Request $request, $id)
+    {
         try {
             $datos = $request->validate([
                 'nombre' => 'string|max:70',
@@ -72,7 +88,8 @@ class UsuarioController extends Controller
         }
     }
 
-    public static function eliminarRest(Request $request, $id) {
+    public static function eliminarRest(Request $request, $id)
+    {
         try {
             $datos = $request->validate([
                 'motivo' => 'string|required'
@@ -89,7 +106,8 @@ class UsuarioController extends Controller
         }
     }
 
-    public static function activarRest($id) {
+    public static function activarRest($id)
+    {
         try {
             if (UsuarioService::activar($id)) {
                 return Response::json(null, 204);

@@ -7,7 +7,27 @@ use Illuminate\Support\Facades\DB;
 
 class UsuarioRepoData
 {
-    public static function listar($filtros, $columnas, $orden, $limit, $offset){
+    public static function listar($filtros, $columnas, $orden, $limit = 10, $paginate)
+    {
+        $query = DB::table('sys_usuarios as su');
+        $query->leftJoin('rel_usuarios_perfiles as rup', 'su.usuario_id', '=', 'rup.usuario_id');
+        $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
+
+        UsuarioRH::agregarColumnas($query, $columnas);
+        UsuarioRH::agregarFiltros($query, $filtros);
+        UsuarioRH::agregarOrden($query, $orden);
+
+        if ($paginate) {
+            $resultado = $query->paginate($limit);
+        } else {
+            $resultado = $query->get()->toArray();
+        }
+
+        return $resultado;
+
+    }
+
+    public static function listarUsuarios($filtros, $columnas, $orden, $limit, $offset){
         $query = DB::table('sys_usuarios as su');
         $query->leftJoin('rel_usuarios_perfiles as rup', 'su.usuario_id', '=', 'rup.usuario_id');
         $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
@@ -38,7 +58,8 @@ class UsuarioRepoData
         return $query->first();
     }
 
-    public static function listarPerfiles($usuario_id, $columnas) {
+    public static function listarPerfiles($usuario_id, $columnas)
+    {
         $query = DB::table('rel_usuarios_perfiles as rup');
         $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
 

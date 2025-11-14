@@ -9,8 +9,27 @@ use Illuminate\Support\Facades\DB;
 
 class UsuarioService
 {
-    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
-        $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
+    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = 10, bool $paginate = true)
+    {
+        $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $paginate);
+
+        if ($paginate) {
+            foreach ($usuarios->items() as &$u) {
+                $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
+                $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];
+            }
+        } else {
+            foreach ($usuarios as &$u) {
+                $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
+                $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];
+            }
+        }
+
+        return $usuarios;
+    }
+
+    public static function listarUsuarios($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
+        $usuarios = UsuarioRepoData::listarUsuarios($filtros, $columnas, $orden, $limit, $offset);
         foreach ($usuarios as &$u) {
             $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
             $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];

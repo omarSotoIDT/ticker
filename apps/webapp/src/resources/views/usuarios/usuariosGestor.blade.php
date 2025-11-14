@@ -9,7 +9,7 @@
         <div class="items-busqueda">
             <div class="cont-buscador">
                 <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
+                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Usuarios..."></input>
             </div>
         </div>
         <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
@@ -46,6 +46,7 @@
         </tr>
       </tbody>
     </table>
+    <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
     @if (session('error'))
       <div class="error">
         <span>{{ session('error') }}</span>
@@ -138,6 +139,7 @@
           token: '{{ csrf_token() }}',
           perfiles: {{ Js::from($perfiles) }},
           usuarios: null,
+          links: [],
           usuario: null,
           erroresModal: {},
           alerta: {
@@ -240,28 +242,42 @@
           this.erroresModal = {};
         },
 
-        async listarUsuarios() {
-          this.loading = true;
+        async listarUsuarios(url = null) {
+          this.cargando = true;
           try {
-            const response = await fetch('/usuarios/listarRest', {
-              method: 'GET',  
+            const endpoint = url || '/usuarios/listarRest';
+            const response = await fetch(endpoint, {
+              method: 'GET',
               headers: {
-                'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': this.token
               }
-            })
+            });
 
-            if(!response.ok){
+            if (!response.ok) {
               throw new Error('Error al listar usuarios: ' + response.status);
             }
 
             const data = await response.json();
-            this.usuarios = data;
-          }catch(error){
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
+
+            if (data.data) {
+              this.usuarios = data.data;
+              this.links = data.links || [];
+            } else {
+              this.usuarios = data;
+              this.links = [];
+            }
+
+          } catch (error) {
+            console.error(error);
+            this.mostrarAlerta('error', 'Error', 'Ocurrió un error al listar los usuarios');
           } finally {
-            this.loading = false;
+            this.cargando = false;
           }
+        },
+
+        async cargarPagina(url) {
+          if (url) this.listarUsuarios(url);
         },
 
         async buscar(){
@@ -453,6 +469,7 @@
     app.component('modal-componente', modal)
     app.component('alerta-componente', alerta)
     app.component('loading-global', loader)
+    app.component('paginador-componente', paginador)
     app.mount('#app')
   </script>
 @endsection
