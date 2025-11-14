@@ -9,7 +9,7 @@
             <div class="items-busqueda">
                 <div class="cont-buscador">
                     <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-                    <input type="text" name="ticket" id="ticket" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
+                    <input type="text" name="ticket" id="ticket" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Tickets..."></input>
                 </div>
                 <select id="busquedaCliente" class="input select-busqueda" v-model="busqueda.cliente_id" @change="buscar()">
                     <option value="">Todos</option>
@@ -64,6 +64,8 @@
                 </tr>
             </tbody>
         </table>
+
+        <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
 
         <modal-componente
         v-model:mostrar="modalRegistro.mostrar"
@@ -276,6 +278,7 @@
                     loading: false, 
                     tickets: {{ Js::from($tickets) }},
                     ticket: null,
+                    links: [],
                     ticketFeedback: null,
                     ticketHistorial: [],
                     etiquetas: {{ JS::from($etiquetas) }},
@@ -366,14 +369,16 @@
                         }                    
                     }
                 },
-                
             },
-            methods: 
-            {accionRegistro() {
+            mounted() {
+                this.listarTickets(); 
+            },
+            methods: {
+                accionRegistro() {
                     if (this.modalRegistro.tipo === 'crear') {
-                        return agregar();
+                        return this.agregar();
                     } else {
-                        return editar();
+                        return this.editar();
                     }
                 },
                 limpiarRegistro(){
@@ -429,7 +434,11 @@
                             throw new Error('Error al buscar los tickets: ' + response.status);
                         }
                         const data = await response.json();
-                        this.tickets = data;
+                    this.tickets = data.data;
+                    this.links = data.links || [];
+                    this.total = data.total || 0;
+                    this.current_page = data.current_page || 1;
+
                     } catch (error) {
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar los tickets')
                     }finally {
@@ -452,25 +461,44 @@
                     this.actualizarProyectos(this.formTicket.cliente_id);
                     this.modalRegistro.mostrar = true;
                 },
-                async listarTickets(){
+                
+                async listarTickets(pageUrl = '/tickets/listado-rest') {
                     this.loading = true;
                     try {
-                        const response = await fetch('/tickets/listado-rest?' + this.params.toString(), {
-                            method: 'GET', headers: this.headers
-                        })
+                        const url = pageUrl.includes('?')
+                            ? pageUrl + '&' + this.params.toString()
+                            : pageUrl + '?' + this.params.toString();
+
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: this.headers
+                        });
+
                         if (!response.ok) {
-                            throw new Error('Error al listar los tickets: ' + response.status);                        
+                            throw new Error('Error al listar los tickets: ' + response.status);
                         }
 
                         const data = await response.json();
-                        this.tickets = data;
+
+                        this.tickets = data.data;       
+                        this.links = data.links || [];    
+                        this.total = data.total || 0;
+                        this.current_page = data.current_page || 1;
+
                         this.modalRegistro.mostrar = false;
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los tickets')
-                    }finally {
+                        console.error(error);
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al listar los tickets');
+                    } finally {
                         this.loading = false;
                     }
                 },
+
+                async cambiarPagina(url) {
+                    if (!url) return;
+                    await this.listarTickets(url);
+                },
+
                 async mostrarTicketConLoader(id){
                     this.loading = true;
                     try {
@@ -668,6 +696,7 @@
         app.component('modal-componente', modal)
         app.component('alerta-componente', alerta)
         app.component('loading-global', loader)
+        app.component('paginador-componente', paginador);
         app.mount('#app')
     </script>
 @endsection

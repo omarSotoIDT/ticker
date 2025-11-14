@@ -8,25 +8,23 @@ use Illuminate\Support\Facades\DB;
 
 class TicketRepoData
 {
-    public static function listar($filtros, $columnas, $orden, $limit, $offset)
+    public static function listar($filtros = [], $columnas = '*', $orden = [], $limit, $paginate)
     {
-        $query = DB::table('tickets as t');
-        $query->leftJoin('clientes as c', 't.cliente_id', '=', 'c.cliente_id');
-        $query->leftJoin('proyectos as p', 't.proyecto_id', '=', 'p.proyecto_id');
-        $query->leftJoin('etiquetas as e', 't.etiqueta_id', '=', 'e.etiqueta_id');
-        $query->leftJoin('sys_usuarios as su', 't.usuario_asignado_id', '=', 'su.usuario_id');
+        $query = DB::table('tickets as t')
+            ->leftJoin('clientes as c', 't.cliente_id', '=', 'c.cliente_id')
+            ->leftJoin('proyectos as p', 't.proyecto_id', '=', 'p.proyecto_id')
+            ->leftJoin('etiquetas as e', 't.etiqueta_id', '=', 'e.etiqueta_id')
+            ->leftJoin('sys_usuarios as su', 't.usuario_asignado_id', '=', 'su.usuario_id');
 
         TicketRH::agregarColumnas($query, $columnas);
         TicketRH::agregarFiltros($query, $filtros);
         TicketRH::agregarOrden($query, $orden);
 
-        if (isset($limit)) {
-            $query->limit($limit);
+        if ($paginate) {
+            return $query->paginate($limit);
+        } else {
+            return $query->get()->toArray();
         }
-        if (isset($offset)) {
-            $query->offset($offset);
-        }
-        return $query->get()->toArray();
     }
 
     public static function obtener($id, $columnas)

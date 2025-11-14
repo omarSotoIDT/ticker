@@ -25,7 +25,7 @@ class ReportesService
             throw new \Exception("Tipo de reporte no válido: {$tipo}");
         }
 
-        $tickets = TicketService::listar($filtros, $columnasMap[$tipo]);
+        $tickets = TicketService::listar($filtros, $columnasMap[$tipo], [], 0, false);
 
         $coleccion = collect($tickets);
 
@@ -69,22 +69,22 @@ class ReportesService
     {
         $columnas = 'ticketId,serieFolio,titulo,cliente,proyecto,usuarioAsignado,status,prioridad,etiqueta,registroFecha';
         $orden = ['t.registro_fecha' => 'desc'];
-        return TicketService::listar($filtros, $columnas, $orden);
+        return TicketService::listar($filtros, $columnas, $orden, 0, false);
     }
 
     public static function obtenerFiltros($tipo)
     {
         switch ($tipo) {
             case 'cliente_id':
-                $clientes = ClienteService::listarClientes();
+                $clientes = ClienteService::listarClientes([], 0, false);
                 return collect($clientes)->map(fn($c) => ['valor' => $c->cliente_id, 'texto' => $c->nombre])->values();
 
             case 'proyecto_id':
-                $data = ProyectoService::listar();
+                $data = ProyectoService::listar([], 0, false);
                 return collect($data)->map(fn($p) => ['valor' => $p->proyecto_id, 'texto' => $p->nombre])->values();
 
             case 'usuario_asignado_id':
-                $data = UsuarioService::listar([], 'usuarioId, usuario');
+                $data = UsuarioService::listar([], 'usuarioId, usuario', [], 0, false);
                 return collect($data)->map(fn($u) => ['valor' => $u->usuarioId, 'texto' => $u->usuario])->values();
 
             case 'etiqueta_id':

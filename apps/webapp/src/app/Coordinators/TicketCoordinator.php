@@ -19,14 +19,14 @@ class TicketCoordinator
 {
     public static function cargarGestor()
     {
-        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
+        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc'], 0, false);
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
-        $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
-        $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO]);
-        $clientes = ClienteService::listarClientes(['status' => StatusConsts::ACTIVO]);
+        $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario', [], 0, false);
+        $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO], 0, false);
+        $clientes = ClienteService::listarClientes(['status' => StatusConsts::ACTIVO], 0, false);
         return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
     }
-
+    
     public static function agregar(array $datos)
     {
         return DB::transaction(function () use ($datos) {

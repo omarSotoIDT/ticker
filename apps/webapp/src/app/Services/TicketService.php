@@ -8,10 +8,9 @@ use App\RepoData\TicketRepoData;
 
 class TicketService
 {
-    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null)
+    public static function listar(array $filtros = [], string $columnas = '*', array $orden = [], int $limit = 10, bool $paginate = true)
     {
-        $tickets = TicketRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
-        return $tickets;
+        return TicketRepoData::listar($filtros, $columnas, $orden, $limit, $paginate);
     }
 
     public static function obtener($id, $columnas = '')
@@ -32,7 +31,6 @@ class TicketService
         return $resultado;
     }
     
-
     public static function editarStatus($id, $datos)
     {
         $updateTicket = TicketBO::armarUpdateStatus($datos);

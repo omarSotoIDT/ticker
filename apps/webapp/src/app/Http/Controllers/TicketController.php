@@ -23,14 +23,29 @@ class TicketController extends Controller
             return redirect()->back()->with('error', 'Ocurrio un error al mostrar el gestor');
         }
     }
+
     public function listarRest(Request $request)
     {
         try {
-            $tickets = TicketService::listar($request->only('titulo', 'cliente_id', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
-            return Response::json($tickets, 200);
-        } catch (Throwable $error) {
-            Log::error("Ocurrio un error al listar los tickets " . $error);
-            return Response::json(['error' => 'Ocurrio un error al listar los tickets'], 500);
+            $filtros = $request->only(['titulo', 'cliente_id', 'prioridad']);
+
+            $tickets = TicketService::listar(
+                $filtros,
+                'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha',
+                ['folio' => 'desc'],
+                10,
+                true
+            );
+
+            return response()->json([
+                'data' => $tickets->items(),
+                'links' => $tickets->toArray()['links'] ?? [],
+                'total' => $tickets->total(),
+                'current_page' => $tickets->currentPage()
+            ], 200);
+        } catch (Throwable $e) {
+            Log::error("Ocurrió un error al listar los tickets: " . $e->getMessage());
+            return response()->json(['error' => 'Ocurrió un error al listar los tickets'], 500);
         }
     }
 
@@ -68,7 +83,7 @@ class TicketController extends Controller
             return Response::json(['error' => 'Ocurrio un error al agregar el ticket'], 500);
         }
     }
-    
+
     public function editarRest(Request $request, $id)
     {
         try {
@@ -88,7 +103,7 @@ class TicketController extends Controller
             ]);
 
             if (TicketCoordinator::actualizarProyecto($id, $datos)) {
-                return Response::json($datos, 200); 
+                return Response::json($datos, 200);
             }
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
