@@ -32,12 +32,20 @@ class ClienteController extends Controller
         try {
             $busqueda = $request->query('busqueda');
             $filtros = [];
+
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
+
             $clientes = ClienteService::listarClientes($filtros);
-            return response()->json(['data' => $clientes], 200);
-    
+
+            return response()->json([
+                'data' => $clientes->items(),
+                'links' => $clientes->toArray()['links'] ?? [],
+                'total' => $clientes->total(),
+                'current_page' => $clientes->currentPage()
+            ], 200);
+
         } catch (Throwable $e) {
             return Exceptions::handleException($e, 'Error al obtener la lista de clientes', __FUNCTION__);
         }

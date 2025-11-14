@@ -57,7 +57,9 @@
             </tr>
         </tbody>
     </table>
+
     <paginador-componente :links="links" @navigate="cargarPagina"></paginador-componente>
+
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -125,6 +127,7 @@
             return {
                 clientes: [],
                 cliente: null,
+                links: [],
                 mostrarModal: false,
                 mostrarToggle: false,
                 tipoForm: 'crear',

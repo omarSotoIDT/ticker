@@ -15,9 +15,9 @@ class ClienteService
         return ClienteRepoAction::crearCliente($data);
     }
 
-    public static function listarClientes(array $filters = [])
+    public static function listarClientes(array $filters = [], $limit = 10, bool $paginate = true)
     {
-        return ClienteRepoData::obtenerClientes($filters);
+        return ClienteRepoData::obtenerClientes($filters, $limit, $paginate);
     }
 
     public static function actualizarCliente(int $id, array $data): bool
