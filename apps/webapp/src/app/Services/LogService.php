@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 class LogService
 {
     public static function armarDescripcion($datosAnteriores, $datosNuevos)
-    {
+    {        
         $cambios = [];
 
         foreach ($datosNuevos as $campo => $valorNuevo) {

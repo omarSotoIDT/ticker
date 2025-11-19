@@ -96,7 +96,6 @@
         </form>
     </modal-componente>
 
-
     {{-- ======= MODAL ELIMINAR / CAMBIAR ESTADO ======= --}}
     <modal-componente
         v-model:mostrar="mostrarToggle"
@@ -470,7 +469,6 @@
     app.component('alerta-componente', alerta);
     app.component('loader-componente', loader);
     app.component('paginador-componente', paginador);
-
     app.mount('#app')
 </script>
 

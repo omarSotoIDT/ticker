@@ -92,18 +92,18 @@ class TicketController extends Controller
                 'descripcion' => 'string',
                 'prioridad' => 'string',
                 'status' => 'string',
-                'cliente_id' => 'integer',
                 'cliente' => 'string|nullable',
-                'proyecto_id' => 'integer',
                 'proyecto' => 'string|nullable',
-                'etiqueta_id' => 'integer',
                 'etiqueta' => 'string|nullable',
-                'usuario_asignado_id' => 'integer',
                 'usuario_asignado' => 'string|nullable',
+                'cliente_id' => 'integer',
+                'proyecto_id' => 'integer',
+                'etiqueta_id' => 'integer',
+                'usuario_asignado_id' => 'integer',
             ]);
 
             if (TicketCoordinator::actualizarProyecto($id, $datos)) {
-                return Response::json($datos, 200);
+                return Response::json($datos, 200); 
             }
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
