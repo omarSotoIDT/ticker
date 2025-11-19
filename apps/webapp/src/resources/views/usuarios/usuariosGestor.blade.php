@@ -12,7 +12,10 @@
                 <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Usuarios..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Usuario</button>
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Usuario
+        </button>
     </div>
     <table class="tabla">
       <thead>
@@ -33,9 +36,9 @@
             <span v-if="!usuario.nombrePerfiles.length">-</span>
             @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
           <td>
-            <span class="badge" :class="badgeStatus(usuario.status)">@{{ usuario.status }}</span>
+            <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
           </td>
-          <td>@{{ usuario.acceso }}</td>
+          <td>@{{ formatFecha(usuario.acceso) }}</td>
           <td class="acciones">
             <div class="acciones-contenedor">
               <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
@@ -65,17 +68,17 @@
       <form id="form" class="form centrado">
         <div class="campo">
           <label class="etiqueta" for="nombre">Nombre</label>
-          <input class="input" type="text" name="nombre" id="nombre" v-model="formUsuario.nombre">
+          <input class="input" type="text" name="nombre" id="nombre" v-model="formUsuario.nombre" maxlength="70">
           <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
         </div>
         <div class="campo">
           <label class="etiqueta" for="email">Email</label>
-          <input class="input" type="email" name="email" id="email" v-model="formUsuario.email">
+          <input class="input" type="email" name="email" id="email" v-model="formUsuario.email" maxlength="80">
           <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
         </div>
         <div class="campo">
           <label class="etiqueta" for="pasword">Contraseña</label>
-          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password">
+          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password" maxlength="50">
           <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
         </div>
         <div class="campo">
@@ -104,7 +107,7 @@
         <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
         <div class="campo" v-if="tipoForm === 'eliminar'">
           <label class="etiqueta" for="motivo">Motivo</label>
-          <textarea class="input" name="motivo" id="motivo" placeholder="Ingresa un motivo" v-model="formEliminar.motivo"></textarea>
+          <textarea class="input" name="motivo" id="motivo" placeholder="Ingresa un motivo" v-model="formEliminar.motivo" maxlength="250"></textarea>
           <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
         </div>
       </form>
@@ -196,6 +199,23 @@
         }
       },
       methods: {
+        formatFecha(fecha) {
+            if (!fecha) return '';
+            const d = new Date(fecha);
+            if (isNaN(d.getTime())) return fecha;
+
+            const dia = String(d.getDate()).padStart(2, '0');
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const anio = d.getFullYear();
+            const horas = String(d.getHours()).padStart(2, '0');
+            const minutos = String(d.getMinutes()).padStart(2, '0');
+
+            return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+        },
+        formatBadgeText(text) {
+            if (!text) return '';
+            return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+        },
         modalCrear(){
           this.tipoForm = 'crear';
           this.formUsuario.nombre = '';
@@ -204,7 +224,6 @@
           this.formUsuario.perfiles = [];
           this.mostrarModal = true;
         },
-  
         modalEditar(id){
           this.usuario = this.usuarios.find(u => u.usuarioId === id);
           if (!this.usuario) return;

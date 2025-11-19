@@ -1,6 +1,6 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Gestor de Proyectos')
+@section('titulo', 'Proyectos')
 
 @section('contenido')
 <div id="app">
@@ -13,7 +13,11 @@
                 <input type="text" name="proyecto" id="proyecto" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Proyectos..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Proyecto</button>
+
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Proyecto
+        </button>
     </div>
     <table class="tabla">
         <thead>
@@ -32,7 +36,7 @@
                 <td class="columna-grande">@{{ proyecto.descripcion }}</td>
                 <td>
                     <span class="badge" :class="proyecto.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                        @{{ proyecto.status }}
+                        @{{ formatBadgeText(proyecto.status) }}
                     </span>
                 </td>
 
@@ -74,19 +78,19 @@
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre">
+                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre" maxlength="150">
                 <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion"></textarea>
+                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion" maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.descripcion">@{{ erroresModal.descripcion[0] }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="cliente">Cliente</label>
-                <select class="input" v-model="formproyecto.cliente_id" id="cliente">
+                <select class="input select-busqueda" v-model="formproyecto.cliente_id" id="cliente">
                     <option value="" disabled>Selecciona un cliente</option>
                     <option v-for="cliente in clientes" :key="cliente.cliente_id" :value="cliente.cliente_id">
                         @{{ cliente.nombre }}
@@ -140,9 +144,9 @@
             <div class="contenedor-scroll-modal">
                 <ul v-if="logsProyecto.length > 0" class="">
                     <li v-for="log in logsProyecto" :key="log.id">
-                        <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                        <small>@{{ log.fecha }} — @{{ log.usuario }}</small>
                         <br>
-                        <small class="">@{{ log.accion }}</small>
+                        <small>@{{ log.accion }}</small>
                         <hr>
                     </li>
                 </ul>
@@ -166,14 +170,14 @@
             <p>
                 <strong>@{{ proyectoSeleccionado?.nombre }}</strong> — Estado actual:
                 <span class="badge" :class="proyectoSeleccionado?.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                    @{{ proyectoSeleccionado?.status }}
+                    @{{ formatBadgeText(proyectoSeleccionado?.status) }}
                 </span>
             </p>
 
             <div class="campo" v-if="tipoForm === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
 
-                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..."></textarea>
+                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..." maxlength="250"></textarea>
 
                 <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
             </div>
@@ -203,15 +207,11 @@
 
 
 <script>
-    const {
-        createApp
-    } = Vue;
-
-    const app = createApp({
+    const app = Vue.createApp({
         data() {
             return {
                 links: [],
-                loading: false, 
+                loading: false,
                 mostrarModalStatus: false,
                 mostrarModalHistorial: false,
                 formEliminar: {
@@ -244,6 +244,46 @@
             }
         },
 
+        computed: {
+            tituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Nuevo proyecto';
+                } else {
+                    return 'Editar proyecto';
+                }
+            },
+            subtituloModalPrincipal() {
+                if (this.tipoForm === 'crear') {
+                    return 'Completa los datos del nuevo proyecto';
+                } else {
+                    return 'Modifica los datos del proyecto';
+                }
+            },
+            tituloModalStatus() {
+                if (this.tipoForm === 'eliminar') {
+                    return 'Eliminar proyecto';
+                } else {
+                    return 'Cambiar estado del proyecto';
+                }
+            },
+            textoConfirmacionPrincipal() {
+                if (this.loading) {
+                    return 'Procesando...';
+                }
+                if (this.tipoForm === 'crear') {
+                    return 'Crear proyecto';
+                } else {
+                    return 'Guardar Cambios';
+                }
+            },
+            subtituloModalStatus() {
+                if (this.tipoForm === 'eliminar') {
+                    return '¿Estás seguro de eliminar este proyecto?';
+                } else {
+                    return '¿Deseas activar/desactivar este proyecto?';
+                }
+            },
+        },
         mounted() {
             this.listarProyectos();
         },
@@ -269,7 +309,12 @@
                     data
                 }
             },
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
             async listarProyectos(url = null) {
+                this.loading = true;
                 try {
                     this.loading = true;
 
@@ -347,7 +392,7 @@
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar clientes:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar clientes:');
                 }
             },
 
@@ -368,8 +413,7 @@
                         ...u
                     }));
                 } catch (err) {
-                    console.error(err);
-                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios.');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios:');
                 }
             },
 
@@ -403,7 +447,7 @@
                     this.erroresModal = {};
                     this.mostrarAlerta('exito', 'Exito', 'Proyecto creado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al crear proyecto');
+                    this.mostrarAlerta('error', 'Error', 'Error al crear proyecto');
                 } finally {
                     this.loading = false;
                 }
@@ -445,7 +489,13 @@
                     this.loading = false;
                 }
             },
-
+            accion() {
+                if (this.tipoForm === 'crear') {
+                    return this.crearProyecto();
+                } else {
+                    return this.actualizarProyecto();
+                }
+            },
             async mostrarHistorial(proyecto_id) {
                 this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
                 if (!this.proyectoSeleccionado) return;
@@ -459,7 +509,7 @@
                     this.usuariosProyecto = data.usuarios || [];
                     this.mostrarModalHistorial = true;
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al obtener historial:');
+                    this.mostrarAlerta('error', 'Error', 'Error al obtener historial:');
                 } finally {
                     this.loading = false;
                 }
@@ -475,7 +525,7 @@
             },
 
             async cambiarEstado() {
-                if (!this.proyectoSeleccionado || this.loading) return; 
+                if (!this.proyectoSeleccionado || this.loading) return;
 
                 this.erroresModal = {};
                 this.loading = true;
@@ -486,7 +536,7 @@
                     } else if (this.tipoForm === 'activar') {
                         await this.activarProyecto();
                     } else {
-                        this.mostrarAlerta('error', 'Error','Acción no reconocida');
+                        this.mostrarAlerta('error', 'Error', 'Acción no reconocida');
                         return;
                     }
 
@@ -502,6 +552,111 @@
                     this.mostrarAlerta('error', 'Error','Error al procesar la acción.');
                 } finally {
                     this.loading = false;
+                }
+            },
+
+            async eliminarProyecto() {
+                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
+                    this.erroresModal = {
+                        motivo_eliminacion: ['Debes ingresar un motivo']
+                    };
+                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                    throw new Error('Debes ingresar un motivo');
+                }
+
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
+                this.loading = true;
+                try {
+                    const res = await fetch(url, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.token
+                        },
+                        body: JSON.stringify(this.formEliminar)
+                    });
+
+                    await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async activarProyecto() {
+                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
+                this.loading = true;
+                try {
+                    const res = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': this.token
+                        }
+                    });
+
+                    await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async procesarRespuesta(res, mensajeError) {
+                const data = await res.json();
+
+                if (res.status === 422) {
+                    this.erroresModal = data.errores || {};
+                    const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
+                    this.mostrarAlerta('error', 'Error', msg);
+                    throw new Error(msg);
+                }
+
+                if (!res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    this.erroresModal = data.errores || {};
+                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
+                    this.mostrarAlerta('error', 'Error', msg);
+                    throw new Error(msg);
+                }
+
+                return data;
+            },
+
+            async modalEditar(proyecto_id) {
+                this.tipoForm = 'editar';
+                this.erroresModal = {};
+                this.proyectoSeleccionado = this.proyectos.find(p => p.proyecto_id === proyecto_id);
+
+                if (!this.proyectoSeleccionado) return;
+
+                this.formproyecto = {
+                    proyecto_id: this.proyectoSeleccionado.proyecto_id,
+                    nombre: this.proyectoSeleccionado.nombre,
+                    descripcion: this.proyectoSeleccionado.descripcion,
+                    cliente_id: this.proyectoSeleccionado.cliente_id,
+                    usuarios: []
+                };
+
+                this.loading = true;
+                try {
+                    await Promise.all([
+                        this.cargarClientes(),
+                        this.cargarUsuarios(),
+                        this.cargarUsuariosAsignados(proyecto_id)
+                    ]);
+                    this.mostrarModal = true;
+                } finally {
+                    this.loading = false;
+                }
+            },
+
+            async cargarUsuariosAsignados(proyecto_id) {
+                try {
+                    const res = await fetch(`/proyectos/${proyecto_id}/usuarios`);
+                    const data = await res.json();
+                    const usuarios = data.data || [];
+                    this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
+                } catch (err) {
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios asignados:');
                 }
             },
 

@@ -133,18 +133,18 @@ aside .logout button {
   color: #333;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
-  padding: 8px 12px; 
+  padding: 8px 12px;
   cursor: pointer;
   transition: background 0.2s;
   width: 100%;
-  display: flex; 
+  display: flex;
   align-items: center;
-  justify-content: flex-start; 
-  text-align: left; 
+  justify-content: flex-start;
+  text-align: left;
 }
 
 aside .logout button i {
-  margin-right: 15px; 
+  margin-right: 15px;
 }
 
 aside .logout button:hover {
@@ -321,29 +321,25 @@ input, select{
     color: #ffffff; 
     border: none;
     border-radius: 10px; 
-
     padding-right: 13px;
     padding-left: 10px;
     padding-top: 11px;
     padding-bottom: 11px;
-
-    font-size: 15px; 
-    font-weight: 800; 
+    font-size: 15px;
+    font-weight: 800;
     cursor: pointer;
-    transition: background-color 0.3s ease; 
-    
+    transition: background-color 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 18px; 
+    gap: 18px;
 }
 
-/* Estilos para el ícono */
 .primary-btn .fa-solid {
-    font-size: 13px; 
+    font-size: 13px;
 }
 
 .primary-btn:hover:not(:disabled) {
-    background-color: #000000; 
+    background-color: #000000;
 }
 
 .secondary-btn {
@@ -362,7 +358,6 @@ input, select{
   background: #fefefe;
 }
 
-/* Estilo para el estado deshabilitado (disabled) */
 .primary-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -473,7 +468,7 @@ input, select{
 .contenedor-icono-boton {
   display: flex;
   align-items: center;
-  gap: 14px; /* separación mediana */
+  gap: 14px;
 }
 
 .buscador-icono {
@@ -622,7 +617,7 @@ input, select{
   font-size: 13px;
   font-weight: 600;
   line-height: 1;
-  text-transform: none; /* Se elimina la transformación a mayúsculas */
+  text-transform: none;
   background-color: #fff;
   color: #000000;
 }
@@ -671,9 +666,9 @@ input, select{
 }
 
 .acciones-modal {
-  display: flex; /* Habilita Flexbox para alinear los botones */
-  justify-content: flex-end; /* Alinea los botones a la derecha */
-  gap: 10px; /* Crea una separación de 10px entre los botones */
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .animation-fade-enter-active, .animation-fade-leave-active {
@@ -816,16 +811,16 @@ input, select{
 }
 
 .badge.status-abierto { background-color: #11111a; color: #fff; }
-.badge.status-progreso { background-color: #e5e7eb;  border: 1px solid #e5e7eb;} 
-.badge.status-requerida { background-color: #eceef2; border: 1px solid #eceef2;} 
+.badge.status-progreso { background-color: #e5e7eb;  border: 1px solid #e5e7eb;}
+.badge.status-requerida { background-color: #eceef2; border: 1px solid #eceef2;}
 .badge.status-atendido { background-color: #fff; border: 1px solid #d1d5db; }
-.badge.status-cancelado { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
-.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;} 
+.badge.status-cancelado { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;}
+.badge.status-cerrado { background-color: #fff; border: 1px solid #d1d5db;}
 
 .badge.prioridad-baja { background-color: #fff; border: 1px solid #d1d5db; }
 .badge.prioridad-media { background-color: #eceef2; border: 1px solid #eceef2;}
-.badge.prioridad-alta { background-color: #11111a; color: #fff; } 
-.badge.prioridad-urgente { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;} 
+.badge.prioridad-alta { background-color: #11111a; color: #fff; }
+.badge.prioridad-urgente { background-color: #d3163e; color: #fff; border: 1px solid #d3163e;}
 
 .modal-grande { width: 900px; }
 .modal-base { width: 550px; }
@@ -1149,7 +1144,7 @@ input, select{
   padding-left: 20px;
   padding-right: 20px;
   padding-bottom: 28px;  
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   border: 1px solid #d1d5db;
   box-sizing: border-box;
   margin-top: 24px;
@@ -1185,7 +1180,7 @@ input, select{
   background-color: #f3f3f5;
   padding: 10px 36px 10px 14px;
   font-size: 15px;
-  color: #000000; /* Color de texto negro para la opción seleccionada */
+  color: #000000;
   box-sizing: border-box;
   width: 100%;
   -webkit-appearance: none;
@@ -1198,10 +1193,11 @@ input, select{
   padding-right: 40px;
 }
 
-/* Estilos para las opciones del desplegable */
 .input.select-busqueda option {
-  background-color: #f3f3f5; /* Mismo fondo que el select */
-  color: #9797a2; /* Mismo color de texto que el select */
+  background-color: #f3f3f5;
+  color: #18181b;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
 }
 
 .input.select-busqueda:focus {
@@ -1410,4 +1406,20 @@ body:has(#dashboard-root) main {
   padding: 0; 
 }
 
+.tabla-container {
+  background: #fff;
+  border-radius: 14px;
+  padding-top: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 20px;
+  border: 1px solid #d1d5db;
+  box-sizing: border-box;
+  margin-top: 24px;
+  margin-bottom: 40px;
+  overflow: auto;
+}
 
+.etiqueta-gris {
+  color: #6b7280;
+} 
