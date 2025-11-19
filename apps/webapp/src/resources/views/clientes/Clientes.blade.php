@@ -103,6 +103,7 @@
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
+        
         <form id="formToggle" @submit.prevent>
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>

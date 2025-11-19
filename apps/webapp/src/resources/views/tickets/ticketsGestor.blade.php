@@ -306,9 +306,13 @@
                     },
                     formTicket: {
                         cliente_id: null,
+                        cliente: '',
                         proyecto_id: null,
+                        proyecto: '',
                         etiqueta_id: null,
+                        etiqueta: '',
                         usuario_asignado_id: null,
+                        usuario_asignado: '',
                         titulo: '',
                         descripcion: '',
                         prioridad: '',
@@ -399,9 +403,13 @@
                 },
                 limpiarRegistro(){
                     this.formTicket.cliente_id = null,
+                    this.formTicket.cliente = '',
                     this.formTicket.proyecto_id = null,
+                    this.formTicket.proyecto = '',
                     this.formTicket.etiqueta_id = null,
+                    this.formTicket.etiqueta = '',
                     this.formTicket.usuario_asignado_id = null,
+                    this.formTicket.usuario_asignado = '',
                     this.formTicket.titulo = '',
                     this.formTicket.descripcion = '',
                     this.formTicket.prioridad = '',
@@ -418,9 +426,13 @@
                 cargarForm(){
                     this.formTicket = {
                         cliente_id: this.ticket.clienteId,
+                        cliente: this.ticket.cliente,
                         proyecto_id: this.ticket.proyectoId,
+                        proyecto: this.ticket.proyecto,
                         etiqueta_id: this.ticket.etiquetaId,
+                        etiqueta: this.ticket.etiqueta,
                         usuario_asignado_id: this.ticket.usuarioAsignadoId,
+                        usuario_asignado: this.ticket.usuarioAsignado,
                         titulo: this.ticket.titulo,
                         descripcion: this.ticket.descripcion,
                         prioridad: this.ticket.prioridad,
@@ -556,10 +568,9 @@
                 async editar(){
                     this.loading = true;
                     try {
-                        const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
+                        const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
-
                         if (!response.ok) {
                             if (response.status === 422) {
                                 const datosError = await response.json();
