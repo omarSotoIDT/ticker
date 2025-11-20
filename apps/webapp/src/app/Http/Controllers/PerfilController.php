@@ -92,8 +92,11 @@ class PerfilController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {
-            Log::error("Error al eliminar perfil: " . $error);
-            return response()->json(['error' => 'Ocurrió un error al eliminar el perfil'], 500);
+            Log::error("Error al eliminar perfil: " . $error->getMessage());
+
+            $statusCode = $error instanceof \Exception ? 409 : 500;
+
+            return response()->json(['message' => $error->getMessage()], $statusCode);
         }
     }
 }

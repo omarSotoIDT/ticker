@@ -114,14 +114,24 @@
 
     <modal-componente
         v-model:mostrar="mostrarModalEliminar"
-        titulo="Confirmar Eliminación"
-        texto-confirmacion="Sí, Eliminar"
+        titulo="Eliminar Perfil"
+        subtitulo="Confirmación requerida"
+        texto-confirmacion="Sí, eliminar"
+        clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
         @confirmar="eliminarPerfil">
-        ¿Estás seguro de que deseas eliminar este perfil? <strong>Esta acción no se puede deshacer.</strong>
+
+        <div class="descripcion-item-modal">
+            <p>
+                ¿Estás seguro de que deseas eliminar este perfil?
+                <strong>Esta acción no se puede deshacer.</strong>
+            </p>
+        </div>
+
     </modal-componente>
 
     <alerta-componente
-        :mostrar="alerta.mostrar"
+        v-model:mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje">
@@ -162,14 +172,11 @@
         },
 
         methods: {
-            mostrarAlerta(tipo, mensaje) {
-                this.alerta = {
-                    mostrar: true,
-                    tipo,
-                    titulo: tipo === 'exito' ? 'Éxito' : 'Error',
-                    mensaje
-                };
-                setTimeout(() => (this.alerta.mostrar = false), 3000);
+            mostrarAlerta(tipo, titulo, mensaje) {
+                this.alerta.tipo = tipo;
+                this.alerta.titulo = titulo;
+                this.alerta.mensaje = mensaje;
+                this.alerta.mostrar = true;
             },
 
             buscar() {
@@ -192,7 +199,7 @@
                     this.links = data.links || data.perfiles?.links || [];
                     this.permisos = data.permisos || this.permisos;
                 } catch (e) {
-                    this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
+                    this.mostrarAlerta('error', 'Error', 'No se pudieron cargar los perfiles.');
                 } finally {
                     this.loading = false;
                 }
@@ -224,25 +231,25 @@
                             case 201:
                                 this.mostrarModal = false;
                                 this.fetchPerfiles();
-                                this.mostrarAlerta('exito', 'Perfil creado correctamente');
+                                this.mostrarAlerta('exito', 'Éxito', 'Perfil creado correctamente');
                                 break;
                             case 204:
                                 this.mostrarModal = false;
                                 this.fetchPerfiles();
-                                this.mostrarAlerta('exito', 'Perfil actualizado correctamente');
+                                this.mostrarAlerta('exito', 'Éxito', 'Perfil actualizado correctamente');
                                 break;
                             case 422:
                                 return res.json().then(data => {
                                     this.errors = data.errors;
-                                    this.mostrarAlerta('error', 'Revisa los campos del formulario.');
+                                    this.mostrarAlerta('error', 'Error', 'Revisa los campos del formulario.');
                                 });
                             default:
                                 return res.json().then(data => {
-                                    this.mostrarAlerta('error', data.mensaje || 'Ocurrió un error al guardar.');
+                                    this.mostrarAlerta('error', 'Error', data.mensaje || 'Ocurrió un error al guardar.');
                                 });
                         }
                     })
-                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'))
+                    .catch(() => this.mostrarAlerta('error', 'Error', 'Error de conexión al guardar.'))
                     .finally(() => {
                         this.loading = false;
                     });
@@ -264,13 +271,13 @@
                     if (res.ok) {
                         this.mostrarModalEliminar = false;
                         this.fetchPerfiles();
-                        this.mostrarAlerta('exito', 'Perfil eliminado correctamente');
+                        this.mostrarAlerta('exito', 'Éxito', 'Perfil eliminado correctamente');
                     } else {
                         const data = await res.json().catch(() => ({}));
-                        this.mostrarAlerta('error', data.message || 'No se pudo eliminar el perfil.');
+                        this.mostrarAlerta('error', 'Error', data.message || 'No se pudo eliminar el perfil.');
                     }
                 } catch (e) {
-                    this.mostrarAlerta('error', 'Error de conexión al eliminar.');
+                    this.mostrarAlerta('error', 'Error', 'Error de conexión al eliminar.');
                 } finally {
                     this.loading = false;
                 }
