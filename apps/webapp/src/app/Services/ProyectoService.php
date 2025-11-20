@@ -136,6 +136,7 @@ class ProyectoService
     {
         $usuariosActuales = ProyectoRepoData::obtenerUsuariosAsignados($proyectoId);
     
+
         $usuariosAgregados = array_diff($usuariosNuevos, $usuariosActuales);
         $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
     

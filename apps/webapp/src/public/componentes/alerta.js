@@ -22,7 +22,7 @@ var alerta = {
       if (newVal) {
         setTimeout(() => {
           this.$emit('update:mostrar', false);
-        }, 3000);
+        }, 5000);
       }
     }
   },

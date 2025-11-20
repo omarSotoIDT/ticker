@@ -98,7 +98,7 @@
     <modal-componente
         v-model:mostrar="mostrarToggle"
         :titulo="tituloModalToggle"
-        :subtitulo="tituloModalToggle"
+        :subtitulo="subtituloModalPrincipal"
         :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
@@ -162,25 +162,27 @@
             tituloModalPrincipal() {
                 if (this.tipoForm === 'crear') {
                     return 'Nuevo Cliente';
-                } else {
+                }else {
                     return 'Editar Cliente';
                 }
                 return  '';
             },
+            //arreglar esto dela condicional
             subtituloModalPrincipal() {
                 if (this.tipoForm === 'crear') {
                     return 'Completa los datos del nuevo cliente';
-                } else {
+                } else if (this.tipoForm === 'editar') {
                     return 'Modifica los datos del cliente';
                 }
+               const accion = this.cliente.status === 'ACTIVO' ? 'desactivar' : 'activar';
+                return `¿Deseas ${accion} el cliente '${this.cliente.nombre}'?`;
             },
             tituloModalToggle() {
                 if (this.accion === 'eliminar') {
                     return 'Eliminar Cliente';
                 } else {
-                    return 'Cambiar Estado';
-                }
-                return  '';
+                return 'Cambiar Estado';
+                }   
             },
             textoConfirmacionPrincipal() {
                 if (this.loading) {

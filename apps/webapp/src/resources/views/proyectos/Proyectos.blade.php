@@ -166,13 +166,6 @@
         @confirmar="cambiarEstado">
 
         <form id="formEstado">
-            <p>
-                <strong>@{{ proyectoSeleccionado?.nombre }}</strong> — Estado actual:
-                <span class="badge" :class="proyectoSeleccionado?.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                    @{{ formatBadgeText(proyectoSeleccionado?.status) }}
-                </span>
-            </p>
-
             <div class="campo" v-if="tipoForm === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
 
@@ -259,9 +252,11 @@
             subtituloModalStatus() {
                 if (this.tipoForm === 'eliminar') {
                     return '¿Estás seguro de eliminar este proyecto?';
-                } else {
-                    return '¿Deseas activar/desactivar este proyecto?';
                 }
+                if (!this.proyectoSeleccionado) return '';
+
+                const accion = this.proyectoSeleccionado.status === 'ACTIVO' ? 'DESACTIVAR' : 'ACTIVAR';
+                return `¿Deseas ${accion} el proyecto '${this.proyectoSeleccionado.nombre}'?`;
             },
         },
         mounted() {
@@ -389,26 +384,14 @@
                         body: JSON.stringify(this.formproyecto)
                     });
 
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
-                        }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
-                        return;
-                    }
-
-                    if (!res.ok) throw new Error('Error al actualizar el proyecto');
+                    await this.procesarRespuesta(res, 'Error al actualizar el proyecto');
 
                     this.mostrarModal = false;
                     await this.listarProyectos();
                     this.erroresModal = {};
                     this.mostrarAlerta('exito', 'Exito', 'Proyecto actualizado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error al actualizar proyecto');
+                    // La alerta ya se muestra en procesarRespuesta, aquí solo capturamos para evitar que se detenga el flujo.
                 } finally {
                     this.loading = false;
                 }
