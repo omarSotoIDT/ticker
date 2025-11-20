@@ -8,9 +8,9 @@ use App\BO\PerfilBO;
 
 class PerfilService
 {
-    public static function obtenerPerfiles(array $filtros = [])
+    public static function obtenerPerfiles(array $filtros = [], int $limit = 10, bool $paginate = true)
     {
-        return PerfilRepoData::obtenerPerfiles($filtros);
+        return PerfilRepoData::obtenerPerfiles($filtros, $limit, $paginate);
     }
 
     public static function crearPerfil(array $datos)
@@ -33,5 +33,4 @@ class PerfilService
         $datosArmados = PerfilBO::armarDelete();
         return PerfilRepoAction::actualizarPerfil($perfil_id, $datosArmados);
     }
-
 }
