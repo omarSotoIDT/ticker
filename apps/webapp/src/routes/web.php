@@ -11,6 +11,11 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ReportesController;
 
+// Ruta de Inicio
+Route::get('/', function () {
+    return redirect()->route('login');
+})->name('home');
+
 // Vista de login
 Route::get('/login', function () {
     return view('auth.login');
@@ -39,6 +44,7 @@ Route::middleware(['auth', 'permiso'])->group(function () {
     Route::prefix('usuarios')->group(function () {
         Route::get('/', [UsuarioController::class, 'gestor'])->name('usuarios.gestor');
         Route::get('/listarRest', [UsuarioController::class, 'listarRest'])->name('usuarios.listarRest');
+        Route::get('/listadoUsuarios', [UsuarioController::class,'listarUsuarios'])->name('usuarios.listadoUsuarios');
         Route::post('/agregarRest', [UsuarioController::class, 'agregarRest'])->name('usuarios.agregarRest');
         Route::patch('/editarRest/{id}', [UsuarioController::class, 'editarRest'])->name('usuarios.editarRest');
         Route::patch('/eliminarRest/{id}', [UsuarioController::class, 'eliminarRest'])->name('usuarios.eliminarRest');
@@ -82,13 +88,12 @@ Route::middleware(['auth', 'permiso'])->group(function () {
         Route::get('/{ticket_id}/feedback-rest', [TicketFeedbackController::class, 'listarRest'])->name('tickets.listarFeedbackRest');
         Route::post('/{ticket_id}/feedback-rest', [TicketFeedbackController::class, 'agregarRest'])->name('tickets.agregarFeedbackRest');
     });
-});
 
-Route::prefix('reportes')->controller(ReportesController::class)->group(function () {
-    Route::middleware('auth')->group(function () {
-        Route::get('/', 'index')->name('reportes.index');
-        Route::get('/datos', 'obtenerDatos')->name('reportes.datos');
-        Route::get('/reportes/tickets', 'listarTickets')->name('reportes.tickets');
-        Route::get('/filtros', 'obtenerFiltros')->name('reportes.filtros');
+    // Rutas de Reportes
+    Route::prefix('reportes')->group(function () {
+        Route::get('/', [ReportesController::class, 'index'])->name('reportes.index');
+        Route::get('/datos', [ReportesController::class, 'obtenerDatos'])->name('reportes.datos');
+        Route::get('/reportes/tickets', [ReportesController::class, 'listarTickets'])->name('reportes.tickets');
+        Route::get('/filtros', [ReportesController::class, 'obtenerFiltros'])->name('reportes.filtros');
     });
 });

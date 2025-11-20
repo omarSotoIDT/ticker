@@ -47,8 +47,13 @@ class PermisoSeeder extends Seeder
             ['codigo' => 'cambiar_status_tickets', 'titulo' => 'Cambiar Status Tickets', 'orden' => 25, 'descripcion' => 'Permite cambiar el estado de un ticket'],
             ['codigo' => 'cambiar_prioridad_tickets', 'titulo' => 'Cambiar Prioridad', 'orden' => 26, 'descripcion' => 'Permite cambiar la prioridad de un ticket'],
             ['codigo' => 'asignar_tickets', 'titulo' => 'Asignar Tickets', 'orden' => 27, 'descripcion' => 'Permite asignar tickets a usuarios'],
-            ['codigo' => 'ver_feedback_tickets', 'titulo' => 'Ver Feedback', 'orden' => 28, 'descripcion' => 'Permite ver comentarios en tickets'],
-            ['codigo' => 'agregar_feedback_tickets', 'titulo' => 'Agregar Feedback', 'orden' => 29, 'descripcion' => 'Permite agregar comentarios en tickets'],
+            
+            // Permiso para el módulo de Tickets - Feedback
+            ['codigo' => 'agregar_feedback_tickets', 'titulo' => 'Agregar Feedback', 'orden' => 28, 'descripcion' => 'Permite agregar comentarios en tickets'],
+
+            // Permiso para el módulo de Reportes
+            ['codigo' => 'ver_reportes', 'titulo' => 'Ver ', 'orden' => 29, 'descripcion' => 'Permite ver la información del módulo Reportes.'],
+
         ];
 
         foreach ($permisos as $p) {
