@@ -5,11 +5,13 @@
 @section('contenido')
 
 <div id="app">
-    <loading-global :visible="loading"></loading-global>
+    <loader-componente :visible="loading"></loader-componente>
     <div class="modulo-encabezado">
-        <div class="cont-buscador">
-            <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" v-model="busqueda" @input="fetchPerfiles()" class="input input-busqueda" placeholder="Buscar Perfiles..."></input>
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" v-model="busqueda" @change="fetchPerfiles()" class="input input-busqueda" placeholder="Buscar Perfiles..."></input>
+            </div>
         </div>
         <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">
             <i class="fa fa-plus"></i> Nuevo Perfil
@@ -140,6 +142,7 @@
                 perfilAEliminar: null,
                 tipoForm: 'crear',
                 busqueda: '',
+                loading: false,
                 errors: {},
                 formPerfil: {
                     clave: '',
@@ -169,28 +172,38 @@
                 setTimeout(() => (this.alerta.mostrar = false), 3000);
             },
 
-            // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
-            fetchPerfiles(url = null) {
+            buscar() {
+                this.fetchPerfiles();
+            },
+
+            async fetchPerfiles(url = null) {
                 this.loading = true;
-                const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
+                try {
+                    let requestUrl = url;
+                    if (!requestUrl) {
+                        const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
+                        requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
+                    }
 
-                fetch(requestUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.perfiles = data.perfiles?.data || data.perfiles || [];
-                        this.links = data.links || data.perfiles?.links || [];
-                        this.permisos = data.permisos || this.permisos;
-                    })
-                    .catch(() => {
-                        this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
-                    });
-                this.loading = false;
+                    const res = await fetch(requestUrl);
+                    const data = await res.json();
 
+                    this.perfiles = data.perfiles?.data || data.perfiles || [];
+                    this.links = data.links || data.perfiles?.links || [];
+                    this.permisos = data.permisos || this.permisos;
+                } catch (e) {
+                    this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
+                } finally {
+                    this.loading = false;
+                }
             },
 
             guardar() {
                 this.loading = true;
-                if (!this.validarFormulario()) return;
+                if (!this.validarFormulario()) {
+                    this.loading = false;
+                    return;
+                }
 
                 const url = this.tipoForm === 'crear' ?
                     "{{ route('perfiles.agregarRest') }}" :
@@ -229,35 +242,38 @@
                                 });
                         }
                     })
-                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'));
-                    this.loading = false;
-                },
+                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al guardar.'))
+                    .finally(() => {
+                        this.loading = false;
+                    });
+            },
 
-            eliminarPerfil() {
+
+            async eliminarPerfil() {
                 this.loading = true;
-                if (!this.perfilAEliminar) return;
+                try {
+                    if (!this.perfilAEliminar) return;
 
-                fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
+                    const res = await fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
                         method: 'PATCH',
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         }
-                    })
-                    .then(res => {
-                        switch (res.status) {
-                            case 204:
-                                this.mostrarModalEliminar = false;
-                                this.fetchPerfiles();
-                                this.mostrarAlerta('exito', 'Perfil eliminado correctamente');
-                                break;
-                            default:
-                                return res.json().then(data => {
-                                    this.mostrarAlerta('error', data.message || 'No se pudo eliminar el perfil.');
-                                });
-                        }
-                    })
-                    .catch(() => this.mostrarAlerta('error', 'Error de conexión al eliminar.'));
+                    });
+
+                    if (res.ok) {
+                        this.mostrarModalEliminar = false;
+                        this.fetchPerfiles();
+                        this.mostrarAlerta('exito', 'Perfil eliminado correctamente');
+                    } else {
+                        const data = await res.json().catch(() => ({}));
+                        this.mostrarAlerta('error', data.message || 'No se pudo eliminar el perfil.');
+                    }
+                } catch (e) {
+                    this.mostrarAlerta('error', 'Error de conexión al eliminar.');
+                } finally {
                     this.loading = false;
+                }
             },
 
             cargarPagina(url) {
@@ -286,7 +302,7 @@
                 this.tipoForm = 'editar';
                 this.formPerfil = {
                     ...perfil,
-                    permisos: [...perfil.permisos]
+                    permisos: perfil.permisos || []
                 };
                 this.errors = {};
                 this.mostrarModal = true;
@@ -313,10 +329,10 @@
         }
     });
 
-    app.component('modal-componente', modal);
-    app.component('alerta-componente', alerta);
-    app.component('loading-global', loader)
-    app.component('paginador-componente', paginador);
+    app.component('modal-componente', modal)
+    app.component('alerta-componente', alerta)
+    app.component('loader-componente', loader)
+    app.component('paginador-componente', paginador)
     app.mount('#app');
 </script>
 
