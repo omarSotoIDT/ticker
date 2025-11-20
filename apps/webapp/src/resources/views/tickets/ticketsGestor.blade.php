@@ -573,6 +573,7 @@
                         this.modalVer.mostrar = true; 
                     }
                 },
+
                 async obtenerTicket(id){
                     try {
                         const response = await fetch(`/tickets/${id}/detalle-rest`, {
@@ -591,6 +592,7 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al obtener el ticket')
                     }
                 },
+
                 async agregar(){
                     try {
                         const response = await fetch('/tickets/registro-rest', {
@@ -613,6 +615,7 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el ticket')
                     }
                 },
+
                 async editar(){
                     try {
                         const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
@@ -651,6 +654,7 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el ticket')
                     }
                 },
+
                 async editarStatus() {
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/status-rest/`, {
@@ -673,6 +677,7 @@
                         this.listarTickets();
                     }
                 },
+
                 async editarPrioridad() {
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/prioridad-rest/`, {
@@ -695,6 +700,7 @@
                         this.listarTickets();
                     }
                 },
+
                 async editarAsignacion() {
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/asignacion-rest/`, {
@@ -717,6 +723,7 @@
                         this.listarTickets();
                     }
                 },
+
                 async agregarFeedback(){
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/feedback-rest`, {
@@ -741,9 +748,11 @@
                         this.mostrarAlerta('error', 'Error', 'Ocurrio un error al agregar el comentario')
                     } 
                 },
+
                 actualizarProyectos(cliente_id){
                     this.proyectosCliente = this.proyectos.filter(p => p.cliente_id === cliente_id);
                 },
+                
                 seleccionarCliente(){
                     this.actualizarProyectos(this.formTicket.cliente_id);
                     this.formTicket.proyecto_id = null;
