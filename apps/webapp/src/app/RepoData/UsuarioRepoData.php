@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 class UsuarioRepoData
 {
     public static function listar($filtros, $columnas, $orden, $limit, $offset){
-        $query = DB::table('sys_usuarios as su');
+        $query = DB::table('sys_usuarios as su')->where('su.super_usuario', 0);
         $query->leftJoin('rel_usuarios_perfiles as rup', 'su.usuario_id', '=', 'rup.usuario_id');
         $query->leftJoin('sys_perfiles as sp', 'rup.perfil_id', '=', 'sp.perfil_id');
 

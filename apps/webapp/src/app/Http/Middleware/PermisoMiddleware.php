@@ -62,6 +62,10 @@ class PermisoMiddleware
             return $this->denegar($request);
         }
 
+        if ($user->super_usuario == 1) {
+            return $next($request);
+        }
+
         $nombreRuta = Route::currentRouteName();
 
         if (!$nombreRuta) {
