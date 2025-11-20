@@ -289,6 +289,18 @@ input, select{
   gap: 10px;
 }
 
+.btn-buscar {
+    padding: 10px 14px;
+    gap: 0;
+}
+
+.btn-limpiar-filtros {
+    padding: 10px 14px;
+    gap: 0;
+    border-radius: 10px;
+    font-size: 15px;
+}
+
 .error{
   margin: 8px 0;
 }
@@ -664,6 +676,13 @@ input, select{
   color: #888;
   transition: color 0.2s;
 }
+.descripcion-item-modal {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
 
 .acciones-modal {
   display: flex;
@@ -958,12 +977,22 @@ input, select{
 .comentario-texto {
   font-size: 14.4px;
   color: #374151;
+  word-break: break-word;
   white-space: pre-wrap;
 }
 
 .nuevo-comentario-form { display: flex; gap: 8px; margin-top: 16px; }
 .nuevo-comentario-form textarea { flex-grow: 1; min-height: 40px; }
-.btn-enviar-comentario { flex-shrink: 0; height: 40px; width: 40px; padding: 0; margin-top: 60px}
+.btn-enviar-comentario {
+  flex-shrink: 0;
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 0;
+}
 
 .seccion-historial .lista-historial {
   list-style: none;

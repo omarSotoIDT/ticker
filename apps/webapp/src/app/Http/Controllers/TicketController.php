@@ -86,7 +86,6 @@ class TicketController extends Controller
                 'etiqueta_id' => 'integer',
                 'usuario_asignado_id' => 'integer',
             ]);
-            //  dd($datos);
             if (TicketCoordinator::actualizarProyecto($id, $datos)) {
                 return Response::json($datos, 200); 
             }

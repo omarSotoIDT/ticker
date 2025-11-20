@@ -98,13 +98,16 @@
     <modal-componente
         v-model:mostrar="mostrarToggle"
         :titulo="tituloModalToggle"
-        :subtitulo="subtituloModalPrincipal"
+        :subtitulo="subtituloModalToggle"
         :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
         
         <form id="formToggle" @submit.prevent>
+                <div v-if="cliente" class="descripcion-item-modal">
+                <p><strong> @{{ cliente.nombre }} </strong> - @{{ cliente.email }}</p>
+            </div>
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
                 <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required maxlength="250"></textarea>
@@ -167,22 +170,28 @@
                 }
                 return  '';
             },
-            //arreglar esto dela condicional
             subtituloModalPrincipal() {
                 if (this.tipoForm === 'crear') {
                     return 'Completa los datos del nuevo cliente';
                 } else if (this.tipoForm === 'editar') {
                     return 'Modifica los datos del cliente';
                 }
-               const accion = this.cliente.status === 'ACTIVO' ? 'desactivar' : 'activar';
-                return `¿Deseas ${accion} el cliente '${this.cliente.nombre}'?`;
+                return '';
             },
             tituloModalToggle() {
                 if (this.accion === 'eliminar') {
                     return 'Eliminar Cliente';
                 } else {
-                return 'Cambiar Estado';
+                    return 'Cambiar Estado del Cliente';
                 }   
+            },
+            subtituloModalToggle() {
+                if (!this.cliente) return '';
+                if (this.accion === 'eliminar') {
+                    return `¿Estás seguro de eliminar el cliente?`;
+                }
+                const accion = this.cliente.status === 'ACTIVO' ? 'DESACTIVAR' : 'ACTIVAR';
+                return `¿Deseas ${accion} el cliente?`;
             },
             textoConfirmacionPrincipal() {
                 if (this.loading) {

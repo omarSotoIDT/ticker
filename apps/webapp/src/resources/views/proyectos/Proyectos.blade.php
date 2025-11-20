@@ -166,6 +166,9 @@
         @confirmar="cambiarEstado">
 
         <form id="formEstado">
+            <div v-if="proyectoSeleccionado" class="descripcion-item-modal">
+                <p><strong>Proyecto:</strong> @{{ proyectoSeleccionado.nombre }}</p>
+            </div>
             <div class="campo" v-if="tipoForm === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
 
@@ -256,7 +259,7 @@
                 if (!this.proyectoSeleccionado) return '';
 
                 const accion = this.proyectoSeleccionado.status === 'ACTIVO' ? 'DESACTIVAR' : 'ACTIVAR';
-                return `¿Deseas ${accion} el proyecto '${this.proyectoSeleccionado.nombre}'?`;
+                return `¿Deseas ${accion} el proyecto?`;
             },
         },
         mounted() {

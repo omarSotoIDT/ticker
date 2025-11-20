@@ -26,7 +26,7 @@ class TicketFeedbackController extends Controller
     {
         try {
             $datos = $request->validate([
-                'comentario' => 'string|max:250|required'
+                'comentario' => 'string|max:500|required'
             ]);
             if (TicketFeedbackCoordinator::agregar($ticket_id, $datos)) {
                 return Response::json(null, 201);

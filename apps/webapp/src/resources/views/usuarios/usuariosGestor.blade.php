@@ -103,7 +103,7 @@
       :deshabilitar-confirmacion="loading"
       @confirmar="confirmarCambioStatus">
       <form id="form">
-        <p>@{{ usuario.usuarioId }} - @{{ usuario.usuario }}</p>
+        <p><strong>@{{ usuario.usuario }}</strong> - @{{ usuario.email }} </p>
         <div class="campo" v-if="tipoForm === 'eliminar'">
           <label class="etiqueta" for="motivo">Motivo</label>
           <textarea class="input" name="motivo" id="motivo" placeholder="Ingresa un motivo" v-model="formEliminar.motivo" maxlength="250"></textarea>
