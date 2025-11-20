@@ -9,7 +9,7 @@
         <div class="items-busqueda">
             <div class="cont-buscador">
                 <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar usuarios..."></input>
+                <input type="text" name="usuario" id="usuario" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Usuarios..."></input>
             </div>
         </div>
         <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
@@ -125,7 +125,7 @@
     const app = Vue.createApp({
       data() {
         return { 
-          busqueda: '{{ request('usuario') }}',
+          busqueda: {titulo: '{{ request('usuario') }}'},
           mostrarModal: false,
           mostrarCambiarStatus: false,
           tipoForm: 'crear',
@@ -287,7 +287,7 @@
           this.loading = true;
           try {
             const params = new URLSearchParams();
-            if (this.busqueda) params.append('usuario', this.busqueda);
+            if (this.busqueda.titulo) params.append('usuario', this.busqueda.titulo);
             const response = await fetch('/usuarios/listarRest?' + params.toString(), {
               method: 'GET',
               headers: {
@@ -295,6 +295,7 @@
                 'X-CSRF-TOKEN': this.token
               }
             })
+              console.log('Fetching users with params:', params.toString());
 
             if (!response.ok) {
               throw new Error('Error al buscar usuarios: ' + response.status);
