@@ -91,7 +91,10 @@ class PermisoMiddleware
             ? "No tienes permisos para realizar la acción: $permiso."
             : "No tienes permisos para realizar esta acción.";
 
-        if ($request->wantsJson() || $request->ajax() || $request->is('api/*')) {
+        $nombreRuta = Route::currentRouteName() ?? '';
+        $isRestRequest = str_contains($nombreRuta, 'Rest');
+
+        if ($isRestRequest || $request->wantsJson() || $request->ajax() || $request->is('api/*')) {
             return response()->json([
                 'error' => true,
                 'mensaje' => $mensaje,

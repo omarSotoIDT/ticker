@@ -216,6 +216,7 @@
         },
         modalCrear(){
           this.tipoForm = 'crear';
+          this.erroresModal = {};
           this.formUsuario.nombre = '';
           this.formUsuario.email = '';
           this.formUsuario.password = '';
@@ -226,6 +227,7 @@
           this.usuario = this.usuarios.find(u => u.usuarioId === id);
           if (!this.usuario) return;
           this.tipoForm = 'editar';
+          this.erroresModal = {};
           this.formUsuario.nombre = this.usuario.usuario;
           this.formUsuario.email = this.usuario.email;
           this.formUsuario.password = ''; 
@@ -237,6 +239,7 @@
           this.usuario = this.usuarios.find(u => u.usuarioId === id);
           if (!this.usuario) return;
           this.tipoForm = 'eliminar';
+          this.erroresModal = {};
           this.formEliminar.motivo = '';
           this.mostrarCambiarStatus = true;
         },
@@ -245,6 +248,7 @@
           this.usuario = this.usuarios.find(u => u.usuarioId === id);
           if (!this.usuario) return;
           this.tipoForm = 'activar';
+          this.erroresModal = {};
           this.mostrarCambiarStatus = true;
         },
 
@@ -312,30 +316,35 @@
 
         async crear() {
           this.loading = true;
+          this.erroresModal = {};
           try {
             const response = await fetch('/usuarios/agregarRest', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': this.token
               },
               body: JSON.stringify(this.formUsuario)
-            })
+            });
+            const data = await response.json().catch(() => ({}));
 
             if(!response.ok) {
               if (response.status === 422) {
-                const datosError = await response.json();
-                this.erroresModal = datosError.errors;
-                return;
+                this.erroresModal = data.errors;
+                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+              } else {
+                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al crear el usuario');
+                this.mostrarAlerta('error', 'Error', mensaje);
               }
-              throw new Error('Error al crear el usuario: ' + response.status);
+              return;
             }
 
             await this.listarUsuarios();
             this.mostrarModal = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario creado');
+            this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario creado');
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el usuario');
+            this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al crear el usuario');
           } finally {
             this.loading = false;
           }
@@ -343,31 +352,36 @@
 
         async editar(){
           this.loading = true;
+          this.erroresModal = {};
           try {
             const response = await fetch('/usuarios/editarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': this.token
               },
               body: JSON.stringify(this.formUsuario)
-            })
+            });
+            const data = await response.json().catch(() => ({}));
 
             if(!response.ok) {
               if (response.status === 422) {
-                const datosError = await response.json();
-                this.erroresModal = datosError.errors;
-                return;
+                this.erroresModal = data.errors;
+                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+              } else {
+                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al editar el usuario');
+                this.mostrarAlerta('error', 'Error', mensaje);
               }
-              throw new Error('Error al editar el usuario: ' + response.status);
+              return;
             }
 
             await this.listarUsuarios();
             this.mostrarModal = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario actualizado');
+            this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario actualizado');
 
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el usuario');
+            this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al editar el usuario');
           } finally {
             this.loading = false;
           }
@@ -375,36 +389,35 @@
 
         async eliminar(){
           this.loading = true;
+          this.erroresModal = {};
           try {
             const response = await fetch('/usuarios/eliminarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': this.token
               },
               body: JSON.stringify(this.formEliminar)
-            })
+            });
+            const data = await response.json().catch(() => ({}));
 
             if(!response.ok) {
               if (response.status === 422) {
-                const datosError = await response.json();
-                this.erroresModal = datosError.errors;
-                return;
+                this.erroresModal = data.errors;
+                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+              } else {
+                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al eliminar el usuario');
+                this.mostrarAlerta('error', 'Error', mensaje);
               }
-               if (response.status === 409) { 
-                const datosError = await response.json();
-                this.mostrarAlerta('error', 'Acción denegada', datosError.mensaje);
-                this.mostrarCambiarStatus = false;
-                return;
-              }
-              throw new Error('Error al eliminar el usuario: ' + response.status);
+              return;
             }
 
             await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario eliminado');
+            this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario eliminado');
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', error.message);
+            this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al eliminar el usuario');
           } finally {
             this.loading = false;
           }
@@ -412,29 +425,29 @@
 
         async activar(){
           this.loading = true;
+          this.erroresModal = {};
           try {
             const response = await fetch('/usuarios/activarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
               headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': this.token
               }
-            })
+            });
+            const data = await response.json().catch(() => ({}));
 
             if(!response.ok) {
-              if (response.status === 422) {
-                const datosError = await response.json();
-                this.erroresModal = datosError.errors;
+                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al activar el usuario');
+                this.mostrarAlerta('error', 'Error', mensaje);
                 return;
-              }
-              throw new Error('Error al activar el usuario: ' + response.status);
             }
 
             await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
-            this.mostrarAlerta('exito', 'Exito', 'Usuario Activado');
+            this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario Activado');
           }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al activar el usuario');
+            this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al activar el usuario');
           } finally {
             this.loading = false;
           }

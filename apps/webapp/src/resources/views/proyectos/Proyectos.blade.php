@@ -277,7 +277,7 @@
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'error', 'Error al listar proyectos:');
+                    this.mostrarAlerta('error', 'error', 'Error al listar proyectos.');
                 } finally {
                     this.loading = false;
                 }
@@ -319,7 +319,7 @@
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error', 'Error al cargar clientes:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar clientes.');
                 }
             },
 
@@ -335,41 +335,35 @@
                         ...u
                     }));
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios.');
                 }
             },
 
             async crearProyecto() {
                 this.loading = true;
+                this.erroresModal = {};
                 try {
                     const res = await fetch('/proyectos', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
                         body: JSON.stringify(this.formproyecto)
                     });
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                            this.mostrarAlerta('error', 'Error', data.mensaje || 'Error de validación');
+                        } else {
+                            const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al crear el proyecto');
+                            this.mostrarAlerta('error', 'Error', mensaje);
                         }
-                        this.mostrarAlerta('error', 'Error', msg || 'Error de validación');
                         return;
                     }
-
-                    if (!res.ok) throw new Error('Error al crear el proyecto');
-
                     this.mostrarModal = false;
-                    await this.listarProyectos();
-                    this.erroresModal = {};
-                    this.mostrarAlerta('exito', 'Exito', 'Proyecto creado correctamente');
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error', 'Error al crear proyecto');
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
                 } finally {
                     this.loading = false;
                 }
@@ -377,24 +371,29 @@
 
             async actualizarProyecto() {
                 this.loading = true;
+                this.erroresModal = {};
                 try {
                     const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}`, {
                         method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
                         body: JSON.stringify(this.formproyecto)
                     });
-
-                    await this.procesarRespuesta(res, 'Error al actualizar el proyecto');
-
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                            this.mostrarAlerta('error', 'Error', data.mensaje || 'Error de validación');
+                        } else {
+                            const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al actualizar el proyecto');
+                            this.mostrarAlerta('error', 'Error', mensaje);
+                        }
+                        return;
+                    }
                     this.mostrarModal = false;
-                    await this.listarProyectos();
-                    this.erroresModal = {};
-                    this.mostrarAlerta('exito', 'Exito', 'Proyecto actualizado correctamente');
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
                 } catch (err) {
-                    // La alerta ya se muestra en procesarRespuesta, aquí solo capturamos para evitar que se detenga el flujo.
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
                 } finally {
                     this.loading = false;
                 }
@@ -419,7 +418,7 @@
                     this.usuariosProyecto = data.usuarios || [];
                     this.mostrarModalHistorial = true;
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error', 'Error al obtener historial:');
+                    this.mostrarAlerta('error', 'Error', 'Error al obtener historial.');
                 } finally {
                     this.loading = false;
                 }
@@ -440,96 +439,57 @@
                 this.erroresModal = {};
                 this.loading = true;
 
+                let url, method, body, successMsg, errorMsg;
+
+                if (this.tipoForm === 'eliminar') {
+                    if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
+                        this.erroresModal = { motivo: ['Debes ingresar un motivo'] };
+                        this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                        this.loading = false;
+                        return;
+                    }
+                    url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
+                    method = 'DELETE';
+                    body = JSON.stringify(this.formEliminar);
+                    successMsg = 'Proyecto eliminado correctamente';
+                    errorMsg = 'Error al eliminar el proyecto';
+                } else if (this.tipoForm === 'activar') {
+                    url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
+                    method = 'PATCH';
+                    body = null;
+                    successMsg = 'Estado cambiado correctamente';
+                    errorMsg = 'Error al cambiar el estado del proyecto';
+                } else {
+                    this.mostrarAlerta('error', 'Error', 'Acción no reconocida');
+                    this.loading = false;
+                    return;
+                }
+
                 try {
-                    if (this.tipoForm === 'eliminar') {
-                        await this.eliminarProyecto();
-                    } else if (this.tipoForm === 'activar') {
-                        await this.activarProyecto();
-                    } else {
-                        this.mostrarAlerta('error', 'Error', 'Acción no reconocida');
+                    const res = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
+                        body
+                    });
+                    const data = await res.json().catch(() => ({}));
+
+                    if (!res.ok) {
+                        const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : errorMsg);
+                        this.mostrarAlerta('error', 'Error', mensaje);
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                        }
                         return;
                     }
 
                     this.mostrarModalStatus = false;
-                    await this.listarProyectos();
-
-                    const successMsg = this.tipoForm === 'eliminar' ?
-                        'Proyecto eliminado correctamente' :
-                        'Estado cambiado correctamente';
-
-                    this.mostrarAlerta('exito', 'Éxito', successMsg);
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
                 } catch (err) {
-                    const mensaje = err.message || 'Error al procesar la acción.';
-                    this.mostrarAlerta('error', 'Error', mensaje);
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');
                 } finally {
                     this.loading = false;
                 }
-            },
-
-            async eliminarProyecto() {
-                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
-                    this.erroresModal = {
-                        motivo_eliminacion: ['Debes ingresar un motivo']
-                    };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Debes ingresar un motivo');
-                }
-
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
-                        body: JSON.stringify(this.formEliminar)
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        }
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async procesarRespuesta(res, mensajeError) {
-                const data = await res.json();
-
-                if (res.status === 422) {
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
-                }
-
-                if (!res.ok) {
-                    const data = await res.json().catch(() => ({}));
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
-                }
-
-                return data;
             },
 
             async modalEditar(proyecto_id) {
@@ -567,53 +527,7 @@
                     const usuarios = data.data || [];
                     this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios asignados:');
-                }
-            },
-
-            async eliminarProyecto() {
-                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
-                    this.erroresModal = {
-                        motivo_eliminacion: ['Debes ingresar un motivo']
-                    };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Motivo requerido');
-                }
-
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
-                const res = await fetch(url, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': this.token
-                    },
-                    body: JSON.stringify(this.formEliminar)
-                });
-
-                await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
-            },
-
-            async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
-                const res = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': this.token
-                    }
-                });
-
-                await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
-            },
-
-            async procesarRespuesta(res, mensajeError) {
-                const data = await res.json().catch(() => ({}));
-
-                if (!res.ok) {
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios asignados.');
                 }
             },
 

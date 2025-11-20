@@ -274,7 +274,7 @@
                         this.mostrarAlerta('exito', 'Éxito', 'Perfil eliminado correctamente');
                     } else {
                         const data = await res.json().catch(() => ({}));
-                        this.mostrarAlerta('error', 'Error', data.message || 'No se pudo eliminar el perfil.');
+                        this.mostrarAlerta('error', 'Error', data.mensaje || 'No se pudo eliminar el perfil.');
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error de conexión al eliminar.');

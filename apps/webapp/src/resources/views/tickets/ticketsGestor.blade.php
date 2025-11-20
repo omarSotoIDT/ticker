@@ -602,39 +602,43 @@
                     }
                 },
                 async agregar(){
+                    this.loading = true;
+                    this.erroresRegistro = {};
                     try {
-                        this.loading = true;
                         const response = await fetch('/tickets/registro-rest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al crear el ticket');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al crear el ticket: ' + response.status);
+                            return;
                         }
 
                         this.modalRegistro.mostrar = false;
                         this.listarTickets();
-                        this.mostrarAlerta('exito', 'Exito', 'Ticket creado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Ticket creado')
                     }  catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el ticket')
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al crear el ticket')
                     } finally {
                         this.loading = false;
                     }
                 },
                 async editar(){
+                    this.loading = true;
+                    this.erroresRegistro = {};
                     try {
                         const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
                         const proyectosDisponibles = this.proyectosCliente.length ? this.proyectosCliente : this.proyectos;
                         const proyecto = proyectosDisponibles.find(p => p.proyecto_id === this.formTicket.proyecto_id);
                         const etiqueta = this.etiquetas.find(e => e.etiquetaId === this.formTicket.etiqueta_id);
                         const usuario = this.usuarios.find(u => u.usuarioId === this.formTicket.usuario_asignado_id);
-                        this.loading = true;
 
                         let payload = {
                             ...this.formTicket,
@@ -649,45 +653,49 @@
                             headers: this.headers,
                             body: JSON.stringify(payload)
                         });
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al editar el ticket');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al editar el ticket: ' + response.status);
+                            return;
                         }
 
                         this.modalRegistro.mostrar = false;
                         this.listarTickets();
-                        this.mostrarAlerta('exito', 'Exito', 'Ticket editado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Ticket editado')
                     }  catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el ticket')
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al editar el ticket')
                     } finally {
                         this.loading = false;
                     }
                 },
                 async editarStatus() {
+                    this.loading = true;
                     try {
-                        this.loading = true;
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/status-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({status: this.ticket.status})
                         })
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                this.mostrarAlerta('error', 'Error de Validación', Object.values(datosError.errors)[0][0]);
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar el status');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar el status: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Estado editado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Estado editado')
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar el status');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar el status');
                     } finally {                        
                         this.loading = false;
                         await this.obtenerTicket(this.ticket.ticketId);
@@ -695,24 +703,26 @@
                     }
                 },
                 async editarPrioridad() {
+                    this.loading = true;
                     try {
-                        this.loading = true;
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/prioridad-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({prioridad: this.ticket.prioridad})
                         })
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                this.mostrarAlerta('error', 'Error de Validación', Object.values(datosError.errors)[0][0]);
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar la prioridad');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar la prioridad: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Prioridad editada')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Prioridad editada')
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la prioridad');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar la prioridad');
                     } finally {                        
                         this.loading = false;
                         await this.obtenerTicket(this.ticket.ticketId);
@@ -720,24 +730,26 @@
                     }
                 },
                 async editarAsignacion() {
+                    this.loading = true;
                     try {
-                        this.loading = true;
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/asignacion-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({usuario_asignado_id: this.ticket.usuarioAsignadoId})
                         })
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                this.mostrarAlerta('error', 'Error de Validación', Object.values(datosError.errors)[0][0]);
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar la asignacion');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar la asignacion: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Asignacion editada')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Asignacion editada')
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la asignacion');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar la asignacion');
                     } finally {                        
                         this.loading = false;
                         await this.obtenerTicket(this.ticket.ticketId);
@@ -745,29 +757,31 @@
                     }
                 },
                 async agregarFeedback(){
+                    this.loading = true;
+                    this.erroresRegistroFeedback = {};
                     try {
-                        this.loading = true;
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/feedback-rest`, {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formFeedback)
                         })
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistroFeedback = datosError.errors;
-                                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
-                                return;
+                                this.erroresRegistroFeedback = data.errors;
+                                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al agregar el comentario');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al agregar feedback: ' + response.status);
+                            return;
                         }
 
                         this.formFeedback.comentario = '';
-                        this.erroresRegistroFeedback = {};
                         await this.obtenerTicket(this.ticket.ticketId); 
 
-                        this.mostrarAlerta('exito', 'Exito', 'Comentario Agregado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Comentario Agregado')
                     } catch (error){
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al agregar el comentario')
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al agregar el comentario')
                     } finally {
                         this.loading = false;
                     } 

@@ -138,6 +138,8 @@
                 loading: false,
                 erroresModal: {},
                 token: '{{ csrf_token() }}',
+                exito: {{ Js::from(session('exito')) }},
+                error: {{ Js::from(session('error')) }},
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -159,7 +161,13 @@
             }
         },
         mounted() {
-            this.listarClientes()
+            this.listarClientes();
+            if (this.exito) {
+                this.mostrarAlerta('exito', 'Éxito', this.exito);
+            }
+            if (this.error) {
+                this.mostrarAlerta('error', 'Error', this.error);
+            }
         },
         computed: {
             tituloModalPrincipal() {
@@ -324,10 +332,7 @@
                 const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH'
 
                 try {
-                    const {
-                        res,
-                        data
-                    } = await this.fetchJson(url, {
+                    const res = await fetch(url, {
                         method: metodo,
                         headers: {
                             'Content-Type': 'application/json',
@@ -337,20 +342,20 @@
                         body: JSON.stringify(this.formCliente)
                     })
 
-                    if (res.status === 422 && data.errores) {
-                        this.erroresModal = data.errores
-
-                        const primerError = Object.values(data.errores)[0]
-                        if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta('info', 'Información', primerError[0])
-                        }
-                        return
-                    }
+                    const data = await res.json().catch(() => null);
 
                     if (!res.ok) {
-                        const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
-                        this.mostrarAlerta('error', 'Error', mensaje)
-                        return
+                        if (res.status === 422 && data && data.errores) {
+                            this.erroresModal = data.errores
+                            const primerError = Object.values(data.errores)[0]
+                            if (primerError && primerError.length > 0) {
+                                this.mostrarAlerta('info', 'Información', primerError[0])
+                            }
+                        } else {
+                            const mensaje = data?.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al guardar el cliente.');
+                            this.mostrarAlerta('error', 'Error', mensaje)
+                        }
+                        return;
                     }
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
@@ -421,7 +426,7 @@
                     }
 
                     if (!res.ok) {
-                        let mensaje = data.error || 'Error desconocido al confirmar la acción.';
+                        let mensaje = data.mensaje || 'Error desconocido al confirmar la acción.';
                         if (res.status >= 500) {
                             mensaje = 'Error del servidor. Intenta más tarde.';
                         }
