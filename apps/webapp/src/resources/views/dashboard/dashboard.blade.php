@@ -61,7 +61,7 @@ createApp({
             { titulo: "Total Tickets", valor: "{{ $cards['total'] }}", descripcion: "Todos los tickets del sistema", icono: "fas fa-chart-line", color: "#3b82f6" },
             { titulo: "Tickets Activos", valor: "{{ $cards['activos'] }}", descripcion: "En proceso o pendientes", icono: "far fa-clock", color: "#f59e0b" },
             { titulo: "Tickets Cerrados", valor: "{{ $cards['cerrados'] }}", descripcion: "Finalizados exitosamente", icono: "far fa-check-circle", color: "#10b981" },
-            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes'] }}", descripcion: "Requieren atención inmediata", icono: "fas fa-exclamation-circle", color: "#ef4444" }
+            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes'] }}", descripcion: "Requieren atención inmediata", icono: "fa fa-exclamation", color: "#ef4444" }
         ]);
 
         const chartEstado = ref(null);
@@ -126,6 +126,7 @@ createApp({
                         }]
                     },
                     options: {
+                        maintainAspectRatio: false,
                         responsive: true,
                         plugins: { legend: { display: false } },
                         scales: { y: yAxisOptions, x: { grid: { display: false } } }
@@ -145,6 +146,7 @@ createApp({
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: { y: yAxisOptions, x: { grid: { display: false } } }
                     }

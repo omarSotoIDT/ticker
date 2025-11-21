@@ -1278,7 +1278,7 @@ input, select{
   --icono-total-color: #818cf8;
   --icono-activos-color: #38bdf8;
   --icono-cerrados-color: #4ade80;
-  --icono-urgentes-color: #f87171;
+  --icono-urgentes-color: #f30000;
 }
 
 /* Estructura General del Dashboard */
@@ -1344,7 +1344,11 @@ input, select{
 #dashboard-root .tarjeta-icono.icono-total { color: var(--icono-total-color); }
 #dashboard-root .tarjeta-icono.icono-activos { color: var(--icono-activos-color); }
 #dashboard-root .tarjeta-icono.icono-cerrados { color: var(--icono-cerrados-color); }
-#dashboard-root .tarjeta-icono.icono-urgentes { color: var(--icono-urgentes-color); }
+#dashboard-root .tarjeta-icono.icono-urgentes { 
+    color: transparent !important; 
+    -webkit-text-stroke: 2px var(--icono-urgentes-color);
+    text-stroke: 2px var(--icono-urgentes-color);
+}
 
 #dashboard-root .cuadricula-graficas {
   display: grid;
@@ -1372,7 +1376,7 @@ input, select{
 }
 
 #dashboard-root .lienzo-grafica {
-  width: 100%; height: 300px;
+  width: 100%; height: 250px;
 }
 
 #dashboard-root .grafica-ancho-completo {
