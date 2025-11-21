@@ -349,7 +349,7 @@
                             this.erroresModal = data.errores
                             const primerError = Object.values(data.errores)[0]
                             if (primerError && primerError.length > 0) {
-                                this.mostrarAlerta('info', 'Información', primerError[0])
+                                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                             }
                         } else {
                             const mensaje = data?.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al guardar el cliente.');
@@ -382,7 +382,7 @@
                     this.erroresModal = {
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                     return;
                 }
 

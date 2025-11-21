@@ -1,6 +1,6 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Proyectos')
+@section('titulo', 'Gestor de Proyectos')
 
 @section('contenido')
 <div id="app">
@@ -352,7 +352,8 @@
                     if (!res.ok) {
                         if (res.status === 422) {
                             this.erroresModal = data.errores;
-                            this.mostrarAlerta('error', 'Error', data.mensaje || 'Error de validación');
+                            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                            
                         } else {
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al crear el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
@@ -382,7 +383,7 @@
                     if (!res.ok) {
                         if (res.status === 422) {
                             this.erroresModal = data.errores;
-                            this.mostrarAlerta('error', 'Error', data.mensaje || 'Error de validación');
+                            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                         } else {
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al actualizar el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
@@ -444,7 +445,7 @@
                 if (this.tipoForm === 'eliminar') {
                     if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
                         this.erroresModal = { motivo: ['Debes ingresar un motivo'] };
-                        this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                        this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                         this.loading = false;
                         return;
                     }

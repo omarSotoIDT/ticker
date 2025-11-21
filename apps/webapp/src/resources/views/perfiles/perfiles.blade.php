@@ -1,6 +1,6 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Perfiles')
+@section('titulo', 'Gestor de Perfiles')
 
 @section('contenido')
 
@@ -209,6 +209,7 @@
                 this.loading = true;
                 if (!this.validarFormulario()) {
                     this.loading = false;
+                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                     return;
                 }
 
@@ -241,7 +242,7 @@
                             case 422:
                                 return res.json().then(data => {
                                     this.errors = data.errors;
-                                    this.mostrarAlerta('error', 'Error', 'Revisa los campos del formulario.');
+                                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                                 });
                             default:
                                 return res.json().then(data => {

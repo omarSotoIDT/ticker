@@ -1,6 +1,6 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Gestor de usuarios')
+@section('titulo', 'Gestor de Usuarios')
 
 @section('contenido')
   <div id="app">
@@ -332,7 +332,7 @@
             if(!response.ok) {
               if (response.status === 422) {
                 this.erroresModal = data.errors;
-                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
               } else {
                 const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al crear el usuario');
                 this.mostrarAlerta('error', 'Error', mensaje);
@@ -368,7 +368,7 @@
             if(!response.ok) {
               if (response.status === 422) {
                 this.erroresModal = data.errors;
-                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
               } else {
                 const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al editar el usuario');
                 this.mostrarAlerta('error', 'Error', mensaje);
@@ -405,7 +405,7 @@
             if(!response.ok) {
               if (response.status === 422) {
                 this.erroresModal = data.errors;
-                this.mostrarAlerta('error', 'Error', data.message || 'Error de validación');
+                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
               } else {
                 const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al eliminar el usuario');
                 this.mostrarAlerta('error', 'Error', mensaje);

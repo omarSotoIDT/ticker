@@ -1,5 +1,5 @@
 @extends('layout.Layout')
-@section('title', 'Reportes')
+@section('titulo', 'Reportes')
 @section('contenido')
 <div id="app" class="scrollable-reportes">
     <div class="contenedor-filtros">
