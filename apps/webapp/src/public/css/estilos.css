@@ -225,6 +225,22 @@ main {
   text-align: left;
 }
 
+.logo-menu {
+    margin-bottom: 0 !important; 
+    margin-right: 12px; 
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    font-size: 16px; 
+}
+
+aside .titulo span {
+    font-weight: 700;
+    color: #18181b;
+    font-size: 17px;
+    line-height: 1.2;
+}
+
 .subtitulo {
   color: #52525b;
   font-size: 16px;

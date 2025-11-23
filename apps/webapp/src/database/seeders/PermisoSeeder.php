@@ -51,7 +51,7 @@ class PermisoSeeder extends Seeder
             ['codigo' => 'ver_usuarios_proyectos', 'titulo' => 'Ver Usuarios en Proyecto', 'orden' => 28, 'descripcion' => 'Permite ver usuarios asignados a un proyecto'],
 
             // Permiso para el módulo de Reportes
-            ['codigo' => 'ver_reportes', 'titulo' => 'Ver ', 'orden' => 29, 'descripcion' => 'Permite ver la información del módulo Reportes.'],
+            ['codigo' => 'ver_reportes', 'titulo' => 'Ver Reportes', 'orden' => 29, 'descripcion' => 'Permite ver la información del módulo Reportes.'],
 
         ];
 

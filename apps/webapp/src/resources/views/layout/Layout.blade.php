@@ -32,8 +32,11 @@
 <body class="layout">
     <!-- Sidebar -->
     <aside>
-        <div class="titulo">
-            <p><i class="fa-solid fa-ticket"></i>Sistema de Tickets</p>
+         <div class="titulo">
+            <div class="logo logo-menu">
+                <i class="fa-solid fa-ticket icono-blanco"></i>
+            </div>
+            <span>Sistema de Tickets</span>
         </div>
         <p class="titulo-enlaces">Menú Principal</p>
         <a href="/dashboard"><i class="fa fa-pie-chart"></i>Dashboard</a>
