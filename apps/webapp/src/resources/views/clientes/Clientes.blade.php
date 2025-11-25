@@ -60,6 +60,8 @@
             </tr>
         </tbody>
     </table>
+
+    <paginador-componente :links="links" @navigate="fetchClientes"></paginador-componente>
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -140,6 +142,7 @@
                 token: '{{ csrf_token() }}',
                 exito: {{ Js::from(session('exito')) }},
                 error: {{ Js::from(session('error')) }},
+                links: [],
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -161,7 +164,7 @@
             }
         },
         mounted() {
-            this.listarClientes();
+            this.fetchClientes();
             if (this.exito) {
                 this.mostrarAlerta('exito', 'Éxito', this.exito);
             }
@@ -244,27 +247,40 @@
                 const mensaje = arguments.length > 1 ? arguments[1] : null
                 this[modal] = false
                 this.erroresModal = {}
-                this.listarClientes()
+                this.fetchClientes()
 
                 if (mensaje) {
                     this.mostrarAlerta('exito', 'Éxito', mensaje)
                 }
             },
-            async listarClientes() {
+            async fetchClientes(url = null) {
                 this.loading = true;
                 try {
+                    let requestUrl = url;
+                    if (!requestUrl) {
+                        const params = this.busqueda.titulo ? '?busqueda=' + encodeURIComponent(this.busqueda.titulo) : '';
+                        requestUrl = '/clientes/listado' + params;
+                    } else {
+                        if (this.busqueda.titulo) {
+                            const separator = requestUrl.includes('?') ? '&' : '?';
+                            requestUrl += separator + 'busqueda=' + encodeURIComponent(this.busqueda.titulo);
+                        }
+                    }
+
                     const {
                         res,
                         data
-                    } = await this.fetchJson('/clientes/listado', {
+                    } = await this.fetchJson(requestUrl, {
                         headers: {
                             'Accept': 'application/json'
                         }
-                    })
+                    });
+
                     if (res.ok && data.data) {
-                        this.clientes = data.data
+                        this.clientes = data.data;
+                        this.links = data.links || [];
                     } else {
-                        this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.')
+                        this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.');
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
@@ -273,28 +289,7 @@
                 }
             },
             async buscar() {
-                this.loading = true;
-                try {
-                    const params = this.busqueda.titulo ? '?busqueda=' + encodeURIComponent(this.busqueda.titulo) : ''
-                    const {
-                        res,
-                        data
-                    } = await this.fetchJson('/clientes/listado' + params, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        }
-                    })
-                    if (res.ok && data.data) {
-                        this.clientes = data.data
-                    } else {
-                        this.mostrarAlerta('info', 'Información', 'No se encontraron clientes para la búsqueda especificada.')
-                    }
-                } catch (e) {
-                    this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
-                } finally {
-                    this.loading = false;
-                }
+                this.fetchClientes();
             },
 
             modalCrear() {
@@ -463,6 +458,7 @@
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-componente', loader);
+    app.component('paginador-componente', paginador);
 
     app.mount('#app')
 </script>
