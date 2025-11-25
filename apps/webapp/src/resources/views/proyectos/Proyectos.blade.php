@@ -64,6 +64,8 @@
         </tbody>
     </table>
 
+    <paginador-componente :links="links" @navigate="fetchProyectos"></paginador-componente>
+
     {{-- ======= MODALES ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -196,6 +198,7 @@
                 usuariosProyecto: [],
                 token: '{{ csrf_token() }}',
                 proyectos: [],
+                links: [],
                 clientes: [],
                 usuariosDisponibles: [],
                 busqueda: {
@@ -263,19 +266,21 @@
             },
         },
         mounted() {
-            this.listarProyectos();
+            this.fetchProyectos();
         },
         methods: {
             formatBadgeText(text) {
                 if (!text) return '';
                 return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             },
-            async listarProyectos() {
+            async fetchProyectos(url = null) {
                 this.loading = true;
                 try {
-                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`);
+                    let endpoint = url || `/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`;
+                    const res = await fetch(endpoint);
                     const data = await res.json();
                     this.proyectos = data.data || [];
+                    this.links = data.links || [];
                 } catch (err) {
                     this.mostrarAlerta('error', 'error', 'Error al listar proyectos.');
                 } finally {
@@ -291,7 +296,7 @@
             },
 
             buscar() {
-                this.listarProyectos();
+                this.fetchProyectos();
             },
 
             async modalCrear() {
@@ -325,7 +330,7 @@
 
             async cargarUsuarios() {
                 try {
-                    const res = await fetch('/usuarios/listarRest');
+                    const res = await fetch('/usuarios/listadoUsuarios');
                     const data = await res.json();
 
                     this.usuariosDisponibles = (data || []).map(u => ({
@@ -353,19 +358,18 @@
                         if (res.status === 422) {
                             this.erroresModal = data.errores;
                             this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
-                            
                         } else {
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al crear el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
                         }
+                        this.loading = false;
                         return;
                     }
                     this.mostrarModal = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -388,14 +392,14 @@
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al actualizar el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
                         }
+                        this.loading = false;
                         return;
                     }
                     this.mostrarModal = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -484,11 +488,10 @@
                     }
 
                     this.mostrarModalStatus = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -538,6 +541,7 @@
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-global', loader);
+    app.component('paginador-componente', paginador)
     app.mount('#app');
 </script>
 

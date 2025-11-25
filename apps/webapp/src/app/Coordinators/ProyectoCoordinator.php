@@ -9,15 +9,32 @@ use App\Services\ClienteService;
 use Illuminate\Support\Facades\DB;
 use App\Services\FolioService;
 
-class ProyectoCoordinator
-{
+class ProyectoCoordinator {
+    public static function obtenerProyectos(array $filtros = [], bool $paginate = true)
+    {
+        $proyectos = ProyectoService::listar($filtros, 10, $paginate);
+
+        if ($paginate && $proyectos instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            return [
+                'proyectos' => $proyectos->items(),
+                'proyectos_sin_paginar' => null,
+                'links' => $proyectos->linkCollection(),
+            ];
+        } else {
+            return [
+                'proyectos' => null,
+                'proyectos_sin_paginar' => $proyectos,
+                'links' => null,
+            ];
+        }
+    }
 
     public static function crearProyecto(array $datos)
     {
         $clienteId = $datos['cliente_id'];
 
-        $clientes = ClienteService::listarClientes(['cliente_id' => $clienteId]);
-        if ($clientes->isEmpty()) {
+        $clientes = ClienteService::listarClientes(['cliente_id' => $clienteId], 10, false);
+        if (empty($clientes)) {
             throw new \Exception("Cliente con ID {$clienteId} no existe o está eliminado.");
         }
         return DB::transaction(function () use ($datos) {
@@ -128,6 +145,7 @@ class ProyectoCoordinator
 
     public static function ClientesDisponibles(array $filtros = [])
     {
-        return ClienteService::listarClientes($filtros);
+        $resultado = \App\Coordinators\ClienteCoordinator::obtenerClientes($filtros, false);
+        return $resultado['clientes_sin_paginar'];
     }
 }

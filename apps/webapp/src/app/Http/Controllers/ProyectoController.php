@@ -50,21 +50,23 @@ class ProyectoController extends Controller
         try {
             $busqueda = $request->query('busqueda');
             $filtros = [];
-
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
-            $proyectos = ProyectoService::listar($filtros);
-            
-            $proyectos = $proyectos->map(function ($p) {
+            $resultado = ProyectoCoordinator::obtenerProyectos($filtros, true);
+            $proyectos = $resultado['proyectos'] ?? $resultado['proyectos_sin_paginar'] ?? [];
+            $links = $resultado['links'] ?? null;
+            foreach ($proyectos as &$p) {
                 $p->cliente = [
                     'cliente_id' => $p->cliente_id,
                     'nombre' => $p->cliente_nombre
                 ];
                 unset($p->cliente_nombre);
-                return $p;
-            });
-            return response()->json(['data' => $proyectos], 200);
+            }
+            return response()->json([
+                'data' => $proyectos,
+                'links' => $links
+            ], 200);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener la lista de proyectos', __FUNCTION__);
         }
