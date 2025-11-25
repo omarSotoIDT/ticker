@@ -190,13 +190,19 @@
                     if (!requestUrl) {
                         const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
                         requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
+                    } else {
+                        // Si viene una URL de paginación, agregar el parámetro de búsqueda si existe
+                        if (this.busqueda) {
+                            const separator = requestUrl.includes('?') ? '&' : '?';
+                            requestUrl += separator + 'busqueda=' + encodeURIComponent(this.busqueda);
+                        }
                     }
 
                     const res = await fetch(requestUrl);
                     const data = await res.json();
 
-                    this.perfiles = data.perfiles?.data || data.perfiles || [];
-                    this.links = data.links || data.perfiles?.links || [];
+                    this.perfiles = data.perfiles || [];
+                    this.links = data.links || [];
                     this.permisos = data.permisos || this.permisos;
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'No se pudieron cargar los perfiles.');

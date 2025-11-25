@@ -9,29 +9,63 @@ use Illuminate\Support\Facades\DB;
 
 class PerfilCoordinator
 {
-    public static function obtenerPerfiles(array $filtros = [])
+    public static function obtenerPerfiles(array $filtros = [], bool $paginate = true)
     {
-        $perfiles = PerfilService::obtenerPerfiles($filtros);
-        $perfilIds = $perfiles->pluck('perfil_id')->toArray();
+        $perfiles = PerfilService::obtenerPerfiles($filtros, 10, $paginate);
 
-        $permisosPorPerfil = PermisoService::obtenerPermisosPerfiles($perfilIds);
+        if ($paginate && $perfiles instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $perfilIds = $perfiles->pluck('perfil_id')->toArray();
+            $permisosPorPerfil = PermisoService::obtenerPermisosPerfiles($perfilIds);
 
-        // Se agregan dińámicamente los permisos a cada perfil en base a las consultas hechas por los Repo
-        $perfiles->getCollection()->transform(function ($perfil) use ($permisosPorPerfil) {
-            $perfil->permisos = $permisosPorPerfil
-                ->get($perfil->perfil_id, collect())
-                ->pluck('permiso_id')
-                ->toArray();
-            return $perfil;
-        });
+            $perfiles->getCollection()->transform(function ($perfil) use ($permisosPorPerfil) {
+                $perfil->permisos = $permisosPorPerfil
+                    ->get($perfil->perfil_id, collect())
+                    ->pluck('permiso_id')
+                    ->toArray();
+                return $perfil;
+            });
 
-        return [
-            'perfiles' => $perfiles->items(),
-            'links' => $perfiles->linkCollection(),
-            'permisos' => PermisoService::obtenerPermisos(),
-        ];
+            return [
+                'perfiles' => $perfiles->items(),
+                'perfiles_sin_paginar' => null,
+                'links' => $perfiles->linkCollection(),
+                'permisos' => PermisoService::obtenerPermisos(),
+            ];
+        } else {
+            if (!empty($perfiles) && is_object($perfiles[0])) {
+                $perfilIds = array_map(function ($p) {
+                    return $p->perfil_id;
+                }, $perfiles);
+            } else {
+                $perfilIds = array_column($perfiles, 'perfil_id');
+            }
+
+            $permisosPorPerfil = PermisoService::obtenerPermisosPerfiles($perfilIds);
+
+            $perfilesConPermisos = array_map(function ($perfil) use ($permisosPorPerfil) {
+                if (is_object($perfil)) {
+                    $perfil->permisos = $permisosPorPerfil
+                        ->get($perfil->perfil_id, collect())
+                        ->pluck('permiso_id')
+                        ->toArray();
+                    return $perfil;
+                } else {
+                    $perfil['permisos'] = $permisosPorPerfil
+                        ->get($perfil['perfil_id'], collect())
+                        ->pluck('permiso_id')
+                        ->toArray();
+                    return $perfil;
+                }
+            }, $perfiles);
+
+            return [
+                'perfiles' => null,
+                'perfiles_sin_paginar' => $perfilesConPermisos,
+                'links' => null,
+                'permisos' => PermisoService::obtenerPermisos(),
+            ];
+        }
     }
-
 
     public static function crearPerfil(array $datos)
     {

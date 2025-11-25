@@ -21,7 +21,7 @@ class PerfilController extends Controller
     {
         try {
             $filtros = $request->only(['busqueda']);
-            $resultado = PerfilCoordinator::obtenerPerfiles($filtros);
+            $resultado = PerfilCoordinator::obtenerPerfiles($filtros, true);
 
             return response()->json([
                 'perfiles' => $resultado['perfiles'],
