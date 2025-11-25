@@ -9,8 +9,27 @@ use Illuminate\Support\Facades\DB;
 
 class UsuarioService
 {
-    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
-        $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
+    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = 10, $offset = null, $paginate = false) {
+        $usuarios = UsuarioRepoData::listar($filtros, $columnas, $orden, $limit, $offset, $paginate);
+        
+        if ($paginate && $usuarios instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            $usuarios->getCollection()->transform(function ($usuario) {
+                $usuario->idPerfiles = (isset($usuario->idPerfiles) && $usuario->idPerfiles !== '') ? array_map('intval', explode(',', $usuario->idPerfiles)) : [];
+                $usuario->nombrePerfiles = (isset($usuario->nombrePerfiles) && $usuario->nombrePerfiles !== '') ? explode(',', $usuario->nombrePerfiles) : [];
+                return $usuario;
+            });
+            return $usuarios;
+        } else {
+            foreach ($usuarios as &$u) {
+                $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
+                $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];
+            }
+            return $usuarios;
+        }
+    }
+
+    public static function listarUsuarios($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null) {
+        $usuarios = UsuarioRepoData::listarUsuarios($filtros, $columnas, $orden, $limit, $offset);
         foreach ($usuarios as &$u) {
             $u->idPerfiles = (isset($u->idPerfiles) && $u->idPerfiles !== '') ? array_map('intval', explode(',', $u->idPerfiles)) : [];
             $u->nombrePerfiles = (isset($u->nombrePerfiles) && $u->nombrePerfiles !== '') ? explode(',', $u->nombrePerfiles) : [];

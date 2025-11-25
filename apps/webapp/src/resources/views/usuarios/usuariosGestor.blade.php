@@ -49,6 +49,9 @@
         </tr>
       </tbody>
     </table>
+
+    <paginador-componente :links="links" @navigate="fetchUsuarios"></paginador-componente>
+
     @if (session('error'))
       <div class="error">
         <span>{{ session('error') }}</span>
@@ -142,6 +145,7 @@
           perfiles: {{ Js::from($perfiles) }},
           usuarios: null,
           usuario: null,
+          links: [],
           erroresModal: {},
           alerta: {
             mostrar: false,
@@ -263,11 +267,22 @@
           this.erroresModal = {};
         },
 
-        async listarUsuarios() {
+        async fetchUsuarios(url = null) {
           this.loading = true;
           try {
-            const response = await fetch('/usuarios/listarRest', {
-              method: 'GET',  
+            let requestUrl = url;
+            if (!requestUrl) {
+              const params = this.busqueda.titulo ? '?usuario=' + encodeURIComponent(this.busqueda.titulo) : '';
+              requestUrl = '/usuarios/listarRest' + params;
+            } else {
+              if (this.busqueda.titulo) {
+                const separator = requestUrl.includes('?') ? '&' : '?';
+                requestUrl += separator + 'usuario=' + encodeURIComponent(this.busqueda.titulo);
+              }
+            }
+
+            const response = await fetch(requestUrl, {
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': this.token
@@ -279,7 +294,8 @@
             }
 
             const data = await response.json();
-            this.usuarios = data;
+            this.usuarios = data.usuarios || [];
+            this.links = data.links || [];
           }catch(error){
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
           } finally {
@@ -287,31 +303,12 @@
           }
         },
 
+        async listarUsuarios() {
+          this.fetchUsuarios();
+        },
+
         async buscar(){
-          this.loading = true;
-          try {
-            const params = new URLSearchParams();
-            if (this.busqueda.titulo) params.append('usuario', this.busqueda.titulo);
-            const response = await fetch('/usuarios/listarRest?' + params.toString(), {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': this.token
-              }
-            })
-              console.log('Fetching users with params:', params.toString());
-
-            if (!response.ok) {
-              throw new Error('Error al buscar usuarios: ' + response.status);
-            }
-
-            const data = await response.json();
-            this.usuarios = data;
-          }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar');
-          } finally {
-            this.loading = false;
-          }
+          this.fetchUsuarios();
         },
 
         async crear() {
@@ -340,7 +337,7 @@
               return;
             }
 
-            await this.listarUsuarios();
+            await this.fetchUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario creado');
           }catch(error) {
@@ -376,7 +373,7 @@
               return;
             }
 
-            await this.listarUsuarios();
+            await this.fetchUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario actualizado');
 
@@ -413,7 +410,7 @@
               return;
             }
 
-            await this.listarUsuarios();
+            await this.fetchUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario eliminado');
           }catch(error) {
@@ -443,7 +440,7 @@
                 return;
             }
 
-            await this.listarUsuarios();
+            await this.fetchUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario Activado');
           }catch(error) {
@@ -486,6 +483,7 @@
     app.component('modal-componente', modal)
     app.component('alerta-componente', alerta)
     app.component('loading-global', loader)
+    app.component('paginador-componente', paginador)
     app.mount('#app')
   </script>
 @endsection
