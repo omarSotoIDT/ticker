@@ -1284,7 +1284,6 @@ input, select{
   color: #6b7280;
 }
 
-/*=== ESTILOS ESPECÍFICOS DEL DASHBOARD ===*/
 #dashboard-root {
   --texto-primario: #1f2937;
   --texto-secundario: #6b7280;
@@ -1297,7 +1296,6 @@ input, select{
   --icono-urgentes-color: #f30000;
 }
 
-/* Estructura General del Dashboard */
 #dashboard-root {
   padding: 24px;
   background-color: var(--fondo-blanco);
@@ -1306,7 +1304,6 @@ input, select{
   overflow-x: hidden;
 }
 
-/* Fila de Tarjetas de Estadísticas */
 #dashboard-root .fila-tarjetas {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1408,8 +1405,6 @@ body:has(#dashboard-root) aside {
 body:has(#dashboard-root) main {
   overflow-y: auto;
 }
-
-/*=== ESTILOS PARA LA PAGINACIÓN ===*/
 
 .pagination {
   display: flex;

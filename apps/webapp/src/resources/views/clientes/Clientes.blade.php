@@ -38,7 +38,6 @@
                 <td>@{{ cliente.nombre }}</td>
                 <td class="columna-grande">@{{ cliente.descripcion }}</td>
                 <td>@{{ cliente.contacto }}</td>
-                <td>@{{ cliente.email }}</td>
                 <td>
                     <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ formatBadgeText(cliente.status) }} </span>
                 </td>
@@ -235,6 +234,38 @@
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
             },
+                validarCamposRequeridos(requiredFields, form) {
+                    const errores = {};
+                    let mensaje = null;
+                    const nombreCampo = (key) => {
+                        const mapa = {
+                            nombre: 'Nombre',
+                            descripcion: 'Descripción',
+                            contacto: 'Contacto',
+                            email: 'Email'
+                        };
+                        if (mapa[key]) return mapa[key];
+                        const k = String(key).replace(/_id$s?/i, '').replace(/_ids$/i, '');
+                        return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                    };
+                    requiredFields.forEach(key => {
+                        const value = form ? form[key] : undefined;
+                        const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0);
+                        if (empty) {
+                            const label = nombreCampo(key);
+                            const msg = `El campo ${label} es requerido`;
+                            errores[key] = [msg];
+                            if (!mensaje) mensaje = msg;
+                        }
+                    });
+
+                    if (Object.keys(errores).length) {
+                        this.erroresModal = errores;
+                        this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                        return false;
+                    }
+                    return true;
+                },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
                 const data = await res.json().catch(() => ({}))
@@ -323,6 +354,11 @@
             async guardarCliente() {
                 this.loading = true
                 this.erroresModal = {}
+                const requiredFields = ['nombre', 'email'];
+                if (!this.validarCamposRequeridos(requiredFields, this.formCliente)) {
+                    this.loading = false;
+                    return;
+                }
                 const url = this.tipoForm === 'crear' ? '/clientes' : `/clientes/${this.cliente.cliente_id}`
                 const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH'
 

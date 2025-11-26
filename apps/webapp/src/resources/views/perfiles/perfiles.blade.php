@@ -191,7 +191,6 @@
                         const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
                         requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
                     } else {
-                        // Si viene una URL de paginación, agregar el parámetro de búsqueda si existe
                         if (this.busqueda) {
                             const separator = requestUrl.includes('?') ? '&' : '?';
                             requestUrl += separator + 'busqueda=' + encodeURIComponent(this.busqueda);
@@ -329,9 +328,9 @@
 
             validarFormulario() {
                 this.errors = {};
-                if (!this.formPerfil.clave) this.errors.clave = 'La clave es obligatoria';
-                if (!this.formPerfil.nombre) this.errors.nombre = 'El nombre es obligatorio';
-                if (!this.formPerfil.descripcion) this.errors.descripcion = 'La descripción es obligatoria';
+                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave es requerido';
+                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre es requerido';
+                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción es requerido';
                 return Object.keys(this.errors).length === 0;
             }
         },
