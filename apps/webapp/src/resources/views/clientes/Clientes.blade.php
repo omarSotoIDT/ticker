@@ -38,6 +38,7 @@
                 <td>@{{ cliente.nombre }}</td>
                 <td class="columna-grande">@{{ cliente.descripcion }}</td>
                 <td>@{{ cliente.contacto }}</td>
+                <td>@{{ cliente.email }}</td>
                 <td>
                     <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ formatBadgeText(cliente.status) }} </span>
                 </td>
