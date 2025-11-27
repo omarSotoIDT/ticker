@@ -1065,8 +1065,8 @@ input, select{
 }
 
 .vista-ticket-footer {
-    margin-top: 24px;
-    text-align: right;
+  margin-top: 24px;
+  text-align: right;
 }
 .contenedor-scroll-modal {
   max-height: 250px;
@@ -1262,20 +1262,20 @@ input, select{
   outline: none;
   border-color: #2563eb;
 }
-#app.scrollable-reportes {
+#reportes.scrollable-reportes {
   max-height: calc(100vh - 130px);
   overflow-y: auto;
   padding-right: 8px;
 }
 
-#app.scrollable-reportes::-webkit-scrollbar {
+#reportes.scrollable-reportes::-webkit-scrollbar {
   width: 8px;
 }
-#app.scrollable-reportes::-webkit-scrollbar-thumb {
+#reportes.scrollable-reportes::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 4px;
 }
-#app.scrollable-reportes::-webkit-scrollbar-track {
+#reportes.scrollable-reportes::-webkit-scrollbar-track {
   background: #f3f4f6;
 }
 
