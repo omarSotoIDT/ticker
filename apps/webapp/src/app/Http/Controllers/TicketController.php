@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Validation\ValidationException;
-use PHPUnit\Framework\Attributes\Ticket;
 use Throwable;
 
 class TicketController extends Controller
@@ -26,8 +25,16 @@ class TicketController extends Controller
     public function listarRest(Request $request)
     {
         try {
-            $tickets = TicketService::listar($request->only('titulo', 'cliente_id', 'prioridad'), 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
-            return Response::json($tickets, 200);
+            $filtros = $request->only('titulo', 'cliente_id', 'prioridad');
+            $resultado = TicketCoordinator::obtenerTickets($filtros, true);
+
+            $tickets = $resultado['tickets'] ?? [];
+            $links = $resultado['links'] ?? [];
+
+            return Response::json([
+                'data' => $tickets,
+                'links' => $links
+            ], 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los tickets " . $error);
             return Response::json(['error' => 'Ocurrio un error al listar los tickets'], 500);

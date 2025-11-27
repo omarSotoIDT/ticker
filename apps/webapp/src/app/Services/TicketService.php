@@ -8,9 +8,9 @@ use App\RepoData\TicketRepoData;
 
 class TicketService
 {
-    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null)
+    public static function listar($filtros = [], $columnas = '', $orden = [], $limit = null, $offset = null, $paginate = false)
     {
-        $tickets = TicketRepoData::listar($filtros, $columnas, $orden, $limit, $offset);
+        $tickets = TicketRepoData::listar($filtros, $columnas, $orden, $limit, $offset, $paginate);
         return $tickets;
     }
 

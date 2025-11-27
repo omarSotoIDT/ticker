@@ -17,14 +17,45 @@ use Illuminate\Support\Facades\DB;
 
 class TicketCoordinator
 {
+    public static function obtenerTickets(array $filtros = [], bool $paginate = true)
+    {
+        $tickets = TicketService::listar(
+            $filtros,
+            'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha',
+            ['folio' => 'desc'],
+            10,
+            null,
+            $paginate
+        );
+
+        if ($paginate && $tickets instanceof \Illuminate\Pagination\LengthAwarePaginator) {
+            return [
+                'tickets' => $tickets->items(),
+                'tickets_sin_paginar' => null,
+                'links' => $tickets->linkCollection(),
+            ];
+        } else {
+            return [
+                'tickets' => null,
+                'tickets_sin_paginar' => $tickets,
+                'links' => [],
+            ];
+        }
+    }
+
     public static function cargarGestor()
     {
-        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
+        $resultadoTickets = self::obtenerTickets([], true);
+        $tickets = $resultadoTickets['tickets'] ?? [];
+        $links = $resultadoTickets['links'] ?? [];
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
-        $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
-        $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO]);
-        $clientes = ClienteService::listarClientes(['status' => StatusConsts::ACTIVO]);
-        return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
+        $resultadoUsuarios = UsuarioCoordinator::obtenerUsuarios([], false);
+        $usuarios = $resultadoUsuarios['usuarios_sin_paginar'];
+        $resultadoProyectos = ProyectoCoordinator::obtenerProyectos(['status' => StatusConsts::ACTIVO], false);
+        $proyectos = $resultadoProyectos['proyectos_sin_paginar'];
+        $resultadoClientes = ClienteCoordinator::obtenerClientes(['status' => StatusConsts::ACTIVO], false);
+        $clientes = $resultadoClientes['clientes_sin_paginar'];
+        return ['tickets' => $tickets, 'links' => $links, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
     }
 
     public static function agregar(array $datos)
