@@ -10,19 +10,13 @@ class ClienteCoordinator
     {
         $clientes = ClienteService::listarClientes($filtros, 10, $paginate);
 
-        if ($paginate && $clientes instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            return [
-                'clientes' => $clientes->items(),
-                'clientes_sin_paginar' => null,
-                'links' => $clientes->linkCollection(),
-            ];
-        } else {
-            return [
-                'clientes' => null,
-                'clientes_sin_paginar' => $clientes,
-                'links' => null,
-            ];
-        }
+        $esPaginado = $paginate && $clientes instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        return [
+            'clientes' => $esPaginado ? $clientes->items() : null,
+            'clientes_sin_paginar' => $esPaginado ? null : $clientes,
+            'links' => $esPaginado ? $clientes->linkCollection() : null,
+        ];
     }
 
     public static function crearCliente(array $datos)
