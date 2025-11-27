@@ -17,40 +17,42 @@
             Nuevo Usuario
         </button>
     </div>
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Perfil</th>
-          <th>Estado</th>
-          <th>Último acceso</th>
-          <th class="acciones">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
-          <td>@{{ usuario.usuario }}</td>
-          <td>@{{ usuario.email }}</td>
-          <td>
-            <span v-if="!usuario.nombrePerfiles.length">-</span>
-            @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
-          <td>
-            <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
-          </td>
-          <td>@{{ formatFecha(usuario.acceso) }}</td>
-          <td class="acciones">
-            <div class="acciones-contenedor">
-              <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
-              <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
-              <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
-            </div>
-        </td>
-        </tr>
-      </tbody>
-    </table>
-
-    <paginador-componente :links="links" @navigate="fetchUsuarios"></paginador-componente>
+    <div class="table-with-pagination-container">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Estado</th>
+                    <th>Último acceso</th>
+                    <th class="acciones">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
+                    <td>@{{ usuario.usuario }}</td>
+                    <td>@{{ usuario.email }}</td>
+                    <td>
+                        <span v-if="!usuario.nombrePerfiles.length">-</span>
+                        @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span>
+                    </td>
+                    <td>
+                        <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
+                    </td>
+                    <td>@{{ formatFecha(usuario.acceso) }}</td>
+                    <td class="acciones">
+                        <div class="acciones-contenedor">
+                            <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
+                            <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
+                            <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <paginador-componente :links="links" @navigate="fetchUsuarios"></paginador-componente>
+    </div>
 
     @if (session('error'))
       <div class="error">

@@ -1,6 +1,7 @@
 var paginador = {
   template: `
-  <div class="pagination" v-if="links && links.length > 3">
+  <div class="pagination-wrapper">
+    <div class="pagination" v-if="links && links.length > 3">
       <button
         v-for="(link, index) in translatedLinks"
         :key="index"
@@ -10,6 +11,7 @@ var paginador = {
         @click="goToPage(link.url)">
       </button>
     </div>
+  </div>
   `,
   props: {
     links: { type: Array, default: () => [] }

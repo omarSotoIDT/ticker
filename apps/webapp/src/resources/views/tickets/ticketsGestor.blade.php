@@ -33,6 +33,7 @@
             </button>
         </div>
 
+        <div class="table-with-pagination-container">
         <table class="tabla">
             <thead>
                 <tr>
@@ -74,6 +75,9 @@
                 </tr>
             </tbody>
         </table>
+        </div>
+
+        <paginador-componente :links="links" @navigate="fetchTickets"></paginador-componente>
 
         <modal-componente
         v-model:mostrar="modalRegistro.mostrar"
@@ -283,18 +287,20 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    tickets: {{ Js::from($tickets) }},
+                    tickets: @json($tickets),
+                    links: @json($links),
                     ticket: null,
                     ticketFeedback: null,
                     ticketHistorial: [],
-                    etiquetas: {{ JS::from($etiquetas) }},
+                    etiquetas: {{ Js::from($etiquetas) }},
                     prioridades: [BAJA, MEDIA, ALTA, URGENTE],
                     estados: [ABIERTO,EN_PROGRESO,ATENDIDO,CERRADO,INFO_REQUERIDA,CANCELADO],
-                    clientes: {{ JS::from($clientes) }},
-                    proyectos: {{ JS::from($proyectos) }},
+                    clientes: {{ Js::from($clientes) }},
+                    proyectos: {{ Js::from($proyectos) }},
                     proyectosCliente: [],
-                    usuarios: {{ JS::from($usuarios) }},
+                    usuarios: {{ Js::from($usuarios) }},
                     loading: false,
+                    token: '{{ csrf_token() }}',
                     alerta: {
                         mostrar: false,
                         tipo: '',
@@ -350,6 +356,10 @@
                     }
                 }
             },
+            mounted() {
+                this.tickets = @json($tickets);
+                this.links = @json($links);
+            },
             computed: {
                 textoConfirmacionRegistro() {
                     if (this.loading) {
@@ -364,6 +374,7 @@
             },
             methods: {
                 limpiarRegistro(){
+                    this.erroresRegistro = {};
                     this.formTicket.cliente_id = null,
                     this.formTicket.proyecto_id = null,
                     this.formTicket.etiqueta_id = null,
@@ -408,34 +419,100 @@
                         cliente_id: '',
                         prioridad: ''
                     };
-                    this.buscar();
+                    this.fetchTickets();
                 },
                 async buscar(){
+                    this.fetchTickets();
+                },
+                async fetchTickets(url = null) {
                     this.loading = true;
                     try {
-                        if(this.busqueda){
-                            this.params.append('titulo', this.busqueda.titulo)
-                            this.params.append('cliente_id', this.busqueda.cliente_id)
-                            this.params.append('prioridad', this.busqueda.prioridad)
+                        let endpoint;
+
+                        if (!url) {
+                            endpoint = '/tickets/listado-rest';
+                            const params = new URLSearchParams();
+                            if (this.busqueda.titulo) params.append('titulo', this.busqueda.titulo);
+                            if (this.busqueda.cliente_id) params.append('cliente_id', this.busqueda.cliente_id);
+                            if (this.busqueda.prioridad) params.append('prioridad', this.busqueda.prioridad);
+                            if (params.toString()) endpoint += '?' + params.toString();
+                        } else {
+                            
+                            try {
+                                const parsed = new URL(url, window.location.origin);
+                                const page = parsed.searchParams.get('page');
+                                if (page) {
+                                    endpoint = '/tickets/listado-rest?page=' + encodeURIComponent(page);
+                                    if (this.busqueda.titulo) endpoint += '&titulo=' + encodeURIComponent(this.busqueda.titulo);
+                                    if (this.busqueda.cliente_id) endpoint += '&cliente_id=' + encodeURIComponent(this.busqueda.cliente_id);
+                                    if (this.busqueda.prioridad) endpoint += '&prioridad=' + encodeURIComponent(this.busqueda.prioridad);
+                                } else {
+                                    endpoint = parsed.pathname + parsed.search;
+                                }
+                            } catch (e) {
+                                endpoint = url;
+                            }
                         }
-                        const response = await fetch('tickets/listado-rest?' + this.params.toString(), {
-                            method: 'GET', headers: this.headers
-                        })
 
+                        const response = await fetch(endpoint, {
+                            method: 'GET',
+                            headers: this.headers
+                        });
                         const data = await response.json().catch(() => ({}));
-
                         if (!response.ok) {
-                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al buscar los tickets');
+                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al listar los tickets');
                             this.mostrarAlerta('error', 'Error', mensaje);
                             return;
                         }
-                        this.tickets = data;
+                        this.tickets = data.data || [];
+                        this.links = data.links || [];
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al buscar los tickets')
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al listar los tickets');
                     } finally {
                         this.loading = false;
                     }
                 },
+
+                    validarCamposRequeridos(requiredFields, form) {
+                        const errores = {};
+                        let mensaje = null;
+                        const nombreCampo = (key) => {
+                            const mapa = {
+                                password: 'Contraseña',
+                                nombre: 'Nombre',
+                                titulo: 'Título',
+                                descripcion: 'Descripción',
+                                email: 'Email',
+                                cliente: 'Cliente',
+                                cliente_id: 'Cliente',
+                                proyecto: 'Proyecto',
+                                proyecto_id: 'Proyecto',
+                                etiqueta: 'Etiqueta',
+                                etiqueta_id: 'Etiqueta'
+                            };
+                            if (mapa[key]) return mapa[key];
+                            const k = String(key).replace(/_id$s?/i, '').replace(/_ids$/i, '');
+                            return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                        };
+
+                        requiredFields.forEach(key => {
+                            const value = form ? form[key] : undefined;
+                            const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0);
+                            if (empty) {
+                                const fieldLabel = nombreCampo(key);
+                                const msg = `El campo ${fieldLabel} es requerido`;
+                                errores[key] = [msg];
+                                if (!mensaje) mensaje = msg;
+                            }
+                        });
+
+                        if (Object.keys(errores).length) {
+                            this.erroresRegistro = errores;
+                            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                            return false;
+                        }
+                        return true;
+                    },
 
                 modalCrear(){
                     this.loading = true;
@@ -457,27 +534,8 @@
                     this.loading = false;
                 },
                 async listarTickets(){
-                    this.loading = true;
-                    try {
-                        const response = await fetch('/tickets/listado-rest?' + this.params.toString(), {
-                            method: 'GET', headers: this.headers
-                        })
-                        
-                        const data = await response.json().catch(() => ({}));
-
-                        if (!response.ok) {
-                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al listar los tickets');
-                            this.mostrarAlerta('error', 'Error', mensaje);
-                            return;
-                        }
-
-                        this.tickets = data;
-                        this.modalRegistro.mostrar = false;
-                    } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al listar los tickets')
-                    } finally {
-                        this.loading = false;
-                    }
+                    await this.fetchTickets();
+                    this.modalRegistro.mostrar = false;
                 },
                 async mostrarTicket(id){
                     this.loading = true;
@@ -518,6 +576,11 @@
                 async agregar(){
                     this.loading = true;
                     this.erroresRegistro = {};
+                    const required = ['titulo','descripcion','cliente_id','proyecto_id','etiqueta_id','prioridad'];
+                    if (!this.validarCamposRequeridos(required, this.formTicket)) {
+                        this.loading = false;
+                        return;
+                    }
                     try {
                         const response = await fetch('/tickets/registro-rest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
@@ -548,6 +611,11 @@
                 async editar(){
                     this.loading = true;
                     this.erroresRegistro = {};
+                    const requiredEdit = ['titulo','descripcion','cliente_id','proyecto_id','etiqueta_id','prioridad'];
+                    if (!this.validarCamposRequeridos(requiredEdit, this.formTicket)) {
+                        this.loading = false;
+                        return;
+                    }
                     try {
                         const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
                         const proyectosDisponibles = this.proyectosCliente.length ? this.proyectosCliente : this.proyectos;
@@ -721,6 +789,7 @@
         app.component('modal-componente', modal)
         app.component('alerta-componente', alerta)
         app.component('loader-global', loader);
+        app.component('paginador-componente', paginador)
         app.mount('#app')
     </script>
 @endsection

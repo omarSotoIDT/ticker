@@ -521,6 +521,19 @@ input, select{
   table-layout: fixed;
 }
 
+#app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.table-with-pagination-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .tabla td {
   vertical-align: middle;
 }
@@ -1412,6 +1425,23 @@ body:has(#dashboard-root) main {
   align-items: center;
   margin-top: 1.5rem;
   gap: 0.5rem;
+}
+
+.pagination-wrapper {
+  position: sticky;
+  bottom: 16px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  z-index: 60;
+  pointer-events: none; 
+}
+
+.pagination-wrapper .pagination {
+  margin: 0; 
+  pointer-events: auto; 
+  background: transparent;
+  padding: 6px 0;
 }
 
 .page-btn {

@@ -22,6 +22,7 @@
         </button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
+    <div class="table-with-pagination-container">
     <table class="tabla">
         <thead>
             <tr>
@@ -60,6 +61,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
     <paginador-componente :links="links" @navigate="fetchClientes"></paginador-componente>
     {{-- ======= MODAL CREAR / EDITAR ======= --}}

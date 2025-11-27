@@ -18,6 +18,7 @@
         </button>
     </div>
 
+    <div class="table-with-pagination-container">
     <table class="tabla">
         <thead>
             <tr>
@@ -50,6 +51,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
     <paginador-componente :links="links" @navigate="fetchPerfiles"></paginador-componente>
 
