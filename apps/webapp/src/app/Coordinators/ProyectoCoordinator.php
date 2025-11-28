@@ -9,24 +9,20 @@ use App\Services\ClienteService;
 use Illuminate\Support\Facades\DB;
 use App\Services\FolioService;
 
-class ProyectoCoordinator {
+class ProyectoCoordinator
+{
+
     public static function obtenerProyectos(array $filtros = [], bool $paginate = true)
     {
         $proyectos = ProyectoService::listar($filtros, 10, $paginate);
 
-        if ($paginate && $proyectos instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            return [
-                'proyectos' => $proyectos->items(),
-                'proyectos_sin_paginar' => null,
-                'links' => $proyectos->linkCollection(),
-            ];
-        } else {
-            return [
-                'proyectos' => null,
-                'proyectos_sin_paginar' => $proyectos,
-                'links' => null,
-            ];
-        }
+        $esPaginado = $paginate && $proyectos instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        return [
+            'proyectos' => $esPaginado ? $proyectos->items() : null,
+            'proyectos_sin_paginar' => $esPaginado ? null : $proyectos,
+            'links' => $esPaginado ? $proyectos->linkCollection() : null,
+        ];
     }
 
     public static function crearProyecto(array $datos)
@@ -46,7 +42,7 @@ class ProyectoCoordinator {
             return $proyectoId;
         });
     }
-    
+
     public static function actualizarProyecto(int $id, array $data)
     {
         $proyectoActual = ProyectoService::obtenerPorId($id);
@@ -82,7 +78,7 @@ class ProyectoCoordinator {
                 'proyecto_id' => $id,
                 'status_excluidos' => [TicketConsts::CERRADO, TicketConsts::CANCELADO]
             ],
-            'ticketId' 
+            'ticketId'
         );
 
         if (count($ticketsActivos) > 0) {
@@ -118,7 +114,7 @@ class ProyectoCoordinator {
 
     public static function actualizarAsignacionesUsuarios(int $proyectoId, array $usuariosNuevos)
     {
-       
+
         $usuariosActuales = ProyectoService::listarUsuariosAsignados($proyectoId)->pluck('usuario_id')->toArray();
 
         $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
