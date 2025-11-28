@@ -12,27 +12,28 @@ class UsuarioCoordinator
     public static function cargarGestor()
     {
         $resultado = PerfilService::obtenerPerfiles([], 10, false);
-        
+
         return ['perfiles' => $resultado];
     }
 
     public static function obtenerUsuarios(array $filtros = [], bool $paginate = true)
     {
-        $usuarios = UsuarioService::listar($filtros, 'usuarioId,usuario,email,status,acceso,idPerfiles,nombrePerfiles', [], 10, null, $paginate);
+        $usuarios = UsuarioService::listar(
+            $filtros,
+            'usuarioId,usuario,email,status,acceso,idPerfiles,nombrePerfiles',
+            [],
+            10,
+            null,
+            $paginate
+        );
 
-        if ($paginate && $usuarios instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            return [
-                'usuarios' => $usuarios->items(),
-                'usuarios_sin_paginar' => null,
-                'links' => $usuarios->linkCollection(),
-            ];
-        } else {
-            return [
-                'usuarios' => null,
-                'usuarios_sin_paginar' => $usuarios,
-                'links' => null,
-            ];
-        }
+        $esPaginado = $paginate && $usuarios instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        return [
+            'usuarios' => $esPaginado ? $usuarios->items() : null,
+            'usuarios_sin_paginar' => $esPaginado ? null : $usuarios,
+            'links' => $esPaginado ? $usuarios->linkCollection() : null,
+        ];
     }
 
     public static function listar($filtros)
