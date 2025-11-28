@@ -28,19 +28,13 @@ class TicketCoordinator
             $paginate
         );
 
-        if ($paginate && $tickets instanceof \Illuminate\Pagination\LengthAwarePaginator) {
-            return [
-                'tickets' => $tickets->items(),
-                'tickets_sin_paginar' => null,
-                'links' => $tickets->linkCollection(),
-            ];
-        } else {
-            return [
-                'tickets' => null,
-                'tickets_sin_paginar' => $tickets,
-                'links' => [],
-            ];
-        }
+        $esPaginado = $paginate && $tickets instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        return [
+            'tickets' => $esPaginado ? $tickets->items() : null,
+            'tickets_sin_paginar' => $esPaginado ? null : $tickets,
+            'links' => $esPaginado ? $tickets->linkCollection() : [],
+        ];
     }
 
     public static function cargarGestor()
@@ -101,7 +95,7 @@ class TicketCoordinator
             'usuario_asignado' => UsuarioService::obtener($ticketAnterior->usuarioAsignadoId, 'usuario')?->usuario,
         ];
         $descripcionLog = LogService::armarDescripcion($datosAnteriores, $data);
-        if(!$descripcionLog){
+        if (!$descripcionLog) {
             return;
         }
         return DB::transaction(function () use ($id, $data, $descripcionLog) {
@@ -114,13 +108,13 @@ class TicketCoordinator
     public static function editarStatus($ticketId, $datos)
     {
         $ticketActual = TicketService::obtener($ticketId, 'ticketId,status');
-            if (!$ticketActual) {
-                throw new \Exception("Ticket no existe");
-            }
+        if (!$ticketActual) {
+            throw new \Exception("Ticket no existe");
+        }
 
-            if ($ticketActual->status === $datos['status']) {
-                return false;
-            }
+        if ($ticketActual->status === $datos['status']) {
+            return false;
+        }
 
         return DB::transaction(function () use ($ticketId, $datos, $ticketActual) {
             $folio = FolioService::obtener('log_tickets');
