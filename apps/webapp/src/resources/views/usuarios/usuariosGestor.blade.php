@@ -1,4 +1,3 @@
-usuarios:
 @extends('layout.Layout')
 
 @section('titulo', 'Gestor de Usuarios')
