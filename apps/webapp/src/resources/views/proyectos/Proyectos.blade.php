@@ -223,7 +223,7 @@
                     titulo: '',
                     mensaje: ''
                 },
-                currentPage: 1, // AQUI agregamos la página actual
+                currentPage: 1, 
             }
         },
 
@@ -283,7 +283,6 @@
                     let endpoint;
                     if (url) {
                         endpoint = url;
-                        // Intentar extraer el número de página si la url tiene el parámetro "page"
                         const pageMatch = endpoint.match(/[?&]page=(\d+)/);
                         if (pageMatch) {
                             this.currentPage = parseInt(pageMatch[1]);
@@ -297,7 +296,6 @@
                     const data = await res.json();
                     this.proyectos = data.data || [];
                     this.links = data.links || [];
-                    // Buscar página actual desde los links si existe
                     if (Array.isArray(this.links)) {
                         const active = this.links.find(l => l.active);
                         if (active && active.label && !isNaN(Number(active.label))) {
@@ -311,7 +309,6 @@
                 }
             },
 
-            // Maneja navegación del paginador-componente
             handleNavigate(url) {
                 this.fetchProyectos(url);
             },
@@ -357,7 +354,7 @@
             },
 
             buscar() {
-                this.currentPage = 1; // Volver a la página 1 al buscar
+                this.currentPage = 1; 
                 this.fetchProyectos();
             },
 
@@ -433,7 +430,6 @@
                     }
                     this.mostrarModal = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
-                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
@@ -468,7 +464,6 @@
                     }
                     this.mostrarModal = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
-                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
@@ -561,7 +556,6 @@
 
                     this.mostrarModalStatus = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
-                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');
