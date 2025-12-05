@@ -189,14 +189,14 @@
                 this.loading = true;
                 try {
                     let requestUrl = url;
-                    if (!requestUrl) {
-                        const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
-                        requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
+                    if(!requestUrl) {
+                        const params = new URLSearchParams();
+                        if (this.busqueda) params.append('busqueda', this.busqueda);
+                        requestUrl = `{{ route('perfiles.listarRest') }}?${params.toString()}`;
                     } else {
-                        if (this.busqueda) {
-                            const separator = requestUrl.includes('?') ? '&' : '?';
-                            requestUrl += separator + 'busqueda=' + encodeURIComponent(this.busqueda);
-                        }
+                        const urlObject = new URL(requestUrl, window.location.origin);
+                        if (this.busqueda) urlObject.searchParams.set('busqueda', this.busqueda);
+                        requestUrl = urlObject.toString();
                     }
 
                     const res = await fetch(requestUrl);
@@ -210,6 +210,12 @@
                 } finally {
                     this.loading = false;
                 }
+            },
+
+            async listarPerfiles() {
+                const activeLink = this.links.find(link => link.active);
+                const pageUrl = activeLink ? activeLink.url : null;
+                await this.fetchPerfiles(pageUrl);
             },
 
             guardar() {
@@ -238,12 +244,12 @@
                         switch (res.status) {
                             case 201:
                                 this.mostrarModal = false;
-                                this.fetchPerfiles();
+                                this.listarPerfiles();
                                 this.mostrarAlerta('exito', 'Éxito', 'Perfil creado correctamente');
                                 break;
                             case 204:
                                 this.mostrarModal = false;
-                                this.fetchPerfiles();
+                                this.listarPerfiles();
                                 this.mostrarAlerta('exito', 'Éxito', 'Perfil actualizado correctamente');
                                 break;
                             case 422:
@@ -278,7 +284,7 @@
 
                     if (res.ok) {
                         this.mostrarModalEliminar = false;
-                        this.fetchPerfiles();
+                        this.listarPerfiles();
                         this.mostrarAlerta('exito', 'Éxito', 'Perfil eliminado correctamente');
                     } else {
                         const data = await res.json().catch(() => ({}));

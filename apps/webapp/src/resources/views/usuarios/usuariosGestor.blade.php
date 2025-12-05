@@ -1,3 +1,4 @@
+usuarios:
 @extends('layout.Layout')
 
 @section('titulo', 'Gestor de Usuarios')
@@ -307,13 +308,13 @@
           try {
             let requestUrl = url;
             if (!requestUrl) {
-              const params = this.busqueda.titulo ? '?usuario=' + encodeURIComponent(this.busqueda.titulo) : '';
-              requestUrl = '/usuarios/listarRest' + params;
+                const params = new URLSearchParams();
+                if (this.busqueda.titulo) params.append('usuario', this.busqueda.titulo);
+                requestUrl = `/usuarios/listarRest?${params.toString()}`;
             } else {
-              if (this.busqueda.titulo) {
-                const separator = requestUrl.includes('?') ? '&' : '?';
-                requestUrl += separator + 'usuario=' + encodeURIComponent(this.busqueda.titulo);
-              }
+                const urlObject = new URL(requestUrl, window.location.origin);
+                if (this.busqueda.titulo) urlObject.searchParams.set('usuario', this.busqueda.titulo);
+                requestUrl = urlObject.toString();
             }
 
             const response = await fetch(requestUrl, {
@@ -339,7 +340,9 @@
         },
 
         async listarUsuarios() {
-          this.fetchUsuarios();
+            const activeLink = this.links.find(link => link.active);
+            const pageUrl = activeLink ? activeLink.url : null;
+            await this.fetchUsuarios(pageUrl);
         },
 
         async buscar(){
@@ -376,7 +379,7 @@
               return;
             }
 
-            await this.fetchUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario creado');
           }catch(error) {
@@ -416,7 +419,7 @@
               return;
             }
 
-            await this.fetchUsuarios();
+            await this.listarUsuarios();
             this.mostrarModal = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario actualizado');
 
@@ -453,7 +456,7 @@
               return;
             }
 
-            await this.fetchUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario eliminado');
           }catch(error) {
@@ -483,7 +486,7 @@
                 return;
             }
 
-            await this.fetchUsuarios();
+            await this.listarUsuarios();
             this.mostrarCambiarStatus = false;
             this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Usuario Activado');
           }catch(error) {
@@ -519,7 +522,7 @@
         },
       },
       mounted() {
-        this.listarUsuarios();
+        this.fetchUsuarios();
       }
     });
 

@@ -67,7 +67,7 @@
     </table>
     </div>
 
-    <paginador-componente :links="links" @navigate="fetchProyectos"></paginador-componente>
+    <paginador-componente :links="links" @navigate="handleNavigate"></paginador-componente>
 
     {{-- ======= MODALES ======= --}}
     <modal-componente
@@ -223,6 +223,7 @@
                     titulo: '',
                     mensaje: ''
                 },
+                currentPage: 1, // AQUI agregamos la página actual
             }
         },
 
@@ -279,16 +280,40 @@
             async fetchProyectos(url = null) {
                 this.loading = true;
                 try {
-                    let endpoint = url || `/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`;
+                    let endpoint;
+                    if (url) {
+                        endpoint = url;
+                        // Intentar extraer el número de página si la url tiene el parámetro "page"
+                        const pageMatch = endpoint.match(/[?&]page=(\d+)/);
+                        if (pageMatch) {
+                            this.currentPage = parseInt(pageMatch[1]);
+                        } else {
+                            this.currentPage = 1;
+                        }
+                    } else {
+                        endpoint = `/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}&page=${this.currentPage}`;
+                    }
                     const res = await fetch(endpoint);
                     const data = await res.json();
                     this.proyectos = data.data || [];
                     this.links = data.links || [];
+                    // Buscar página actual desde los links si existe
+                    if (Array.isArray(this.links)) {
+                        const active = this.links.find(l => l.active);
+                        if (active && active.label && !isNaN(Number(active.label))) {
+                            this.currentPage = Number(active.label);
+                        }
+                    }
                 } catch (err) {
                     this.mostrarAlerta('error', 'error', 'Error al listar proyectos.');
                 } finally {
                     this.loading = false;
                 }
+            },
+
+            // Maneja navegación del paginador-componente
+            handleNavigate(url) {
+                this.fetchProyectos(url);
             },
 
             mostrarAlerta(tipo, titulo, mensaje) {
@@ -332,6 +357,7 @@
             },
 
             buscar() {
+                this.currentPage = 1; // Volver a la página 1 al buscar
                 this.fetchProyectos();
             },
 
@@ -407,6 +433,7 @@
                     }
                     this.mostrarModal = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
+                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
@@ -441,6 +468,7 @@
                     }
                     this.mostrarModal = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
+                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
@@ -533,6 +561,7 @@
 
                     this.mostrarModalStatus = false;
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
+                    // Recargar manteniendo la página actual
                     await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');

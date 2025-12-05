@@ -277,12 +277,12 @@
                     data
                 }
             },
-            handleSuccess(modal) {
-                const mensaje = arguments.length > 1 ? arguments[1] : null
+            async handleSuccess(modal, mensaje = null) {
                 this[modal] = false
                 this.erroresModal = {}
-                this.fetchClientes()
-
+                const activeLink = this.links.find(link => link.active);
+                const pageUrl = activeLink ? activeLink.url : null;
+                await this.fetchClientes(pageUrl);
                 if (mensaje) {
                     this.mostrarAlerta('exito', 'Éxito', mensaje)
                 }
@@ -291,14 +291,14 @@
                 this.loading = true;
                 try {
                     let requestUrl = url;
-                    if (!requestUrl) {
-                        const params = this.busqueda.titulo ? '?busqueda=' + encodeURIComponent(this.busqueda.titulo) : '';
-                        requestUrl = '/clientes/listado' + params;
+                    if(!requestUrl) {
+                        const params = new URLSearchParams();
+                        if (this.busqueda.titulo) params.append('busqueda', this.busqueda.titulo);
+                        requestUrl = `/clientes/listado?${params.toString()}`;
                     } else {
-                        if (this.busqueda.titulo) {
-                            const separator = requestUrl.includes('?') ? '&' : '?';
-                            requestUrl += separator + 'busqueda=' + encodeURIComponent(this.busqueda.titulo);
-                        }
+                        const urlObject = new URL(requestUrl, window.location.origin);
+                        if (this.busqueda.titulo) urlObject.searchParams.set('busqueda', this.busqueda.titulo);
+                        requestUrl = urlObject.toString();
                     }
 
                     const {
