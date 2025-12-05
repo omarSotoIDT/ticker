@@ -82,7 +82,7 @@
         </div>
         <div class="campo">
           <label class="etiqueta" for="pasword">Contraseña</label>
-          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password" maxlength="50">
+          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password" maxlength="50" placeholder="Dejar vacío para conservar la contraseña actual">
           <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
         </div>
         <div class="campo">
