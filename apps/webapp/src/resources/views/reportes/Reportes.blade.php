@@ -1,7 +1,7 @@
 @extends('layout.Layout')
 @section('titulo', 'Reportes')
 @section('contenido')
-<div id="app" class="scrollable-reportes">
+<div id="reportes" class="scrollable-reportes">
     <div class="contenedor-filtros">
         <h3 class="titulo-seccion">Filtros de Reporte</h3>
         <div class="flex-filtros">
@@ -293,6 +293,6 @@
         }
     });
 
-    app.mount('#app');
+    app.mount('#reportes');
 </script>
 @endsection

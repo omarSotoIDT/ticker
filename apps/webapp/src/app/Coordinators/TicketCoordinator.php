@@ -17,14 +17,39 @@ use Illuminate\Support\Facades\DB;
 
 class TicketCoordinator
 {
+    public static function obtenerTickets(array $filtros = [], bool $paginate = true)
+    {
+        $tickets = TicketService::listar(
+            $filtros,
+            'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha',
+            ['folio' => 'desc'],
+            10,
+            null,
+            $paginate
+        );
+
+        $esPaginado = $paginate && $tickets instanceof \Illuminate\Pagination\LengthAwarePaginator;
+
+        return [
+            'tickets' => $esPaginado ? $tickets->items() : null,
+            'tickets_sin_paginar' => $esPaginado ? null : $tickets,
+            'links' => $esPaginado ? $tickets->linkCollection() : [],
+        ];
+    }
+
     public static function cargarGestor()
     {
-        $tickets = TicketService::listar([], 'ticketId,cliente,proyecto,etiqueta,usuarioAsignado,folio,serieFolio,titulo,descripcion,prioridad,status,registroFecha', ['folio' => 'desc']);
+        $resultadoTickets = self::obtenerTickets([], true);
+        $tickets = $resultadoTickets['tickets'] ?? [];
+        $links = $resultadoTickets['links'] ?? [];
         $etiquetas = EtiquetaService::listar(['status' => StatusConsts::ACTIVO], 'etiquetaId,titulo');
-        $usuarios = UsuarioService::listar(['status' => StatusConsts::ACTIVO], 'usuarioId,usuario');
-        $proyectos = ProyectoService::listar(['status' => StatusConsts::ACTIVO]);
-        $clientes = ClienteService::listarClientes(['status' => StatusConsts::ACTIVO]);
-        return ['tickets' => $tickets, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
+        $resultadoUsuarios = UsuarioCoordinator::obtenerUsuarios([], false);
+        $usuarios = $resultadoUsuarios['usuarios_sin_paginar'];
+        $resultadoProyectos = ProyectoCoordinator::obtenerProyectos(['status' => StatusConsts::ACTIVO], false);
+        $proyectos = $resultadoProyectos['proyectos_sin_paginar'];
+        $resultadoClientes = ClienteCoordinator::obtenerClientes(['status' => StatusConsts::ACTIVO], false);
+        $clientes = $resultadoClientes['clientes_sin_paginar'];
+        return ['tickets' => $tickets, 'links' => $links, 'etiquetas' => $etiquetas, 'usuarios' => $usuarios,  'proyectos' => $proyectos, 'clientes'  => $clientes];
     }
 
     public static function agregar(array $datos)
@@ -70,7 +95,7 @@ class TicketCoordinator
             'usuario_asignado' => UsuarioService::obtener($ticketAnterior->usuarioAsignadoId, 'usuario')?->usuario,
         ];
         $descripcionLog = LogService::armarDescripcion($datosAnteriores, $data);
-        if(!$descripcionLog){
+        if (!$descripcionLog) {
             return;
         }
         return DB::transaction(function () use ($id, $data, $descripcionLog) {
@@ -83,13 +108,13 @@ class TicketCoordinator
     public static function editarStatus($ticketId, $datos)
     {
         $ticketActual = TicketService::obtener($ticketId, 'ticketId,status');
-            if (!$ticketActual) {
-                throw new \Exception("Ticket no existe");
-            }
+        if (!$ticketActual) {
+            throw new \Exception("Ticket no existe");
+        }
 
-            if ($ticketActual->status === $datos['status']) {
-                return false;
-            }
+        if ($ticketActual->status === $datos['status']) {
+            return false;
+        }
 
         return DB::transaction(function () use ($ticketId, $datos, $ticketActual) {
             $folio = FolioService::obtener('log_tickets');

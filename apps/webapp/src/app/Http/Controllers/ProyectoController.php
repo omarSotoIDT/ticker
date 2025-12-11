@@ -48,23 +48,28 @@ class ProyectoController extends Controller
     public function listarRest(Request $request)
     {
         try {
-            $busqueda = $request->query('busqueda');
-            $filtros = [];
+            $filtros = $request->filled('busqueda')
+                ? ['busqueda' => $request->query('busqueda')]
+                : [];
 
-            if (!empty($busqueda)) {
-                $filtros['busqueda'] = $busqueda;
-            }
-            $proyectos = ProyectoService::listar($filtros);
-            
-            $proyectos = $proyectos->map(function ($p) {
+            $resultado = ProyectoCoordinator::obtenerProyectos($filtros, true);
+
+            $proyectos = $resultado['proyectos']
+                ?? $resultado['proyectos_sin_paginar']
+                ?? [];
+
+            foreach ($proyectos as $p) {
                 $p->cliente = [
                     'cliente_id' => $p->cliente_id,
                     'nombre' => $p->cliente_nombre
                 ];
                 unset($p->cliente_nombre);
-                return $p;
-            });
-            return response()->json(['data' => $proyectos], 200);
+            }
+
+            return response()->json([
+                'data' => $proyectos,
+                'links' => $resultado['links'] ?? null
+            ]);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al obtener la lista de proyectos', __FUNCTION__);
         }
@@ -129,7 +134,7 @@ class ProyectoController extends Controller
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
         } catch (Throwable $e) {
-             if ($e instanceof \Exception) {
+            if ($e instanceof \Exception) {
                 return response()->json(['mensaje' => $e->getMessage()], 409);
             }
             return $this->handleException($e, 'Error al eliminar el proyecto', __FUNCTION__);

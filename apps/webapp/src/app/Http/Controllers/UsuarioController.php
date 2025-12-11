@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Coordinators\UsuarioCoordinator;
+use App\Coordinators\PerfilCoordinator;
 use App\Services\UsuarioService;
 use App\Services\PerfilService;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ class UsuarioController extends Controller
     public function gestor()
     {
         try {
-            $perfiles = PerfilService::obtenerPerfiles([], 0, false);
+            $resultado = PerfilCoordinator::obtenerPerfiles([], false);
+            $perfiles = $resultado['perfiles_sin_paginar'] ?? $resultado['perfiles'] ?? [];
             return view('usuarios.usuariosGestor', ['perfiles' => $perfiles]);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al mostrar el gestor " . $error);
@@ -26,7 +28,22 @@ class UsuarioController extends Controller
 
     public static function listarRest(Request $request) {
         try {
-            $usuarios = UsuarioCoordinator::listar($request->only(['usuario']));
+            $filtros = $request->only(['usuario']);
+            $resultado = UsuarioCoordinator::obtenerUsuarios($filtros, true);
+
+            return Response::json([
+                'usuarios' => $resultado['usuarios'],
+                'links' => $resultado['links'],
+            ], 200);
+        } catch (Throwable $error) {
+            Log::error("Ocurrio un error al listar los usuarios " . $error);
+            return Response::json(['error' => 'Ocurrio un error al listar los usuarios'], 500);
+        }
+    }
+
+    public static function listarUsuarios(Request $request) {
+        try {
+            $usuarios = UsuarioCoordinator::listarUsuarios($request->only(['usuario']));
             return Response::json($usuarios, 200);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al listar los usuarios " . $error);

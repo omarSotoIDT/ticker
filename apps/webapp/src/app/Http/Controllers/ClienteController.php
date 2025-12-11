@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ClienteService;
 use App\RepoData\ClienteRepoData;
+use App\Coordinators\ClienteCoordinator;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use App\Services\Exceptions;
@@ -35,8 +36,14 @@ class ClienteController extends Controller
             if (!empty($busqueda)) {
                 $filtros['busqueda'] = $busqueda;
             }
-            $clientes = ClienteService::listarClientes($filtros);
-            return response()->json(['data' => $clientes], 200);
+            $resultado = ClienteCoordinator::obtenerClientes($filtros, true);
+            $clientes = $resultado['clientes'] ?? $resultado['clientes_sin_paginar'] ?? [];
+            $links = $resultado['links'] ?? null;
+            
+            return response()->json([
+                'data' => $clientes,
+                'links' => $links
+            ], 200);
     
         } catch (Throwable $e) {
             return Exceptions::handleException($e, 'Error al obtener la lista de clientes', __FUNCTION__);

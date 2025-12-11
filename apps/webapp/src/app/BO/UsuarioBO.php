@@ -36,10 +36,13 @@ class UsuarioBO
         $usuario = [
             'usuario' => $datos['nombre'],
             'email' => $datos['email'],
-            'password' => Hash::make($datos['password']),
             'actualizacion_autor_id' => Auth::id(),
             'actualizacion_fecha' => now()
         ];
+
+        if (isset($datos['password']) && $datos['password'] !== '') {
+            $usuario['password'] = Hash::make($datos['password']);
+        }
 
         return $usuario;
     }

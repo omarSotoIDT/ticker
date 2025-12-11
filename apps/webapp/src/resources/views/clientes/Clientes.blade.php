@@ -22,6 +22,7 @@
         </button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
+    <div class="table-with-pagination-container">
     <table class="tabla">
         <thead>
             <tr>
@@ -60,6 +61,9 @@
             </tr>
         </tbody>
     </table>
+    </div>
+
+    <paginador-componente :links="links" @navigate="fetchClientes"></paginador-componente>
     {{-- ======= MODAL CREAR / EDITAR ======= --}}
     <modal-componente
         v-model:mostrar="mostrarModal"
@@ -140,6 +144,7 @@
                 token: '{{ csrf_token() }}',
                 exito: {{ Js::from(session('exito')) }},
                 error: {{ Js::from(session('error')) }},
+                links: [],
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -161,7 +166,7 @@
             }
         },
         mounted() {
-            this.listarClientes();
+            this.fetchClientes();
             if (this.exito) {
                 this.mostrarAlerta('exito', 'Éxito', this.exito);
             }
@@ -232,6 +237,38 @@
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
             },
+                validarCamposRequeridos(requiredFields, form) {
+                    const errores = {};
+                    let mensaje = null;
+                    const nombreCampo = (key) => {
+                        const mapa = {
+                            nombre: 'Nombre',
+                            descripcion: 'Descripción',
+                            contacto: 'Contacto',
+                            email: 'Email'
+                        };
+                        if (mapa[key]) return mapa[key];
+                        const k = String(key).replace(/_id$s?/i, '').replace(/_ids$/i, '');
+                        return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                    };
+                    requiredFields.forEach(key => {
+                        const value = form ? form[key] : undefined;
+                        const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0);
+                        if (empty) {
+                            const label = nombreCampo(key);
+                            const msg = `El campo ${label} es requerido`;
+                            errores[key] = [msg];
+                            if (!mensaje) mensaje = msg;
+                        }
+                    });
+
+                    if (Object.keys(errores).length) {
+                        this.erroresModal = errores;
+                        this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                        return false;
+                    }
+                    return true;
+                },
             async fetchJson(url, opciones = {}) {
                 const res = await fetch(url, opciones)
                 const data = await res.json().catch(() => ({}))
@@ -240,31 +277,44 @@
                     data
                 }
             },
-            handleSuccess(modal) {
-                const mensaje = arguments.length > 1 ? arguments[1] : null
+            async handleSuccess(modal, mensaje = null) {
                 this[modal] = false
                 this.erroresModal = {}
-                this.listarClientes()
-
+                const activeLink = this.links.find(link => link.active);
+                const pageUrl = activeLink ? activeLink.url : null;
+                await this.fetchClientes(pageUrl);
                 if (mensaje) {
                     this.mostrarAlerta('exito', 'Éxito', mensaje)
                 }
             },
-            async listarClientes() {
+            async fetchClientes(url = null) {
                 this.loading = true;
                 try {
+                    let requestUrl = url;
+                    if(!requestUrl) {
+                        const params = new URLSearchParams();
+                        if (this.busqueda.titulo) params.append('busqueda', this.busqueda.titulo);
+                        requestUrl = `/clientes/listado?${params.toString()}`;
+                    } else {
+                        const urlObject = new URL(requestUrl, window.location.origin);
+                        if (this.busqueda.titulo) urlObject.searchParams.set('busqueda', this.busqueda.titulo);
+                        requestUrl = urlObject.toString();
+                    }
+
                     const {
                         res,
                         data
-                    } = await this.fetchJson('/clientes/listado', {
+                    } = await this.fetchJson(requestUrl, {
                         headers: {
                             'Accept': 'application/json'
                         }
-                    })
+                    });
+
                     if (res.ok && data.data) {
-                        this.clientes = data.data
+                        this.clientes = data.data;
+                        this.links = data.links || [];
                     } else {
-                        this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.')
+                        this.mostrarAlerta('error', 'Error', 'Error al obtener la lista de clientes.');
                     }
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'Error al listar clientes.');
@@ -273,28 +323,7 @@
                 }
             },
             async buscar() {
-                this.loading = true;
-                try {
-                    const params = this.busqueda.titulo ? '?busqueda=' + encodeURIComponent(this.busqueda.titulo) : ''
-                    const {
-                        res,
-                        data
-                    } = await this.fetchJson('/clientes/listado' + params, {
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        }
-                    })
-                    if (res.ok && data.data) {
-                        this.clientes = data.data
-                    } else {
-                        this.mostrarAlerta('info', 'Información', 'No se encontraron clientes para la búsqueda especificada.')
-                    }
-                } catch (e) {
-                    this.mostrarAlerta('error', 'Error', 'Error en búsqueda de clientes.');
-                } finally {
-                    this.loading = false;
-                }
+                this.fetchClientes();
             },
 
             modalCrear() {
@@ -328,6 +357,11 @@
             async guardarCliente() {
                 this.loading = true
                 this.erroresModal = {}
+                const requiredFields = ['nombre', 'email'];
+                if (!this.validarCamposRequeridos(requiredFields, this.formCliente)) {
+                    this.loading = false;
+                    return;
+                }
                 const url = this.tipoForm === 'crear' ? '/clientes' : `/clientes/${this.cliente.cliente_id}`
                 const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH'
 
@@ -463,6 +497,7 @@
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-componente', loader);
+    app.component('paginador-componente', paginador);
 
     app.mount('#app')
 </script>

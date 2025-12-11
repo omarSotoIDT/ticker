@@ -18,6 +18,7 @@
         </button>
     </div>
 
+    <div class="table-with-pagination-container">
     <table class="tabla">
         <thead>
             <tr>
@@ -50,6 +51,7 @@
             </tr>
         </tbody>
     </table>
+    </div>
 
     <paginador-componente :links="links" @navigate="fetchPerfiles"></paginador-componente>
 
@@ -187,22 +189,33 @@
                 this.loading = true;
                 try {
                     let requestUrl = url;
-                    if (!requestUrl) {
-                        const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
-                        requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
+                    if(!requestUrl) {
+                        const params = new URLSearchParams();
+                        if (this.busqueda) params.append('busqueda', this.busqueda);
+                        requestUrl = `{{ route('perfiles.listarRest') }}?${params.toString()}`;
+                    } else {
+                        const urlObject = new URL(requestUrl, window.location.origin);
+                        if (this.busqueda) urlObject.searchParams.set('busqueda', this.busqueda);
+                        requestUrl = urlObject.toString();
                     }
 
                     const res = await fetch(requestUrl);
                     const data = await res.json();
 
-                    this.perfiles = data.perfiles?.data || data.perfiles || [];
-                    this.links = data.links || data.perfiles?.links || [];
+                    this.perfiles = data.perfiles || [];
+                    this.links = data.links || [];
                     this.permisos = data.permisos || this.permisos;
                 } catch (e) {
                     this.mostrarAlerta('error', 'Error', 'No se pudieron cargar los perfiles.');
                 } finally {
                     this.loading = false;
                 }
+            },
+
+            async listarPerfiles() {
+                const activeLink = this.links.find(link => link.active);
+                const pageUrl = activeLink ? activeLink.url : null;
+                await this.fetchPerfiles(pageUrl);
             },
 
             guardar() {
@@ -231,12 +244,12 @@
                         switch (res.status) {
                             case 201:
                                 this.mostrarModal = false;
-                                this.fetchPerfiles();
+                                this.listarPerfiles();
                                 this.mostrarAlerta('exito', 'Éxito', 'Perfil creado correctamente');
                                 break;
                             case 204:
                                 this.mostrarModal = false;
-                                this.fetchPerfiles();
+                                this.listarPerfiles();
                                 this.mostrarAlerta('exito', 'Éxito', 'Perfil actualizado correctamente');
                                 break;
                             case 422:
@@ -271,7 +284,7 @@
 
                     if (res.ok) {
                         this.mostrarModalEliminar = false;
-                        this.fetchPerfiles();
+                        this.listarPerfiles();
                         this.mostrarAlerta('exito', 'Éxito', 'Perfil eliminado correctamente');
                     } else {
                         const data = await res.json().catch(() => ({}));
@@ -323,9 +336,9 @@
 
             validarFormulario() {
                 this.errors = {};
-                if (!this.formPerfil.clave) this.errors.clave = 'La clave es obligatoria';
-                if (!this.formPerfil.nombre) this.errors.nombre = 'El nombre es obligatorio';
-                if (!this.formPerfil.descripcion) this.errors.descripcion = 'La descripción es obligatoria';
+                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave es requerido';
+                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre es requerido';
+                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción es requerido';
                 return Object.keys(this.errors).length === 0;
             }
         },

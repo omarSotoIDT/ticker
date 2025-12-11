@@ -19,6 +19,8 @@
             Nuevo Proyecto
         </button>
     </div>
+
+    <div class="table-with-pagination-container">
     <table class="tabla">
         <thead>
             <tr>
@@ -63,6 +65,9 @@
             </tr>
         </tbody>
     </table>
+    </div>
+
+    <paginador-componente :links="links" @navigate="handleNavigate"></paginador-componente>
 
     {{-- ======= MODALES ======= --}}
     <modal-componente
@@ -196,6 +201,7 @@
                 usuariosProyecto: [],
                 token: '{{ csrf_token() }}',
                 proyectos: [],
+                links: [],
                 clientes: [],
                 usuariosDisponibles: [],
                 busqueda: {
@@ -217,6 +223,7 @@
                     titulo: '',
                     mensaje: ''
                 },
+                currentPage: 1, 
             }
         },
 
@@ -263,24 +270,47 @@
             },
         },
         mounted() {
-            this.listarProyectos();
+            this.fetchProyectos();
         },
         methods: {
             formatBadgeText(text) {
                 if (!text) return '';
                 return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
             },
-            async listarProyectos() {
+            async fetchProyectos(url = null) {
                 this.loading = true;
                 try {
-                    const res = await fetch(`/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}`);
+                    let endpoint;
+                    if (url) {
+                        endpoint = url;
+                        const pageMatch = endpoint.match(/[?&]page=(\d+)/);
+                        if (pageMatch) {
+                            this.currentPage = parseInt(pageMatch[1]);
+                        } else {
+                            this.currentPage = 1;
+                        }
+                    } else {
+                        endpoint = `/proyectos/listado?busqueda=${encodeURIComponent(this.busqueda.titulo)}&page=${this.currentPage}`;
+                    }
+                    const res = await fetch(endpoint);
                     const data = await res.json();
                     this.proyectos = data.data || [];
+                    this.links = data.links || [];
+                    if (Array.isArray(this.links)) {
+                        const active = this.links.find(l => l.active);
+                        if (active && active.label && !isNaN(Number(active.label))) {
+                            this.currentPage = Number(active.label);
+                        }
+                    }
                 } catch (err) {
                     this.mostrarAlerta('error', 'error', 'Error al listar proyectos.');
                 } finally {
                     this.loading = false;
                 }
+            },
+
+            handleNavigate(url) {
+                this.fetchProyectos(url);
             },
 
             mostrarAlerta(tipo, titulo, mensaje) {
@@ -290,8 +320,42 @@
                 this.alerta.mostrar = true;
             },
 
+            validarCamposRequeridos(requiredFields, form) {
+                const errores = {};
+                let mensaje = null;
+                const nombreCampo = (key) => {
+                    const mapa = {
+                        nombre: 'Nombre',
+                        descripcion: 'Descripción',
+                        cliente: 'Cliente',
+                        usuarios: 'Usuarios'
+                    };
+                    if (mapa[key]) return mapa[key];
+                    const k = String(key).replace(/_id$s?/i, '').replace(/_ids$/i, '');
+                    return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                };
+                requiredFields.forEach(key => {
+                    const value = form ? form[key] : undefined;
+                    const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0);
+                    if (empty) {
+                        const label = nombreCampo(key);
+                        const msg = `El campo ${label} es requerido`;
+                        errores[key] = [msg];
+                        if (!mensaje) mensaje = msg;
+                    }
+                });
+
+                if (Object.keys(errores).length) {
+                    this.erroresModal = errores;
+                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                    return false;
+                }
+                return true;
+            },
+
             buscar() {
-                this.listarProyectos();
+                this.currentPage = 1; 
+                this.fetchProyectos();
             },
 
             async modalCrear() {
@@ -325,7 +389,7 @@
 
             async cargarUsuarios() {
                 try {
-                    const res = await fetch('/usuarios/listarRest');
+                    const res = await fetch('/usuarios/listadoUsuarios');
                     const data = await res.json();
 
                     this.usuariosDisponibles = (data || []).map(u => ({
@@ -342,6 +406,10 @@
             async crearProyecto() {
                 this.loading = true;
                 this.erroresModal = {};
+                if (!this.validarCamposRequeridos(['nombre','cliente_id'], this.formproyecto)) {
+                    this.loading = false;
+                    return;
+                }
                 try {
                     const res = await fetch('/proyectos', {
                         method: 'POST',
@@ -353,19 +421,18 @@
                         if (res.status === 422) {
                             this.erroresModal = data.errores;
                             this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
-                            
                         } else {
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al crear el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
                         }
+                        this.loading = false;
                         return;
                     }
                     this.mostrarModal = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -373,6 +440,10 @@
             async actualizarProyecto() {
                 this.loading = true;
                 this.erroresModal = {};
+                if (!this.validarCamposRequeridos(['nombre','cliente_id'], this.formproyecto)) {
+                    this.loading = false;
+                    return;
+                }
                 try {
                     const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}`, {
                         method: 'PATCH',
@@ -388,14 +459,14 @@
                             const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al actualizar el proyecto');
                             this.mostrarAlerta('error', 'Error', mensaje);
                         }
+                        this.loading = false;
                         return;
                     }
                     this.mostrarModal = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -484,11 +555,10 @@
                     }
 
                     this.mostrarModalStatus = false;
-                    this.listarProyectos();
                     this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
+                    await this.fetchProyectos();
                 } catch (err) {
                     this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');
-                } finally {
                     this.loading = false;
                 }
             },
@@ -538,6 +608,7 @@
     app.component('modal-componente', modal);
     app.component('alerta-componente', alerta);
     app.component('loader-global', loader);
+    app.component('paginador-componente', paginador)
     app.mount('#app');
 </script>
 

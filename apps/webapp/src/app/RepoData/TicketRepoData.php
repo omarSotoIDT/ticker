@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class TicketRepoData
 {
-    public static function listar($filtros, $columnas, $orden, $limit, $offset)
+    public static function listar($filtros, $columnas, $orden, $limit = null, $offset = null, $paginate = false)
     {
         $query = DB::table('tickets as t');
         $query->leftJoin('clientes as c', 't.cliente_id', '=', 'c.cliente_id');
@@ -20,13 +20,22 @@ class TicketRepoData
         TicketRH::agregarFiltros($query, $filtros);
         TicketRH::agregarOrden($query, $orden);
 
-        if (isset($limit)) {
-            $query->limit($limit);
+        if ($paginate) {
+            $pageLimit = $limit ?? 10;
+            $paginator = $query->paginate($pageLimit);
+            if (!empty($filtros) && is_array($filtros)) {
+                $paginator->appends($filtros);
+            }
+            return $paginator;
+        } else {
+            if (isset($limit)) {
+                $query->limit($limit);
+            }
+            if (isset($offset)) {
+                $query->offset($offset);
+            }
+            return $query->get()->toArray();
         }
-        if (isset($offset)) {
-            $query->offset($offset);
-        }
-        return $query->get()->toArray();
     }
 
     public static function obtener($id, $columnas)

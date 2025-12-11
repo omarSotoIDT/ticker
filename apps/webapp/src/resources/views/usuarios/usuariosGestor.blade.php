@@ -17,38 +17,43 @@
             Nuevo Usuario
         </button>
     </div>
-    <table class="tabla">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Perfil</th>
-          <th>Estado</th>
-          <th>Último acceso</th>
-          <th class="acciones">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
-          <td>@{{ usuario.usuario }}</td>
-          <td>@{{ usuario.email }}</td>
-          <td>
-            <span v-if="!usuario.nombrePerfiles.length">-</span>
-            @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span></td>
-          <td>
-            <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
-          </td>
-          <td>@{{ formatFecha(usuario.acceso) }}</td>
-          <td class="acciones">
-            <div class="acciones-contenedor">
-              <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
-              <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
-              <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
-            </div>
-        </td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-with-pagination-container">
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Perfil</th>
+                    <th>Estado</th>
+                    <th>Último acceso</th>
+                    <th class="acciones">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="usuario in usuarios" :key="usuario.usuarioId">
+                    <td>@{{ usuario.usuario }}</td>
+                    <td>@{{ usuario.email }}</td>
+                    <td>
+                        <span v-if="!usuario.nombrePerfiles.length">-</span>
+                        @{{ usuario.nombrePerfiles[0] }} <span v-if="usuario.nombrePerfiles.length > 1">+@{{ usuario.nombrePerfiles.length - 1 }}</span>
+                    </td>
+                    <td>
+                        <span class="badge" :class="usuario.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">@{{ formatBadgeText(usuario.status) }}</span>
+                    </td>
+                    <td>@{{ formatFecha(usuario.acceso) }}</td>
+                    <td class="acciones">
+                        <div class="acciones-contenedor">
+                            <button @click.prevent="modalEditar(usuario.usuarioId)"><i class="fa fa-pen"></i></button>
+                            <button v-if="usuario.status === 'ACTIVO'" @click.prevent="modalEliminar(usuario.usuarioId)"><i class="fa fa-trash"></i></button>
+                            <button v-if="usuario.status === 'ELIMINADO'" @click.prevent="modalActivar(usuario.usuarioId)"><i class="fa fa-arrow-rotate-left"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <paginador-componente :links="links" @navigate="fetchUsuarios"></paginador-componente>
+    </div>
+
     @if (session('error'))
       <div class="error">
         <span>{{ session('error') }}</span>
@@ -77,7 +82,7 @@
         </div>
         <div class="campo">
           <label class="etiqueta" for="pasword">Contraseña</label>
-          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password" maxlength="50">
+          <input class="input" type="password" name="password" id="password" v-model="formUsuario.password" maxlength="50" placeholder="Dejar vacío para conservar la contraseña actual">
           <span class="error" v-if="erroresModal.password">@{{ erroresModal.password[0] }}</span>
         </div>
         <div class="campo">
@@ -142,6 +147,7 @@
           perfiles: {{ Js::from($perfiles) }},
           usuarios: null,
           usuario: null,
+          links: [],
           erroresModal: {},
           alerta: {
             mostrar: false,
@@ -259,15 +265,59 @@
           this.alerta.mostrar = true;
         },
 
+        validarCamposRequeridos(requiredFields, form) {
+          const errores = {};
+          let mensaje = null;
+            const nombreCampo = (key) => {
+              const mapa = {
+                password: 'Contraseña',
+                nombre: 'Nombre',
+                email: 'Email',
+                perfiles: 'Perfiles'
+              };
+              if (mapa[key]) return mapa[key];
+              const k = String(key).replace(/_id$s?/i, '').replace(/_ids$/i, '');
+              return k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            };
+          requiredFields.forEach(key => {
+            const value = form ? form[key] : undefined;
+            const empty = value === null || value === undefined || (typeof value === 'string' && !value.trim()) || (Array.isArray(value) && value.length === 0);
+            if (empty) {
+              const label = nombreCampo(key);
+              const msg = `El campo ${label} es requerido`;
+              errores[key] = [msg];
+              if (!mensaje) mensaje = msg;
+            }
+          });
+
+          if (Object.keys(errores).length) {
+            this.erroresModal = errores;
+            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+            return false;
+          }
+          return true;
+        },
+
         limpiarErrores(){
           this.erroresModal = {};
         },
 
-        async listarUsuarios() {
+        async fetchUsuarios(url = null) {
           this.loading = true;
           try {
-            const response = await fetch('/usuarios/listarRest', {
-              method: 'GET',  
+            let requestUrl = url;
+            if (!requestUrl) {
+                const params = new URLSearchParams();
+                if (this.busqueda.titulo) params.append('usuario', this.busqueda.titulo);
+                requestUrl = `/usuarios/listarRest?${params.toString()}`;
+            } else {
+                const urlObject = new URL(requestUrl, window.location.origin);
+                if (this.busqueda.titulo) urlObject.searchParams.set('usuario', this.busqueda.titulo);
+                requestUrl = urlObject.toString();
+            }
+
+            const response = await fetch(requestUrl, {
+              method: 'GET',
               headers: {
                 'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': this.token
@@ -279,7 +329,8 @@
             }
 
             const data = await response.json();
-            this.usuarios = data;
+            this.usuarios = data.usuarios || [];
+            this.links = data.links || [];
           }catch(error){
             this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los usuarios');
           } finally {
@@ -287,36 +338,23 @@
           }
         },
 
+        async listarUsuarios() {
+            const activeLink = this.links.find(link => link.active);
+            const pageUrl = activeLink ? activeLink.url : null;
+            await this.fetchUsuarios(pageUrl);
+        },
+
         async buscar(){
-          this.loading = true;
-          try {
-            const params = new URLSearchParams();
-            if (this.busqueda.titulo) params.append('usuario', this.busqueda.titulo);
-            const response = await fetch('/usuarios/listarRest?' + params.toString(), {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': this.token
-              }
-            })
-              console.log('Fetching users with params:', params.toString());
-
-            if (!response.ok) {
-              throw new Error('Error al buscar usuarios: ' + response.status);
-            }
-
-            const data = await response.json();
-            this.usuarios = data;
-          }catch(error) {
-            this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar');
-          } finally {
-            this.loading = false;
-          }
+          this.fetchUsuarios();
         },
 
         async crear() {
           this.loading = true;
           this.erroresModal = {};
+          if (!this.validarCamposRequeridos(['nombre','email','password'], this.formUsuario)) {
+            this.loading = false;
+            return;
+          }
           try {
             const response = await fetch('/usuarios/agregarRest', {
               method: 'POST',
@@ -353,6 +391,10 @@
         async editar(){
           this.loading = true;
           this.erroresModal = {};
+          if (!this.validarCamposRequeridos(['nombre','email'], this.formUsuario)) {
+            this.loading = false;
+            return;
+          }
           try {
             const response = await fetch('/usuarios/editarRest/' + this.usuario.usuarioId, {
               method: 'PATCH',
@@ -479,13 +521,14 @@
         },
       },
       mounted() {
-        this.listarUsuarios();
+        this.fetchUsuarios();
       }
     });
 
     app.component('modal-componente', modal)
     app.component('alerta-componente', alerta)
     app.component('loading-global', loader)
+    app.component('paginador-componente', paginador)
     app.mount('#app')
   </script>
 @endsection

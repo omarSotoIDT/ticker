@@ -9,15 +9,19 @@ use Illuminate\Support\Facades\DB;
 
 class PerfilCoordinator
 {
-    public static function obtenerPerfiles(array $filtros = [])
+    public static function obtenerPerfiles(array $filtros = [], bool $paginate = true)
     {
-        $perfiles = PerfilService::obtenerPerfiles($filtros);
-        $perfilIds = $perfiles->pluck('perfil_id')->toArray();
+        $perfiles = PerfilService::obtenerPerfiles($filtros, 10, $paginate);
+
+        $coleccion = $paginate
+            ? collect($perfiles->items())
+            : collect($perfiles);
+
+        $perfilIds = $coleccion->pluck('perfil_id')->toArray();
 
         $permisosPorPerfil = PermisoService::obtenerPermisosPerfiles($perfilIds);
 
-        // Se agregan dińámicamente los permisos a cada perfil en base a las consultas hechas por los Repo
-        $perfiles->getCollection()->transform(function ($perfil) use ($permisosPorPerfil) {
+        $coleccion->transform(function ($perfil) use ($permisosPorPerfil) {
             $perfil->permisos = $permisosPorPerfil
                 ->get($perfil->perfil_id, collect())
                 ->pluck('permiso_id')
@@ -26,12 +30,12 @@ class PerfilCoordinator
         });
 
         return [
-            'perfiles' => $perfiles->items(),
-            'links' => $perfiles->linkCollection(),
+            'perfiles' => $paginate ? $coleccion : null,
+            'perfiles_sin_paginar' => $paginate ? null : $coleccion,
+            'links' => $paginate ? $perfiles->linkCollection() : null,
             'permisos' => PermisoService::obtenerPermisos(),
         ];
     }
-
 
     public static function crearPerfil(array $datos)
     {
