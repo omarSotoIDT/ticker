@@ -1,24 +1,21 @@
 @extends('layout.Layout')
 
-@section('titulo', 'Perfiles')
+@section('titulo', 'Gestor de Perfiles')
 
 @section('contenido')
 
-<div id="app" 
-    class="clientes"
-    data-perfiles='@json($perfilesConPermisos)'
-    data-permisos='@json($permisos)'
-    data-exito='@json(session("exito"))'
-    data-error='@json(session("error"))'>
-    
-    <loader-global :visible="loading"></loader-global>
-
+<div id="app">
+    <loader-componente :visible="loading"></loader-componente>
     <div class="modulo-encabezado">
-        <form method="GET" action="{{ route('perfiles.index') }}" class="cont-buscador" @submit="loading = true">
-            <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
-            <input type="text" name="busqueda" class="inputBusqueda" placeholder="Buscar perfiles..." value="{{ $busqueda ?? '' }}">
-        </form>
-        <button class="btn action-btn" @click.prevent="modalCrear" :disabled="loading"><i class="fa fa-plus"></i> Nuevo Perfil</button>
+        <div class="items-busqueda">
+            <div class="cont-buscador">
+                <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
+                <input type="text" v-model="busqueda" @change="fetchPerfiles()" class="input input-busqueda" placeholder="Buscar Perfiles..."></input>
+            </div>
+        </div>
+        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa fa-plus"></i> Nuevo Perfil
+        </button>
     </div>
 
     <table class="tabla">
@@ -38,12 +35,14 @@
                 <td>@{{ perfil.descripcion }}</td>
                 <td>@{{ perfil.permisos.length }} permisos</td>
                 <td class="acciones">
+                    <div class="acciones-contenedor">
                     <button @click.prevent="modalEditar(perfil.perfil_id)" title="Editar">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                     <button @click.prevent="abrirModalEliminar(perfil.perfil_id)" title="Eliminar">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    </div>
                 </td>
             </tr>
             <tr v-if="!perfiles.length">
@@ -57,10 +56,12 @@
     <!-- MODAL CREAR / EDITAR -->
     <modal-componente
         v-model:mostrar="mostrarModal"
-        :titulo="tituloModalPrincipal"
-        :subtitulo="subtituloModalPrincipal"
-        :texto-confirmacion="textoConfirmacionPrincipal"
+        :titulo="tipoForm === 'crear' ? 'Nuevo Perfil' : 'Editar Perfil'"
+        :subtitulo="tipoForm === 'crear' ? 'Completa los datos del nuevo perfil' : 'Modifica los datos del perfil'"
+        :texto-confirmacion="tipoForm === 'crear' ? 'Crear Perfil' : 'Guardar Cambios'"
+        clase-modal="modal-base"
         @confirmar="guardar">
+        
 
         <form class="form centrado" @submit.prevent="guardar" novalidate>
             <div class="campo">
@@ -113,10 +114,20 @@
 
     <modal-componente
         v-model:mostrar="mostrarModalEliminar"
-        titulo="Confirmar Eliminación"
-        :texto-confirmacion="textoConfirmacionPrincipal"        
-        @confirmar="ejecutarEliminacion">
-        ¿Estás seguro de que deseas eliminar este perfil?.<strong> Esta acción no se puede deshacer.</strong>
+        titulo="Eliminar Perfil"
+        subtitulo="Confirmación requerida"
+        texto-confirmacion="Sí, eliminar"
+        clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
+        @confirmar="eliminarPerfil">
+
+        <div class="descripcion-item-modal">
+            <p>
+                ¿Estás seguro de que deseas eliminar este perfil?
+                <strong>Esta acción no se puede deshacer.</strong>
+            </p>
+        </div>
+
     </modal-componente>
 
     <alerta-componente
@@ -131,7 +142,6 @@
     const app = Vue.createApp({
         data() {
             return {
-                loading: false,
                 perfiles: [],
                 permisos: {{Js::from($permisos ?? [])}},
                 links: [],
@@ -142,6 +152,7 @@
                 perfilAEliminar: null,
                 tipoForm: 'crear',
                 busqueda: '',
+                loading: false,
                 errors: {},
                 formPerfil: {
                     clave: '',
@@ -159,43 +170,7 @@
                 }
             };
         },
-        computed: {
-            tituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Nuevo Perfil';
-                } else {
-                    return 'Editar Perfil';
-                }
-            },
-            subtituloModalPrincipal() {
-                if (this.tipoForm === 'crear') {
-                    return 'Completa los datos del nuevo perfil';
-                } else {
-                    return 'Modifica los datos del perfil';
-                }
-            },
-            formAction() {
-                if (this.tipoForm === 'crear') {
-                    return this.routeGuardar;
-                } else {
-                    return `${this.routeActualizarBase}/${this.formPerfil.perfil_id}`;
-                }
-            },
-            textoConfirmacionPrincipal() {
-                if (this.loading) {
-                    return 'Procesando...';
-                }
-                if (this.tipoForm === 'crear') {
-                    return 'Crear Perfil';
-                }
-                if (this.tipoForm === 'eliminar') {
-                    return 'Sí, Eliminar';
-                }
-                else {
-                return 'Guardar Cambios';
-                }
-            },
-        },
+
         methods: {
             mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
@@ -203,44 +178,118 @@
                 this.alerta.mensaje = mensaje;
                 this.alerta.mostrar = true;
             },
-            validateForm() {
-                this.errors = {};
-                if (!this.formPerfil.clave) this.errors.clave = 'El campo Clave no debe ir vacío.';
-                if (!this.formPerfil.nombre) this.errors.nombre = 'El campo Nombre no debe ir vacío.';
-                if (!this.formPerfil.descripcion) this.errors.descripcion = 'El campo Descripción no debe ir vacío.';
-                
-                if (Object.keys(this.errors).length > 0) {
-                    this.mostrarAlerta('error', 'Campos incompletos', 'Por favor, revisa los campos marcados en rojo.');
+
+            buscar() {
+                this.fetchPerfiles();
+            },
+
+            async fetchPerfiles(url = null) {
+                this.loading = true;
+                try {
+                    let requestUrl = url;
+                    if (!requestUrl) {
+                        const params = this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : '';
+                        requestUrl = `{{ route('perfiles.listarRest') }}${params}`;
+                    }
+
+                    const res = await fetch(requestUrl);
+                    const data = await res.json();
+
+                    this.perfiles = data.perfiles?.data || data.perfiles || [];
+                    this.links = data.links || data.perfiles?.links || [];
+                    this.permisos = data.permisos || this.permisos;
+                } catch (e) {
+                    this.mostrarAlerta('error', 'Error', 'No se pudieron cargar los perfiles.');
+                } finally {
+                    this.loading = false;
                 }
-
-            // Colocamos el parámetro url = null para traer todos los perfiles, hacer búsquedas y cambiar de página sin duplicar código
-            fetchPerfiles(url = null) {
-                const requestUrl = url || `{{ route('perfiles.listarRest') }}${this.busqueda ? '?busqueda=' + encodeURIComponent(this.busqueda) : ''}`;
-
-                fetch(requestUrl)
-                    .then(res => res.json())
-                    .then(data => {
-                        this.perfiles = data.perfiles?.data || data.perfiles || [];
-                        this.links = data.links || data.perfiles?.links || [];
-                        this.permisos = data.permisos || this.permisos;
-                    })
-                    .catch(() => {
-                        this.mostrarAlerta('error', 'No se pudieron cargar los perfiles.');
-                    });
             },
 
             guardar() {
-                if (this.validateForm()) {
-                    this.loading = true; 
-                    this.$nextTick(() => {
-                        document.getElementById('form').submit();
+                this.loading = true;
+                if (!this.validarFormulario()) {
+                    this.loading = false;
+                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                    return;
+                }
+
+                const url = this.tipoForm === 'crear' ?
+                    "{{ route('perfiles.agregarRest') }}" :
+                    `/perfiles/editar/${this.formPerfil.perfil_id}`;
+                const method = this.tipoForm === 'crear' ? 'POST' : 'PUT';
+                const body = JSON.stringify(this.formPerfil);
+
+                fetch(url, {
+                        method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body
+                    })
+                    .then(res => {
+                        switch (res.status) {
+                            case 201:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Éxito', 'Perfil creado correctamente');
+                                break;
+                            case 204:
+                                this.mostrarModal = false;
+                                this.fetchPerfiles();
+                                this.mostrarAlerta('exito', 'Éxito', 'Perfil actualizado correctamente');
+                                break;
+                            case 422:
+                                return res.json().then(data => {
+                                    this.errors = data.errors;
+                                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                                });
+                            default:
+                                return res.json().then(data => {
+                                    this.mostrarAlerta('error', 'Error', data.mensaje || 'Ocurrió un error al guardar.');
+                                });
+                        }
+                    })
+                    .catch(() => this.mostrarAlerta('error', 'Error', 'Error de conexión al guardar.'))
+                    .finally(() => {
+                        this.loading = false;
                     });
+            },
+
+
+            async eliminarPerfil() {
+                this.loading = true;
+                try {
+                    if (!this.perfilAEliminar) return;
+
+                    const res = await fetch(`/perfiles/eliminar/${this.perfilAEliminar}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+
+                    if (res.ok) {
+                        this.mostrarModalEliminar = false;
+                        this.fetchPerfiles();
+                        this.mostrarAlerta('exito', 'Éxito', 'Perfil eliminado correctamente');
+                    } else {
+                        const data = await res.json().catch(() => ({}));
+                        this.mostrarAlerta('error', 'Error', data.message || 'No se pudo eliminar el perfil.');
+                    }
+                } catch (e) {
+                    this.mostrarAlerta('error', 'Error', 'Error de conexión al eliminar.');
+                } finally {
+                    this.loading = false;
                 }
             },
-            async modalCrear() {
-                this.loading = true;
-                await this.$nextTick();
-                this.errors = {}; 
+
+            cargarPagina(url) {
+                if (!url) return;
+                this.fetchPerfiles(url);
+            },
+
+            modalCrear() {
                 this.tipoForm = 'crear';
                 this.formPerfil = {
                     clave: '',
@@ -252,55 +301,25 @@
                 };
                 this.errors = {};
                 this.mostrarModal = true;
-                this.loading = false;
             },
-            async modalEditar(perfilId) {
-                this.loading = true;
-                await this.$nextTick();
-                this.errors = {}; 
-                const perfil = this.perfiles.find(p => p.perfil_id === perfilId);
-                if (!perfil) {
-                    this.loading = false;
-                    return;
-                }
-                
+
+            modalEditar(id) {
+                const perfil = this.perfiles.find(p => p.perfil_id === id);
+                if (!perfil) return;
+
                 this.tipoForm = 'editar';
                 this.formPerfil = {
                     ...perfil,
-                    permisos: [...perfil.permisos]
+                    permisos: perfil.permisos || []
                 };
                 this.errors = {};
                 this.mostrarModal = true;
-                this.loading = false;
-            },
-            routeEliminar(perfilId) {
-                return `${this.routeEliminarBase}/eliminar/${perfilId}`;
-            },
-            
-            async abrirModalEliminar(perfilId) {
-                this.loading = true;
-                await this.$nextTick();
-                this.perfilAEliminar = perfilId; 
-                this.mostrarModalEliminar = true; 
-                this.loading = false;
             },
 
-            ejecutarEliminacion() {
-                if (this.perfilAEliminar) {
-                    this.loading = true;
-                    this.$nextTick(() => {
-                        const formId = `form-eliminar-${this.perfilAEliminar}`;
-                        const form = document.getElementById(formId);
-                        if (form) {
-                            form.submit();
-                        }
-                        this.loading = false;
-                        this.mostrarModalEliminar = false; 
-                    });
-                } else {
-                    this.mostrarModalEliminar = false;
-                }
-            }
+            abrirModalEliminar(id) {
+                this.perfilAEliminar = id;
+                this.mostrarModalEliminar = true;
+            },
 
             validarFormulario() {
                 this.errors = {};
@@ -318,10 +337,10 @@
         }
     });
 
-    app.component('modal-componente', modal);
-    app.component('alerta-componente', alerta);
-    app.component('loader-global', loader);
-    app.component('paginador-componente', paginador);
+    app.component('modal-componente', modal)
+    app.component('alerta-componente', alerta)
+    app.component('loader-componente', loader)
+    app.component('paginador-componente', paginador)
     app.mount('#app');
 </script>
 

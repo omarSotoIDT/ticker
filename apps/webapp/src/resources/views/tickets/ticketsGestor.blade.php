@@ -1,27 +1,36 @@
 @extends('layout.Layout')
 
-@section('title', 'Tickets')
+@section('titulo', 'Gestor de Tickets')
 
 @section('contenido')
     <div id="app">
-        <loading-global :visible="loading"></loading-global>
+        <loader-global :visible="loading"></loader-global>
+
         <div class="modulo-encabezado">
             <div class="items-busqueda">
                 <div class="cont-buscador">
                     <i class="fa-solid fa-magnifying-glass buscador-icono"></i>
                     <input type="text" name="ticket" id="ticket" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar tickets..."></input>
                 </div>
-                <select id="busquedaCliente" class="input select-busqueda" v-model="busqueda.cliente_id" @change="buscar()">
+                <select id="busquedaCliente" class="input select-busqueda" v-model="busqueda.cliente_id">
                     <option value="">Todos</option>
                     <option v-for="cliente in clientes" :value="cliente.cliente_id">@{{ cliente.nombre }}</option>
                 </select>
-                <select id="busquedaPrioridad" class="input select-busqueda" v-model="busqueda.prioridad" @change="buscar()">
+                <select id="busquedaPrioridad" class="input select-busqueda" v-model="busqueda.prioridad">
                     <option value="">Todas</option>
                     <option v-for="prioridad in prioridades" :value="prioridad">@{{ prioridad }}</option>
                 </select>
+                <button class="btn primary-btn btn-buscar" @click.prevent="buscar()">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+                <button class="btn secondary-btn btn-limpiar-filtros" @click.prevent="limpiarFiltros()">
+                    <i class="fa-solid fa-eraser"></i>
+                </button>
             </div>
-            <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Ticket</button>
-
+            <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+                <i class="fa-solid fa-plus"></i>
+                Nuevo Ticket 
+            </button>
         </div>
 
         <table class="tabla">
@@ -42,8 +51,9 @@
                 <tr v-for="ticket in tickets" :key="ticket.ticketId">
                     <td>@{{ ticket.serieFolio }}</td>
                     <td>
-                        @{{ ticket.titulo }} - 
-                        @{{ ticket.etiqueta }}
+                        @{{ ticket.titulo }} 
+                        <br>
+                        <small class="etiqueta-gris">@{{ ticket.etiqueta }}</small>
                     </td>
                     <td>@{{ ticket.cliente }}</td>
                     <td>@{{ ticket.proyecto }}</td>
@@ -53,8 +63,8 @@
                     <td>@{{ ticket.registroFecha }}</td>
                     <td class="acciones">
                         <div class="acciones-contenedor">
-                            <button @click.prevent="mostrarTicketConLoader(ticket.ticketId)" title="Ver Ticket">
-                                <i class="fa fa-eye" :class="{'fa-spinner fa-spin': loading}"></i>
+                            <button @click.prevent="mostrarTicket(ticket.ticketId)" title="Ver Ticket">
+                                <i class="fa fa-eye"></i>
                             </button>
                         </div>
                     </td>
@@ -67,22 +77,23 @@
 
         <modal-componente
         v-model:mostrar="modalRegistro.mostrar"
-        :titulo="tituloModalRegistro"
-        :subtitulo="subtituloModalRegistro"
+        :titulo="modalRegistro.tipo === 'crear' ? 'Nuevo Ticket' : 'Editar Ticket'"
+        :subtitulo="modalRegistro.tipo === 'crear' ? 'Completa los datos del nuevo Ticket' : 'Modifica los datos del Ticket'"
         :texto-confirmacion="textoConfirmacionRegistro"
-        clase-modal="modal-base"        
-        @confirmar="accionRegistro">
+        clase-modal="modal-base"
+        :deshabilitar-confirmacion="loading"
+        @confirmar="modalRegistro.tipo === 'crear' ? agregar() : editar()">
 
             <form id="form" class="form centrado">
                 <div class="campo">
                     <label class="etiqueta" for="titulo">Título</label>
-                    <input class="input" type="text" name="titulo" id="titulo" v-model="formTicket.titulo">
+                    <input class="input" type="text" name="titulo" id="titulo" v-model="formTicket.titulo" maxlength="100">
                     <span class="error" v-if="erroresRegistro.titulo">@{{ erroresRegistro.titulo[0] }}</span>
                 </div>
 
                 <div class="campo">
                     <label class="etiqueta" for="descripcion">Descripción</label>
-                    <textarea class="input" name="descripcion" id="descripcion" v-model="formTicket.descripcion"></textarea>
+                    <textarea class="input" name="descripcion" id="descripcion" v-model="formTicket.descripcion" maxlength="250"></textarea>
                     <span class="error" v-if="erroresRegistro.descripcion">@{{ erroresRegistro.descripcion[0] }}</span>
                 </div>
 
@@ -231,26 +242,25 @@
                         </div>
 
                         <div class="nuevo-comentario-form">
-                            <textarea class="input" v-model="formFeedback.comentario" placeholder="Escribe un comentario..."></textarea>
-                            <span class="error" v-if="erroresRegistroFeedback.comentario">@{{ erroresRegistroFeedback.comentario[0] }}</span>
-                            <button class="btn primary-btn btn-enviar-comentario" @click.prevent="agregarFeedback" title="Enviar Comentario">
+                            <textarea class="input" v-model="formFeedback.comentario" placeholder="Escribe un comentario..." maxlength="500"></textarea>
+                            <span class="error" v-if="erroresRegistroFeedback.comentario"></span>
+                            <button class="btn primary-btn btn-enviar-comentario" @click.prevent="agregarFeedback" title="Enviar Comentario" :disabled="loading || !formFeedback.comentario.trim()">
                                 <i class="fa-solid fa-paper-plane"></i>
                             </button>
                         </div>
                     </div>
 
                     <div v-if="modalVer.seccion === 'historial'" class="seccion-historial">
-                        <p v-if="!ticketHistorial || !ticketHistorial.length" class="empty-state">
-                            No hay historial de cambios.
-                        </p>
-                        <ul class="lista-historial">
-                            <li v-for="item in ticketHistorial" :key="item.logTicketId">
-                                <span class="historial-fecha-usuario">@{{ item.registroFecha }}</span>
-                                <span class="historial-cambio">
-                                    @{{ item.descripcion }}:
-                                </span>
-                            </li>
-                        </ul>
+                        <div class="contenedor-scroll-modal">
+                            <ul v-if="ticketHistorial && ticketHistorial.length > 0" class="">
+                                <li v-for="log in ticketHistorial" :key="log.logTicketId">
+                                    <small class="historial-fecha-usuario">@{{ log.registroFecha }} — @{{ log.usuario }}</small>
+                                    <small class="historial-cambio" v-html="log.descripcion ? log.descripcion.replace(/\n/g, '<br>') : ''"></small>
+                                    <hr>
+                                </li>
+                            </ul>
+                            <p v-else class="empty-state">No hay historial de cambios.</p>
+                        </div>
                     </div>
 
                 </div>
@@ -263,7 +273,7 @@
         </modal-componente>
 
         <alerta-componente
-        v-model:mostrar="alerta.mostrar"
+        :mostrar="alerta.mostrar"
         :tipo="alerta.tipo"
         :titulo="alerta.titulo"
         :mensaje="alerta.mensaje"/>
@@ -273,7 +283,6 @@
         const app = Vue.createApp({
             data() {
                 return {
-                    loading: false, 
                     tickets: {{ Js::from($tickets) }},
                     ticket: null,
                     ticketFeedback: null,
@@ -285,6 +294,7 @@
                     proyectos: {{ JS::from($proyectos) }},
                     proyectosCliente: [],
                     usuarios: {{ JS::from($usuarios) }},
+                    loading: false,
                     alerta: {
                         mostrar: false,
                         tipo: '',
@@ -341,38 +351,16 @@
                 }
             },
             computed: {
-                tituloModalRegistro() {
-                    if (this.modalRegistro.tipo === 'crear') {
-                        return 'Nuevo Ticket';
-                    } else {
-                        return 'Editar Ticket';
-                    }
-                },
-                subtituloModalRegistro() {
-                    if (this.modalRegistro.tipo === 'crear') {
-                        return 'Completa los datos del nuevo Ticket';
-                    } else {
-                        return 'Modifica los datos del Ticket';
-                    }
-                },
                 textoConfirmacionRegistro() {
                     if (this.loading) {
                         return 'Procesando...';
-                    } else {
-                        if (this.modalRegistro.tipo === 'crear') {
-                            return 'Crear Ticket';
-                        } else {
-                            return 'Guardar Cambios';
-                        }                    
                     }
-                },
-                accionRegistro() {
                     if (this.modalRegistro.tipo === 'crear') {
-                        return agregar();
+                        return 'Crear Ticket';
                     } else {
-                        return editar();
+                        return 'Guardar Cambios';
                     }
-                },
+                }
             },
             methods: {
                 limpiarRegistro(){
@@ -388,7 +376,7 @@
                 limparModalVer(){
                     this.ticket = null;
                     this.ticketFeedback = null;
-                    this.ticketHistorial = [];
+                    this.ticketHistorial = []; 
                     this.formFeedback.comentario = '';
                     this.erroresRegistroFeedback = {};
                     this.modalVer.mostrar = false;
@@ -410,11 +398,21 @@
                     this.alerta.titulo = titulo;
                     this.alerta.mensaje = mensaje;
                     this.alerta.mostrar = true;
+                    setTimeout(() => {
+                        this.alerta.mostrar = false;
+                    }, 3000);
+                },
+                limpiarFiltros() {
+                    this.busqueda = {
+                        titulo: '',
+                        cliente_id: '',
+                        prioridad: ''
+                    };
+                    this.buscar();
                 },
                 async buscar(){
                     this.loading = true;
                     try {
-                        this.params = new URLSearchParams();
                         if(this.busqueda){
                             this.params.append('titulo', this.busqueda.titulo)
                             this.params.append('cliente_id', this.busqueda.cliente_id)
@@ -424,24 +422,30 @@
                             method: 'GET', headers: this.headers
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
-                            throw new Error('Error al buscar los tickets: ' + response.status);
+                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al buscar los tickets');
+                            this.mostrarAlerta('error', 'Error', mensaje);
+                            return;
                         }
-                        const data = await response.json();
                         this.tickets = data;
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al buscar los tickets')
-                    }finally {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al buscar los tickets')
+                    } finally {
                         this.loading = false;
-                    } 
+                    }
                 },
 
                 modalCrear(){
+                    this.loading = true;
                     this.modalRegistro.tipo = 'crear';
                     this.limpiarRegistro();
                     this.modalRegistro.mostrar = true;
+                    this.loading = false;
                 },
                 modalEditar(id){
+                    this.loading = true;
                     if (this.modalVer.mostrar) {
                         this.modalVer.mostrar = false;
                     }
@@ -450,6 +454,7 @@
                     this.cargarForm();
                     this.actualizarProyectos(this.formTicket.cliente_id);
                     this.modalRegistro.mostrar = true;
+                    this.loading = false;
                 },
                 async listarTickets(){
                     this.loading = true;
@@ -457,32 +462,33 @@
                         const response = await fetch('/tickets/listado-rest?' + this.params.toString(), {
                             method: 'GET', headers: this.headers
                         })
+                        
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
-                            throw new Error('Error al listar los tickets: ' + response.status);                        
+                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al listar los tickets');
+                            this.mostrarAlerta('error', 'Error', mensaje);
+                            return;
                         }
 
-                        const data = await response.json();
                         this.tickets = data;
                         this.modalRegistro.mostrar = false;
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al listar los tickets')
-                    }finally {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al listar los tickets')
+                    } finally {
                         this.loading = false;
                     }
                 },
-                async mostrarTicketConLoader(id){
+                async mostrarTicket(id){
                     this.loading = true;
-                    try {
-                        await this.obtenerTicket(id); 
-                        this.ticketHistorial;
-                        if(this.ticket){
-                            this.modalVer.seccion = 'descripcion'; 
-                            this.formFeedback.comentario = ''; 
-                            this.erroresRegistroFeedback = {}; 
-                            this.modalVer.mostrar = true; 
-                        }
-                    } finally {
-                        this.loading = false;
+                    await this.obtenerTicket(id); 
+                    this.loading = false;
+                    this.ticketHistorial;
+                    if(this.ticket){
+                        this.modalVer.seccion = 'descripcion'; 
+                        this.formFeedback.comentario = ''; 
+                        this.erroresRegistroFeedback = {}; 
+                        this.modalVer.mostrar = true; 
                     }
                 },
                 async obtenerTicket(id){
@@ -492,166 +498,214 @@
                             method: 'GET', headers: this.headers
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
-                            throw new Error('Error al obtener el ticket: ' + response.status);
+                            const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al obtener el ticket');
+                            this.mostrarAlerta('error', 'Error', mensaje);
+                            return;
                         }
 
-                        const data = await response.json();
                         this.ticket = data['ticket'];
                         this.ticketFeedback = data['feedback'];
                         this.ticketHistorial = data['logs'];
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al obtener el ticket')
-                    }finally {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al obtener el ticket')
+                    } finally {
                         this.loading = false;
                     }
                 },
                 async agregar(){
                     this.loading = true;
+                    this.erroresRegistro = {};
                     try {
                         const response = await fetch('/tickets/registro-rest', {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formTicket)
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Datos incompletos', data.message || 'Por favor, completa todos los campos requeridos.');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al crear el ticket');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al crear el ticket: ' + response.status);
+                            return;
                         }
 
                         this.modalRegistro.mostrar = false;
-                        await this.listarTickets();
-                        this.mostrarAlerta('exito', 'Exito', 'Ticket creado')
-                    } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al crear el ticket')
-                    }finally {
+                        this.listarTickets();
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Ticket creado')
+                    }  catch (error) {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al crear el ticket')
+                    } finally {
                         this.loading = false;
                     }
                 },
                 async editar(){
                     this.loading = true;
+                    this.erroresRegistro = {};
                     try {
+                        const cliente = this.clientes.find(c => c.cliente_id === this.formTicket.cliente_id);
+                        const proyectosDisponibles = this.proyectosCliente.length ? this.proyectosCliente : this.proyectos;
+                        const proyecto = proyectosDisponibles.find(p => p.proyecto_id === this.formTicket.proyecto_id);
+                        const etiqueta = this.etiquetas.find(e => e.etiquetaId === this.formTicket.etiqueta_id);
+                        const usuario = this.usuarios.find(u => u.usuarioId === this.formTicket.usuario_asignado_id);
+
+                        let payload = {
+                            ...this.formTicket,
+                            cliente: cliente ? cliente.nombre : null,
+                            proyecto: proyecto ? proyecto.nombre : null,
+                            etiqueta: etiqueta ? etiqueta.titulo : null,
+                            usuario_asignado: usuario ? usuario.usuario : null
+                        };
+
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/edicion-rest/`, {
-                            method: 'PATCH', headers: this.headers, body: JSON.stringify(this.formTicket)
-                        })
+                            method: 'PATCH',
+                            headers: this.headers,
+                            body: JSON.stringify(payload)
+                        });
+
+                        const data = await response.json().catch(() => ({}));
 
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Datos incompletos', data.message || 'Por favor, completa todos los campos requeridos.');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al editar el ticket');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al crear el ticket: ' + response.status);
+                            return;
                         }
 
                         this.modalRegistro.mostrar = false;
-                        await this.listarTickets();
-                        this.mostrarAlerta('exito', 'Exito', 'Ticket editado')
-                    } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al editar el ticket')
-                    }finally {
+                        this.listarTickets();
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Ticket editado')
+                    }  catch (error) {
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al editar el ticket')
+                    } finally {
                         this.loading = false;
-                    } 
+                    }
                 },
                 async editarStatus() {
                     this.loading = true;
+                    this.erroresRegistro = {};
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/status-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({status: this.ticket.status})
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error de Validación', Object.values(data.errors)[0][0]);
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar el status');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar el status: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Estado editado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Estado editado');
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar el status');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar el status');
                     } finally {                        
-                        await this.obtenerTicket(this.ticket.ticketId);
-                        await this.listarTickets();
                         this.loading = false;
+                        await this.obtenerTicket(this.ticket.ticketId);
+                        this.listarTickets();
                     }
                 },
                 async editarPrioridad() {
                     this.loading = true;
+                    this.erroresRegistro = {};
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/prioridad-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({prioridad: this.ticket.prioridad})
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error de Validación', Object.values(data.errors)[0][0]);
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar la prioridad');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar la prioridad: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Prioridad editada')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Prioridad editada');
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la prioridad');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar la prioridad');
                     } finally {                        
-                        await this.obtenerTicket(this.ticket.ticketId);
-                        await this.listarTickets();
                         this.loading = false;
-                    } 
+                        await this.obtenerTicket(this.ticket.ticketId);
+                        this.listarTickets();
+                    }
                 },
                 async editarAsignacion() {
                     this.loading = true;
+                    this.erroresRegistro = {};
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/asignacion-rest/`, {
                             method: 'PATCH', headers: this.headers, body: JSON.stringify({usuario_asignado_id: this.ticket.usuarioAsignadoId})
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistro = datosError.errors;
-                                return;
+                                this.erroresRegistro = data.errors;
+                                this.mostrarAlerta('error', 'Error de Validación', Object.values(data.errors)[0][0]);
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al cambiar la asignacion');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al cambiar la asignacion: ' + response.status);
+                            return;
                         }
-                        this.mostrarAlerta('exito', 'Exito', 'Asignacion editada')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Asignacion editada');
                     } catch (error) {
-                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error al cambiar la asignacion');
+                        this.mostrarAlerta('error', 'Error', 'Ocurrió un error de red al cambiar la asignacion');
                     } finally {                        
-                        await this.obtenerTicket(this.ticket.ticketId);
-                        await this.listarTickets();
                         this.loading = false;
+                        await this.obtenerTicket(this.ticket.ticketId);
+                        this.listarTickets();
                     }
                 },
                 async agregarFeedback(){
                     this.loading = true;
+                    this.erroresRegistroFeedback = {};
                     try {
                         const response = await fetch(`/tickets/${this.ticket.ticketId}/feedback-rest`, {
                             method: 'POST', headers: this.headers, body: JSON.stringify(this.formFeedback)
                         })
 
+                        const data = await response.json().catch(() => ({}));
+
                         if (!response.ok) {
                             if (response.status === 422) {
-                                const datosError = await response.json();
-                                this.erroresRegistroFeedback = datosError.errors;
-                                return;
+                                this.erroresRegistroFeedback = data.errors;
+                                this.mostrarAlerta('error', 'Datos incompletos', data.message || 'Por favor, completa todos los campos requeridos.');
+                            } else {
+                                const mensaje = data.mensaje || data.message || (response.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al agregar el comentario');
+                                this.mostrarAlerta('error', 'Error', mensaje);
                             }
-                            throw new Error('Error al agregar feedback: ' + response.status);
+                            return;
                         }
 
                         this.formFeedback.comentario = '';
-                        this.erroresRegistroFeedback = {};
                         await this.obtenerTicket(this.ticket.ticketId); 
 
-                        this.mostrarAlerta('exito', 'Exito', 'Comentario Agregado')
+                        this.mostrarAlerta('exito', 'Exito', data.mensaje || 'Comentario Agregado')
                     } catch (error){
-                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error al agregar el comentario')
-                    } finally {                        
+                        this.mostrarAlerta('error', 'Error', 'Ocurrio un error de red al agregar el comentario')
+                    } finally {
                         this.loading = false;
                     } 
                 },
@@ -666,7 +720,7 @@
         })
         app.component('modal-componente', modal)
         app.component('alerta-componente', alerta)
-        app.component('loading-global', loader)
+        app.component('loader-global', loader);
         app.mount('#app')
     </script>
 @endsection

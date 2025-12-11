@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Coordinators\UsuarioCoordinator;
 use App\Services\UsuarioService;
+use App\Services\PerfilService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
@@ -12,10 +13,11 @@ use Throwable;
 
 class UsuarioController extends Controller
 {
-    public function gestor(){
+    public function gestor()
+    {
         try {
-            $datos = UsuarioCoordinator::cargarGestor();
-            return view('usuarios.usuariosGestor', $datos);
+            $perfiles = PerfilService::obtenerPerfiles([], 0, false);
+            return view('usuarios.usuariosGestor', ['perfiles' => $perfiles]);
         } catch (Throwable $error) {
             Log::error("Ocurrio un error al mostrar el gestor " . $error);
             return redirect()->back()->with('error', 'Ocurrio un error al mostrar el gestor');

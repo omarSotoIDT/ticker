@@ -109,6 +109,8 @@ class ProyectoController extends Controller
             ], 200);
         } catch (ValidationException $e) {
             return response()->json(['errores' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['mensaje' => $e->getMessage()], 422);
         } catch (Throwable $e) {
             return $this->handleException($e, 'Error al actualizar el proyecto', __FUNCTION__);
         }

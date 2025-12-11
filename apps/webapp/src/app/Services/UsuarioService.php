@@ -27,6 +27,15 @@ class UsuarioService
         return $perfiles;
     }
 
+    public static function verificarStatusUsuario($usuario_id)
+    {
+        $usuario = UsuarioRepoData::obtener($usuario_id, 'status');
+        if ($usuario && $usuario->status === \App\Consts\StatusConsts::ELIMINADO) {
+            return false;
+        }
+        return true;
+    }
+
     public static function agregar($datos) {
         return DB::transaction(function () use ($datos) {
             $insertUsuario = UsuarioBO::armarInsert($datos);

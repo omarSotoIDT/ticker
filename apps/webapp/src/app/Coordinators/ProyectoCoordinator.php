@@ -29,6 +29,7 @@ class ProyectoCoordinator
             return $proyectoId;
         });
     }
+    
     public static function actualizarProyecto(int $id, array $data)
     {
         $proyectoActual = ProyectoService::obtenerPorId($id);
@@ -100,6 +101,25 @@ class ProyectoCoordinator
 
     public static function actualizarAsignacionesUsuarios(int $proyectoId, array $usuariosNuevos)
     {
+       
+        $usuariosActuales = ProyectoService::listarUsuariosAsignados($proyectoId)->pluck('usuario_id')->toArray();
+
+        $usuariosEliminados = array_diff($usuariosActuales, $usuariosNuevos);
+
+        foreach ($usuariosEliminados as $usuarioId) {
+            $ticketsActivos = TicketService::listar([
+                'proyecto_id' => $proyectoId,
+                'usuario_asignado_id' => $usuarioId,
+                'status_excluidos' => [TicketConsts::CERRADO, TicketConsts::CANCELADO]
+            ]);
+
+            if (count($ticketsActivos) > 0) {
+                throw new \Exception(
+                    "No se puede quitar al usuario porque tiene " . count($ticketsActivos) . " ticket(s) sin cerrar o cancelar en este proyecto."
+                );
+            }
+        }
+
         return DB::transaction(function () use ($proyectoId, $usuariosNuevos) {
             $folio = FolioService::obtener('log_proyectos');
             return ProyectoService::actualizarAsignacionesUsuarios($proyectoId, $usuariosNuevos, $folio);

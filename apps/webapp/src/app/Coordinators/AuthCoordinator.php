@@ -9,7 +9,12 @@ class AuthCoordinator
 {
     public static function iniciarSesion($datos) {
         if(AuthService::iniciarSesion($datos)){
-            return UsuarioService::marcarAcceso(auth()->id());
+            if (UsuarioService::verificarStatusUsuario(auth()->id())) {
+                UsuarioService::marcarAcceso(auth()->id());
+                return true;
+            }
+            AuthService::cerrarSesion();
+            return 'eliminado';
         }
         return false;
     }

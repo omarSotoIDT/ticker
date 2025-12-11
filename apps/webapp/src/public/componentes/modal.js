@@ -1,7 +1,7 @@
 var modal = {
   template: `
     <transition name="animation-fade">
-      <div v-if="mostrar" class="fondo-modal" @click.self="close">
+      <div v-if="mostrar" class="fondo-modal">
         <div class="modal" :class="claseModal">
           <button class="cerrar-modal" @click="close">&times;</button>
           <h2 class="titulo-modal">{{ titulo }}</h2>

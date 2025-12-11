@@ -2,7 +2,7 @@
 @section('titulo', 'Dashboard')
 
 @section('contenido')
-<div id="dashboard-app">
+<div id="dashboard-root">
     <div class="fila-tarjetas">
         <div class="tarjeta-estadistica" v-for="(card, index) in cards" :key="index">
             <div class="tarjeta-contenido">
@@ -19,25 +19,31 @@
     </div>
 
     <div class="cuadricula-graficas">
+        <!-- Tickets por Estado -->
         <div class="tarjeta-grafica">
             <h3>Tickets por Estado</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="estado.labels && estado.labels.length">
                 <canvas ref="chartEstado"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
 
+        <!-- Tickets por Prioridad -->
         <div class="tarjeta-grafica">
             <h3>Tickets por Prioridad</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="prioridad.labels && prioridad.labels.length">
                 <canvas ref="chartPrioridad"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
 
+        <!-- Top 5 Clientes -->
         <div class="tarjeta-grafica grafica-ancho-completo">
             <h3>Top 5 Clientes por Tickets</h3>
-            <div class="lienzo-grafica">
+            <div class="lienzo-grafica" v-if="topClientes.labels && topClientes.labels.length">
                 <canvas ref="chartTopClientes"></canvas>
             </div>
+            <div v-else class="mensaje-vacio">No hay datos suficientes para graficar</div>
         </div>
     </div>
 </div>
@@ -55,15 +61,15 @@ createApp({
             { titulo: "Total Tickets", valor: "{{ $cards['total'] }}", descripcion: "Todos los tickets del sistema", icono: "fas fa-chart-line", color: "#3b82f6" },
             { titulo: "Tickets Activos", valor: "{{ $cards['activos'] }}", descripcion: "En proceso o pendientes", icono: "far fa-clock", color: "#f59e0b" },
             { titulo: "Tickets Cerrados", valor: "{{ $cards['cerrados'] }}", descripcion: "Finalizados exitosamente", icono: "far fa-check-circle", color: "#10b981" },
-            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes'] }}", descripcion: "Requieren atención inmediata", icono: "fas fa-exclamation-circle", color: "#ef4444" }
+            { titulo: "Tickets Urgentes", valor: "{{ $cards['urgentes'] }}", descripcion: "Requieren atención inmediata", icono: "fa fa-exclamation", color: "#ef4444" }
         ]);
 
         const chartEstado = ref(null);
         const chartPrioridad = ref(null);
         const chartTopClientes = ref(null);
 
-        const colorsEstado = ['#3b82f6', '#69404a', '#fdac17', '#8b5cf6', '#ec5a5a', '#56df83'];
-        const colorsPrioridad = ['#f59e0b', '#ef4444', '#ec0e0e', '#37af63'];
+        const colorsEstado = ['#8b5cf6', '#69404aff', '#56df83ff', '#fdac17ff', '#3b82f6', '#ec5a5aff'];
+        const colorsPrioridad = ['#ef4444', '#f59e0b', '#37af63','#ec0e0e'];
         const colorTopClientes = '#5695fa';
         const yAxisOptions = {
             beginAtZero: true,
@@ -88,6 +94,8 @@ createApp({
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
+                        layout: { padding: 60 },
                         plugins: {
                             legend: { display: false },
                             datalabels: {
@@ -99,7 +107,8 @@ createApp({
                                 color: (ctx) => colorsEstado[ctx.dataIndex],
                                 font: { weight: '600', size: 13 },
                                 anchor: 'end',
-                                align: 'end'
+                                align: 'end',
+                                offset: 8
                             }
                         }
                     }
@@ -117,6 +126,7 @@ createApp({
                         }]
                     },
                     options: {
+                        maintainAspectRatio: false,
                         responsive: true,
                         plugins: { legend: { display: false } },
                         scales: { y: yAxisOptions, x: { grid: { display: false } } }
@@ -136,6 +146,7 @@ createApp({
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: { legend: { display: false } },
                         scales: { y: yAxisOptions, x: { grid: { display: false } } }
                     }
@@ -143,8 +154,8 @@ createApp({
             }
         });
 
-        return { cards, chartEstado, chartPrioridad, chartTopClientes };
+        return { cards, estado, prioridad, topClientes, chartEstado, chartPrioridad, chartTopClientes };
     }
-}).mount('#dashboard-app');
+}).mount('#dashboard-root');
 </script>
 @endsection

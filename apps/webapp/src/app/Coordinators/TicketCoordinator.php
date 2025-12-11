@@ -70,6 +70,9 @@ class TicketCoordinator
             'usuario_asignado' => UsuarioService::obtener($ticketAnterior->usuarioAsignadoId, 'usuario')?->usuario,
         ];
         $descripcionLog = LogService::armarDescripcion($datosAnteriores, $data);
+        if(!$descripcionLog){
+            return;
+        }
         return DB::transaction(function () use ($id, $data, $descripcionLog) {
             $folio = FolioService::obtener('log_tickets');
             TicketService::editar($id, $data);

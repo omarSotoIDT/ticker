@@ -73,23 +73,23 @@ class TicketController extends Controller
     {
         try {
             $datos = $request->validate([
-                'titulo' => 'string|max:100',
-                'descripcion' => 'string',
-                'prioridad' => 'string',
-                'status' => 'string',
-                'cliente_id' => 'integer',
+                'titulo' => 'sometimes|string|max:100',
+                'descripcion' => 'sometimes|string|nullable',
+                'prioridad' => 'sometimes|string',
+                'status' => 'sometimes|string',
                 'cliente' => 'string|nullable',
-                'proyecto_id' => 'integer',
                 'proyecto' => 'string|nullable',
-                'etiqueta_id' => 'integer',
                 'etiqueta' => 'string|nullable',
-                'usuario_asignado_id' => 'integer',
                 'usuario_asignado' => 'string|nullable',
+                'cliente_id' => 'sometimes|integer',
+                'proyecto_id' => 'sometimes|integer',
+                'etiqueta_id' => 'sometimes|integer',
+                'usuario_asignado_id' => 'sometimes|integer|nullable',
             ]);
 
-            if (TicketCoordinator::actualizarProyecto($id, $datos)) {
-                return Response::json($datos, 200); 
-            }
+            TicketCoordinator::actualizarProyecto($id, $datos);
+            
+            return Response::json($datos, 200);
         } catch (ValidationException $e) {
             return Response::json(['errors' => $e->errors()], 422);
         } catch (Throwable $error) {

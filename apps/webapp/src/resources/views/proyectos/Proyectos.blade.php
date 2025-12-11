@@ -13,7 +13,11 @@
                 <input type="text" name="proyecto" id="proyecto" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Proyectos..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Proyecto</button>
+
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Proyecto
+        </button>
     </div>
     <table class="tabla">
         <thead>
@@ -32,7 +36,7 @@
                 <td class="columna-grande">@{{ proyecto.descripcion }}</td>
                 <td>
                     <span class="badge" :class="proyecto.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                        @{{ proyecto.status }}
+                        @{{ formatBadgeText(proyecto.status) }}
                     </span>
                 </td>
 
@@ -73,19 +77,19 @@
         <form id="formproyecto" class="form centrado" @submit.prevent>
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre">
+                <input class="input" type="text" id="nombre" v-model="formproyecto.nombre" maxlength="150">
                 <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion"></textarea>
+                <textarea class="input" id="descripcion" v-model="formproyecto.descripcion" maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.descripcion">@{{ erroresModal.descripcion[0] }}</span>
             </div>
 
             <div class="campo">
                 <label class="etiqueta" for="cliente">Cliente</label>
-                <select class="input" v-model="formproyecto.cliente_id" id="cliente">
+                <select class="input select-busqueda" v-model="formproyecto.cliente_id" id="cliente">
                     <option value="" disabled>Selecciona un cliente</option>
                     <option v-for="cliente in clientes" :key="cliente.cliente_id" :value="cliente.cliente_id">
                         @{{ cliente.nombre }}
@@ -139,9 +143,9 @@
             <div class="contenedor-scroll-modal">
                 <ul v-if="logsProyecto.length > 0" class="">
                     <li v-for="log in logsProyecto" :key="log.id">
-                        <small class="">@{{ log.fecha }} — @{{ log.usuario }}</small>
+                        <small>@{{ log.fecha }} — @{{ log.usuario }}</small>
                         <br>
-                        <small class="">@{{ log.accion }}</small>
+                        <small>@{{ log.accion }}</small>
                         <hr>
                     </li>
                 </ul>
@@ -162,17 +166,13 @@
         @confirmar="cambiarEstado">
 
         <form id="formEstado">
-            <p>
-                <strong>@{{ proyectoSeleccionado?.nombre }}</strong> — Estado actual:
-                <span class="badge" :class="proyectoSeleccionado?.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'">
-                    @{{ proyectoSeleccionado?.status }}
-                </span>
-            </p>
-
+            <div v-if="proyectoSeleccionado" class="descripcion-item-modal">
+                <p><strong>Proyecto:</strong> @{{ proyectoSeleccionado.nombre }}</p>
+            </div>
             <div class="campo" v-if="tipoForm === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
 
-                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..."></textarea>
+                <textarea class="input" id="motivo_eliminacion" v-model="formEliminar.motivo_eliminacion" placeholder="Describe el motivo de eliminación..." maxlength="250"></textarea>
 
                 <span class="error" v-if="erroresModal.motivo">@{{ erroresModal.motivo[0] }}</span>
             </div>
@@ -182,10 +182,10 @@
 </div>
 
 <script>
-const app = Vue.createApp({
+    const app = Vue.createApp({
         data() {
             return {
-                loading: false, 
+                loading: false,
                 mostrarModalStatus: false,
                 mostrarModalHistorial: false,
                 formEliminar: {
@@ -247,7 +247,7 @@ const app = Vue.createApp({
                     return 'Procesando...';
                 }
                 if (this.tipoForm === 'crear') {
-                    return 'Guardar proyecto';
+                    return 'Crear proyecto';
                 } else {
                     return 'Guardar Cambios';
                 }
@@ -255,16 +255,21 @@ const app = Vue.createApp({
             subtituloModalStatus() {
                 if (this.tipoForm === 'eliminar') {
                     return '¿Estás seguro de eliminar este proyecto?';
-                } else {
-                    return '¿Deseas activar/desactivar este proyecto?';
                 }
+                if (!this.proyectoSeleccionado) return '';
+
+                const accion = this.proyectoSeleccionado.status === 'ACTIVO' ? 'DESACTIVAR' : 'ACTIVAR';
+                return `¿Deseas ${accion} el proyecto?`;
             },
         },
         mounted() {
             this.listarProyectos();
         },
         methods: {
-            
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
             async listarProyectos() {
                 this.loading = true;
                 try {
@@ -272,7 +277,7 @@ const app = Vue.createApp({
                     const data = await res.json();
                     this.proyectos = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'error', 'Error al listar proyectos:');
+                    this.mostrarAlerta('error', 'error', 'Error al listar proyectos.');
                 } finally {
                     this.loading = false;
                 }
@@ -314,7 +319,7 @@ const app = Vue.createApp({
                     const data = await res.json();
                     this.clientes = data.data || [];
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar clientes:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar clientes.');
                 }
             },
 
@@ -330,41 +335,36 @@ const app = Vue.createApp({
                         ...u
                     }));
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios:');
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios.');
                 }
             },
 
             async crearProyecto() {
                 this.loading = true;
+                this.erroresModal = {};
                 try {
                     const res = await fetch('/proyectos', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
                         body: JSON.stringify(this.formproyecto)
                     });
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                            
+                        } else {
+                            const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al crear el proyecto');
+                            this.mostrarAlerta('error', 'Error', mensaje);
                         }
-                        this.mostrarAlerta('error', 'Error', msg || 'Error de validación');
                         return;
                     }
-
-                    if (!res.ok) throw new Error('Error al crear el proyecto');
-
                     this.mostrarModal = false;
-                    await this.listarProyectos();
-                    this.erroresModal = {};
-                    this.mostrarAlerta('exito', 'Exito', 'Proyecto creado correctamente');
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto creado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al crear proyecto');
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al crear el proyecto.');
                 } finally {
                     this.loading = false;
                 }
@@ -372,45 +372,38 @@ const app = Vue.createApp({
 
             async actualizarProyecto() {
                 this.loading = true;
+                this.erroresModal = {};
                 try {
                     const res = await fetch(`/proyectos/${this.formproyecto.proyecto_id}`, {
                         method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
                         body: JSON.stringify(this.formproyecto)
                     });
-
-                    if (res.status === 422) {
-                        const data = await res.json();
-                        this.erroresModal = data.errores;
-                        let msg = data.mensaje || '';
-                        if (!msg && data.errores) {
-                            const first = Object.values(data.errores)[0];
-                            msg = Array.isArray(first) ? first[0] : first;
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) {
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                            this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                        } else {
+                            const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Error al actualizar el proyecto');
+                            this.mostrarAlerta('error', 'Error', mensaje);
                         }
-                        this.mostrarAlerta('error', msg || 'Error de validación');
                         return;
                     }
-
-                    if (!res.ok) throw new Error('Error al actualizar el proyecto');
-
                     this.mostrarModal = false;
-                    await this.listarProyectos();
-                    this.erroresModal = {};
-                    this.mostrarAlerta('exito', 'Exito', 'Proyecto actualizado correctamente');
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || 'Proyecto actualizado correctamente');
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error al actualizar proyecto');
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al actualizar el proyecto.');
                 } finally {
                     this.loading = false;
                 }
             },
-            accion(){
+            accion() {
                 if (this.tipoForm === 'crear') {
                     return this.crearProyecto();
                 } else {
-                    return this.actualizarProyecto();    
+                    return this.actualizarProyecto();
                 }
             },
             async mostrarHistorial(proyecto_id) {
@@ -426,7 +419,7 @@ const app = Vue.createApp({
                     this.usuariosProyecto = data.usuarios || [];
                     this.mostrarModalHistorial = true;
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al obtener historial:');
+                    this.mostrarAlerta('error', 'Error', 'Error al obtener historial.');
                 } finally {
                     this.loading = false;
                 }
@@ -442,101 +435,62 @@ const app = Vue.createApp({
             },
 
             async cambiarEstado() {
-                if (!this.proyectoSeleccionado || this.loading) return; 
+                if (!this.proyectoSeleccionado || this.loading) return;
 
                 this.erroresModal = {};
                 this.loading = true;
 
+                let url, method, body, successMsg, errorMsg;
+
+                if (this.tipoForm === 'eliminar') {
+                    if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
+                        this.erroresModal = { motivo: ['Debes ingresar un motivo'] };
+                        this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                        this.loading = false;
+                        return;
+                    }
+                    url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
+                    method = 'DELETE';
+                    body = JSON.stringify(this.formEliminar);
+                    successMsg = 'Proyecto eliminado correctamente';
+                    errorMsg = 'Error al eliminar el proyecto';
+                } else if (this.tipoForm === 'activar') {
+                    url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
+                    method = 'PATCH';
+                    body = null;
+                    successMsg = 'Estado cambiado correctamente';
+                    errorMsg = 'Error al cambiar el estado del proyecto';
+                } else {
+                    this.mostrarAlerta('error', 'Error', 'Acción no reconocida');
+                    this.loading = false;
+                    return;
+                }
+
                 try {
-                    if (this.tipoForm === 'eliminar') {
-                        await this.eliminarProyecto();
-                    } else if (this.tipoForm === 'activar') {
-                        await this.activarProyecto();
-                    } else {
-                        this.mostrarAlerta('error', 'Error','Acción no reconocida');
+                    const res = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': this.token },
+                        body
+                    });
+                    const data = await res.json().catch(() => ({}));
+
+                    if (!res.ok) {
+                        const mensaje = data.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : errorMsg);
+                        this.mostrarAlerta('error', 'Error', mensaje);
+                        if (res.status === 422) {
+                            this.erroresModal = data.errores;
+                        }
                         return;
                     }
 
                     this.mostrarModalStatus = false;
-                    await this.listarProyectos();
-
-                    const successMsg = this.tipoForm === 'eliminar' ?
-                        'Proyecto eliminado correctamente' :
-                        'Estado cambiado correctamente';
-
-                    this.mostrarAlerta('exito', 'Éxito', successMsg);
+                    this.listarProyectos();
+                    this.mostrarAlerta('exito', 'Éxito', data.mensaje || successMsg);
                 } catch (err) {
-                    const mensaje = err.message || 'Error al procesar la acción.';
-                    this.mostrarAlerta('error', 'Error', mensaje);
+                    this.mostrarAlerta('error', 'Error', 'Ocurrió un error al procesar la solicitud.');
                 } finally {
                     this.loading = false;
                 }
-            },
-
-            async eliminarProyecto() {
-                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
-                    this.erroresModal = {
-                        motivo_eliminacion: ['Debes ingresar un motivo']
-                    };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Debes ingresar un motivo');
-                }
-
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        },
-                        body: JSON.stringify(this.formEliminar)
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
-                this.loading = true;
-                try {
-                    const res = await fetch(url, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': this.token
-                        }
-                    });
-
-                    await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
-                } finally {
-                    this.loading = false;
-                }
-            },
-
-            async procesarRespuesta(res, mensajeError) {
-                const data = await res.json();
-
-                if (res.status === 422) {
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(data.errores)?.[0]?.[0] || 'Error de validación';
-                    this.mostrarAlerta('error','Error' ,msg);
-                    throw new Error(msg);
-                }
-
-                if (!res.ok) {
-                   const data = await res.json().catch(() => ({}));
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
-                }
-
-                return data;
             },
 
             async modalEditar(proyecto_id) {
@@ -574,53 +528,7 @@ const app = Vue.createApp({
                     const usuarios = data.data || [];
                     this.formproyecto.usuarios = usuarios.map(u => u.usuario_id);
                 } catch (err) {
-                    this.mostrarAlerta('error', 'Error','Error al cargar usuarios asignados:');
-                }
-            },
-
-            async eliminarProyecto() {
-                if (!this.formEliminar.motivo_eliminacion || !this.formEliminar.motivo_eliminacion.trim()) {
-                    this.erroresModal = {
-                        motivo_eliminacion: ['Debes ingresar un motivo']
-                    };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
-                    throw new Error('Motivo requerido');
-                }
-
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}`;
-                const res = await fetch(url, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': this.token
-                    },
-                    body: JSON.stringify(this.formEliminar)
-                });
-
-                await this.procesarRespuesta(res, 'Error al eliminar el proyecto');
-            },
-
-            async activarProyecto() {
-                const url = `/proyectos/${this.proyectoSeleccionado.proyecto_id}/status`;
-                const res = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {  
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': this.token
-                    }
-                });
-
-                await this.procesarRespuesta(res, 'Error al cambiar el estado del proyecto');
-            },
-
-            async procesarRespuesta(res, mensajeError) {
-                const data = await res.json().catch(() => ({}));
-
-                if (!res.ok) {
-                    this.erroresModal = data.errores || {};
-                    const msg = data.mensaje || Object.values(this.erroresModal)?.[0]?.[0] || mensajeError;
-                    this.mostrarAlerta('error', 'Error', msg);
-                    throw new Error(msg);
+                    this.mostrarAlerta('error', 'Error', 'Error al cargar usuarios asignados.');
                 }
             },
 

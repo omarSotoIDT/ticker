@@ -16,7 +16,10 @@
                 <input type="text" name="cliente" id="cliente" class="input input-busqueda" v-model="busqueda.titulo" @change="buscar()" placeholder="Buscar Clientes..."></input>
             </div>
         </div>
-        <button class="btn primary-btn" @click.prevent="modalCrear()" :disabled="loading">+ Nuevo Cliente</button>
+        <button class="primary-btn" @click.prevent="modalCrear()" :disabled="loading">
+            <i class="fa-solid fa-plus"></i>
+            Nuevo Cliente
+        </button>
     </div>
     {{-- ======= TABLA DE CLIENTES ======= --}}
     <table class="tabla">
@@ -37,7 +40,7 @@
                 <td>@{{ cliente.contacto }}</td>
                 <td>@{{ cliente.email }}</td>
                 <td>
-                    <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ cliente.status }} </span>
+                    <span class="badge" :class="cliente.status === 'ACTIVO' ? 'badge-active' : 'badge-inactive'"> @{{ formatBadgeText(cliente.status) }} </span>
                 </td>
                 <td class="acciones">
                     <div class="acciones-contenedor">
@@ -69,22 +72,22 @@
         <form id="formCliente" class="form centrado" @submit.prevent>
             <div class="campo">
                 <label class="etiqueta" for="nombre">Nombre</label>
-                <input class="input" type="text" id="nombre" v-model="formCliente.nombre">
+                <input class="input" type="text" id="nombre" v-model="formCliente.nombre" maxlength="150">
                 <span class="error" v-if="erroresModal.nombre">@{{ erroresModal.nombre[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="descripcion">Descripción</label>
-                <textarea class="input" id="descripcion" v-model="formCliente.descripcion"></textarea>
+                <textarea class="input" id="descripcion" v-model="formCliente.descripcion" maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.descripcion">@{{ erroresModal.descripcion[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="contacto">Contacto</label>
-                <input class="input" type="text" id="contacto" v-model="formCliente.contacto">
+                <input class="input" type="text" id="contacto" v-model="formCliente.contacto" maxlength="150">
                 <span class="error" v-if="erroresModal.contacto">@{{ erroresModal.contacto[0] }}</span>
             </div>
             <div class="campo">
                 <label class="etiqueta" for="email">Email</label>
-                <input class="input" type="email" id="email" v-model="formCliente.email">
+                <input class="input" type="email" id="email" v-model="formCliente.email" maxlength="150">
                 <span class="error" v-if="erroresModal.email">@{{ erroresModal.email[0] }}</span>
             </div>
         </form>
@@ -95,15 +98,19 @@
     <modal-componente
         v-model:mostrar="mostrarToggle"
         :titulo="tituloModalToggle"
-        :subtitulo="tituloModalToggle"
+        :subtitulo="subtituloModalToggle"
         :texto-confirmacion="textoConfirmacionToggle"
         clase-modal="modal-base"
         :deshabilitar-confirmacion="loading"
         @confirmar="confirmarToggle">
+        
         <form id="formToggle" @submit.prevent>
+                <div v-if="cliente" class="descripcion-item-modal">
+                <p><strong> @{{ cliente.nombre }} </strong> - @{{ cliente.email }}</p>
+            </div>
             <div class="campo" v-if="accion === 'eliminar'">
                 <label class="etiqueta" for="motivo">Motivo</label>
-                <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required></textarea>
+                <textarea class="input" id="motivo" v-model="formToggle.motivo" placeholder="Describe el motivo de eliminación..." required maxlength="250"></textarea>
                 <span class="error" v-if="erroresModal.motivo || erroresModal.motivo_eliminacion">@{{ erroresModal.motivo ? erroresModal.motivo[0] : erroresModal.motivo_eliminacion[0] }}</span>
             </div>
         </form>
@@ -131,6 +138,8 @@
                 loading: false,
                 erroresModal: {},
                 token: '{{ csrf_token() }}',
+                exito: {{ Js::from(session('exito')) }},
+                error: {{ Js::from(session('error')) }},
                 formCliente: {
                     nombre: '',
                     descripcion: '',
@@ -152,13 +161,19 @@
             }
         },
         mounted() {
-            this.listarClientes()
+            this.listarClientes();
+            if (this.exito) {
+                this.mostrarAlerta('exito', 'Éxito', this.exito);
+            }
+            if (this.error) {
+                this.mostrarAlerta('error', 'Error', this.error);
+            }
         },
         computed: {
             tituloModalPrincipal() {
                 if (this.tipoForm === 'crear') {
                     return 'Nuevo Cliente';
-                } else {
+                }else {
                     return 'Editar Cliente';
                 }
                 return  '';
@@ -166,17 +181,25 @@
             subtituloModalPrincipal() {
                 if (this.tipoForm === 'crear') {
                     return 'Completa los datos del nuevo cliente';
-                } else {
+                } else if (this.tipoForm === 'editar') {
                     return 'Modifica los datos del cliente';
                 }
+                return '';
             },
             tituloModalToggle() {
                 if (this.accion === 'eliminar') {
                     return 'Eliminar Cliente';
                 } else {
-                    return 'Cambiar Estado';
+                    return 'Cambiar Estado del Cliente';
+                }   
+            },
+            subtituloModalToggle() {
+                if (!this.cliente) return '';
+                if (this.accion === 'eliminar') {
+                    return `¿Estás seguro de eliminar el cliente?`;
                 }
-                return  '';
+                const accion = this.cliente.status === 'ACTIVO' ? 'DESACTIVAR' : 'ACTIVAR';
+                return `¿Deseas ${accion} el cliente?`;
             },
             textoConfirmacionPrincipal() {
                 if (this.loading) {
@@ -199,6 +222,10 @@
             }
         },
         methods: {
+            formatBadgeText(text) {
+                if (!text) return '';
+                return text.toLowerCase().replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase());
+            },
              mostrarAlerta(tipo, titulo, mensaje) {
                 this.alerta.tipo = tipo;
                 this.alerta.titulo = titulo;
@@ -305,10 +332,7 @@
                 const metodo = this.tipoForm === 'crear' ? 'POST' : 'PATCH'
 
                 try {
-                    const {
-                        res,
-                        data
-                    } = await this.fetchJson(url, {
+                    const res = await fetch(url, {
                         method: metodo,
                         headers: {
                             'Content-Type': 'application/json',
@@ -318,20 +342,20 @@
                         body: JSON.stringify(this.formCliente)
                     })
 
-                    if (res.status === 422 && data.errores) {
-                        this.erroresModal = data.errores
-
-                        const primerError = Object.values(data.errores)[0]
-                        if (primerError && primerError.length > 0) {
-                            this.mostrarAlerta('info', 'Información', primerError[0])
-                        }
-                        return
-                    }
+                    const data = await res.json().catch(() => null);
 
                     if (!res.ok) {
-                        const mensaje = data.error || (res.status >= 500 ? 'Error del servidor. Intenta más tarde.' : 'Error desconocido al guardar el cliente.')
-                        this.mostrarAlerta('error', 'Error', mensaje)
-                        return
+                        if (res.status === 422 && data && data.errores) {
+                            this.erroresModal = data.errores
+                            const primerError = Object.values(data.errores)[0]
+                            if (primerError && primerError.length > 0) {
+                                this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
+                            }
+                        } else {
+                            const mensaje = data?.mensaje || (res.status === 403 ? 'No tienes permiso para realizar esta acción.' : 'Ocurrió un error al guardar el cliente.');
+                            this.mostrarAlerta('error', 'Error', mensaje)
+                        }
+                        return;
                     }
 
                     this.handleSuccess('mostrarModal', data && data.mensaje ? data.mensaje : null)
@@ -358,7 +382,7 @@
                     this.erroresModal = {
                         motivo_eliminacion: ['Debes ingresar un motivo']
                     };
-                    this.mostrarAlerta('error', 'Error', 'Debes ingresar un motivo');
+                    this.mostrarAlerta('error', 'Datos incompletos', 'Por favor, completa todos los campos requeridos.');
                     return;
                 }
 
@@ -402,7 +426,7 @@
                     }
 
                     if (!res.ok) {
-                        let mensaje = data.error || 'Error desconocido al confirmar la acción.';
+                        let mensaje = data.mensaje || 'Error desconocido al confirmar la acción.';
                         if (res.status >= 500) {
                             mensaje = 'Error del servidor. Intenta más tarde.';
                         }
